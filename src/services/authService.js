@@ -1,7 +1,7 @@
 import api from './api'
 
 const login = async(credentials) => {
-    const response = await api.post('/Auth/Login', credentials);
+    const response = await api.post('/api/Usuario/login', credentials);
 
     const { token } = response.data;
 

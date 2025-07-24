@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // 1 passo: definir a url base/endpoint para a integracao com o backend
 const api = axios.create({
-    baseURL: 'http://localhost:5289/api', // aq esta indicada a url  principal do projeto backend (pasta do projeto, arquivo http abrir no vs)
+    baseURL: 'http://localhost:5245/api', // aq esta indicada a url  principal do projeto backend (pasta do projeto, arquivo http abrir no vs)
     headers: {
         "Content-Type": "application/json" // aqui estamos definindo o tipo de conteudo que vamos enviar e receber
     }
