@@ -1,23 +1,18 @@
-import api from './api' // Importa a instância do Axios
+import api from './api' // Sua instância do Axios com o interceptor
 
 const reservaService = {
   /**
-   * (ADMIN/ATENDENTE) Busca TODAS as reservas do sistema.
-   * Corresponde ao método [HttpGet] no ReservaController.
-   * Requer token de ADMIN ou ATENDENTE.
-   * @returns {Promise<Array>} Uma lista com todas as reservas.
+   * [ADMIN/ATENDENTE] Busca TODAS as reservas cadastradas no sistema.
+   * Corresponde ao endpoint: GET /api/Reserva
    */
   getTodasReservas: async () => {
-    // O interceptor do Axios cuidará da autorização
     const response = await api.get('/Reserva')
     return response.data
   },
 
   /**
-   * (CLIENTE) Busca apenas as reservas do usuário logado.
-   * Corresponde ao método [HttpGet("minhas-reservas")] no ReservaController.
-   * Requer qualquer token de usuário autenticado.
-   * @returns {Promise<Array>} Uma lista com as reservas do usuário.
+   * [CLIENTE] Busca apenas as reservas pertencentes ao usuário que está logado.
+   * Corresponde ao endpoint: GET /api/Reserva/minhas-reservas
    */
   getMinhasReservas: async () => {
     const response = await api.get('/Reserva/minhas-reservas')
@@ -25,11 +20,10 @@ const reservaService = {
   },
 
   /**
-   * Busca uma reserva específica pelo seu ID.
-   * A API validará se o usuário logado pode ou não ver esta reserva.
-   * Corresponde ao método [HttpGet("{id}")] no ReservaController.
-   * @param {number} id - O ID da reserva a ser buscada.
-   * @returns {Promise<object>} Os detalhes da reserva encontrada.
+   * Busca os detalhes de uma reserva específica pelo ID.
+   * A API vai verificar se o usuário logado tem permissão para ver esta reserva.
+   * Corresponde ao endpoint: GET /api/Reserva/{id}
+   * @param {number} id O ID da reserva.
    */
   getReservaPorId: async (id) => {
     const response = await api.get(`/Reserva/${id}`)
@@ -38,10 +32,9 @@ const reservaService = {
 
   /**
    * Cria uma nova reserva para o usuário logado.
-   * Corresponde ao método [HttpPost] no ReservaController.
-   * @param {object} dadosDaReserva - Objeto com o ID do pacote e a lista de viajantes.
-   * Ex: { pacoteViagemId: 123, viajantes: [{ nome: 'Fulano', documento: '123456' }] }
-   * @returns {Promise<object>} A reserva recém-criada.
+   * Corresponde ao endpoint: POST /api/Reserva
+   * @param {object} dadosDaReserva Contém o ID do pacote e a lista de viajantes.
+   * Ex: { pacoteViagemId: 1, viajantes: [{ nome: '...', documento: '...' }] }
    */
   criarReserva: async (dadosDaReserva) => {
     const response = await api.post('/Reserva', dadosDaReserva)
@@ -49,16 +42,15 @@ const reservaService = {
   },
 
   /**
-   * (ADMIN/ATENDENTE) Atualiza o status de uma reserva existente.
-   * Corresponde ao método [HttpPut("{id}")] no ReservaController.
-   * @param {number} id - O ID da reserva a ser atualizada.
-   * @param {string} novoStatus - O novo status da reserva (ex: "CONFIRMADO", "CANCELADO").
-   * @returns {Promise<void>} Não retorna conteúdo em caso de sucesso.
+   * [ADMIN/ATENDENTE] Atualiza o status de uma reserva.
+   * Corresponde ao endpoint: PUT /api/Reserva/{id}
+   * @param {number} id O ID da reserva a ser atualizada.
+   * @param {string} novoStatus O novo status (ex: "CONFIRMADO", "CANCELADO").
    */
   atualizarStatusReserva: async (id, novoStatus) => {
-    // A API espera um objeto { status: "SEU_STATUS_AQUI" }
+    // A API espera um objeto no formato do UpdateReservaDto: { status: "..." }
     const response = await api.put(`/Reserva/${id}`, { status: novoStatus })
-    return response.data
+    return response.data // Geralmente retorna NoContent (204), então a resposta pode ser vazia.
   }
 }
 
