@@ -8,7 +8,7 @@ const menuItems = [
     {label:'Home', icon: <Home size={20} />, path: '/pacotesViagem' }, 
     {label:'Login', icon: <LogIn size={20} />, path: '/login' }, 
     {label:'Cadastro', icon: <UserPlus size={20} />, path: '/cadastro' }, 
-    {label:'Usuarios', icon: <User size={20} />, path: '/usuarios', role:'Admin'}, 
+    {label:'Usuarios', icon: <User size={20} />, path: '/usuarios', role:'Admin',}, 
 ];
 
 export default function Sidebar(){
