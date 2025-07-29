@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 function Suporte() {
   const [assunto, setAssunto] = useState('');
   const [descricao, setDescricao] = useState('');
   const [mensagemEnviada, setMensagemEnviada] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Proteção de acesso: só "cliente" pode continuar
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    console.log('Enviando...');
+    const result = await emailjs.send(
+      'service_y4i40bq',           // seu service_id
+      'template_n81dn6m',          // seu template_id
+      {
+        title: assunto,
+        message: descricao
+      },
+      'xSZEIlBs4odQmajYw'          // sua public_key
+    );
+
+    console.log('Email enviado:', result.text);
     setMensagemEnviada(true);
     setAssunto('');
     setDescricao('');
     setTimeout(() => setMensagemEnviada(false), 5000);
-  };
+  } catch (error) {
+    console.error('Erro no envio:', error);
+    alert('Erro ao enviar e-mail.');
+  }
+};
 
   return (
     <div className="flex items-start justify-center min-h-[80vh] bg-gray-100 pt-10">
@@ -29,10 +51,9 @@ function Suporte() {
           </div>
         )}
 
-        {/* Formulário sem borda extra */}
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label className="block text-base font-medium mb-1">Assunto da Dúvida</label>
+            <label className="block text-base font-medium mb-1">Assunto:</label>
             <input
               type="text"
               value={assunto}
@@ -43,7 +64,7 @@ function Suporte() {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-base font-medium mb-1">Descrição</label>
+            <label className="block text-base font-medium mb-1">Descrição:</label>
             <textarea
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
