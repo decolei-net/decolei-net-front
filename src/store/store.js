@@ -1,6 +1,6 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit"; 
-import thunk from 'redux-thunk';
-import authReducer from  '.authSlice';
+// import thunk from 'redux-thunk'; // <--- 1. REMOVA ESTA LINHA
+import authReducer from './authSlice.js'; // Adicionei .js por segurança
 
 const loadState = () => {
     try{
@@ -19,8 +19,9 @@ const loadState = () => {
 
 const saveState = (state) => {
     try {
-        const serializedState = JSON.stringify(state).at
-        localStorage.setItem('app_state', serializedState)
+        // AVISO: Havia um ".at" sobrando aqui, eu corrigi.
+        const serializedState = JSON.stringify(state);
+        localStorage.setItem('app_state', serializedState);
         
     } catch (err) {
         console.error("Erro ao salvar o state  da aplicação: ", err);
@@ -38,7 +39,7 @@ const preloadedState = loadState();
 
 const store = configureStore({
     reducer: rootReducer,
-    middleware: [thunk],
+    // middleware: [thunk], // <--- 2. REMOVA ESTA LINHA TAMBÉM
     preloadedState
 });
 
@@ -47,3 +48,6 @@ store.subscribe(
         saveState({auth: store.getState().auth})
     }
 );
+
+// Adicione esta linha para exportar a store
+export default store;
