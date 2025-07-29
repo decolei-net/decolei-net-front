@@ -1,26 +1,58 @@
+// src/App.jsx
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './store/store.js'; // Verifique se a extensão .js está aqui se o arquivo for .js
+import store from './store/store.js';
 
-// Importe suas páginas com a extensão correta
+// Importe suas páginas com a extensão .jsx
 import Login from './pages/Login/Login.jsx';
 import AdminDashboard from './pages/Dashboards/AdminDashboard.jsx';
 import AtendenteDashboard from './pages/Dashboards/AtendenteDashboard.jsx';
 import ClienteDashboard from './pages/Dashboards/ClienteDashboard.jsx';
+import Unauthorized from './pages/Unauthorized/Unauthorized.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx'; // Importe o nosso segurança!
 
 function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
-          {/* Rota principal que carrega o Login */}
+          {/* Rotas Públicas */}
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
 
-          {/* Outras rotas */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard-admin" element={<AdminDashboard />} />
-          <Route path="/dashboard-atendente" element={<AtendenteDashboard />} />
-          <Route path="/dashboard-cliente" element={<ClienteDashboard />} />
+          {/* Rotas Protegidas com base na Role */}
+          <Route 
+            path="/dashboard-admin"
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard-atendente"
+            element={
+              <PrivateRoute roles={['ADMIN', 'ATENDENTE']}>
+                <AtendenteDashboard />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/dashboard-cliente"
+            element={
+              // Todos os perfis logados podem ver a dashboard de cliente
+              <PrivateRoute roles={['ADMIN', 'ATENDENTE', 'CLIENTE']}>
+                <ClienteDashboard />
+              </PrivateRoute>
+            }
+          />
+          
+          {/* Rota para acesso negado */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
         </Routes>
       </BrowserRouter>
     </Provider>
