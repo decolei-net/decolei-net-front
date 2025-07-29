@@ -15,7 +15,7 @@ export default function Card({ data }) {
   } = data || {};
 
   return (
-    <a className="flex w-full max-w-[250px] max-h-[500px] rounded-2xl border text-[#000] border-[#000]" href='{packageUrl}'>
+    <a className="flex w-full max-w-[250px] max-h-[500px] rounded-2xl border !text-[#000] !border-[#000]" href='{packageUrl}'>
       <div className="flex flex-col items-left space-y-10 p-4">
         <img href={packageUrl} className="w-full object-cover rounded-t-lg" src={imageUrl} alt={`Imagem do pacote ${title}`} />
 
