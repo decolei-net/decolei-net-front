@@ -11,6 +11,7 @@ import AtendenteDashboard from './pages/Dashboards/AtendenteDashboard.jsx';
 import ClienteDashboard from './pages/Dashboards/ClienteDashboard.jsx';
 import Unauthorized from './pages/Unauthorized/Unauthorized.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx'; // Importe o nosso segurança!
+import Cadastro from './pages/Cadastro/Cadastro.jsx'; 
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Routes>
           {/* Rotas Públicas */}
           <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} /> {/* 2. Adicione a nova rota */}
           <Route path="/" element={<Login />} />
 
           {/* Rotas Protegidas com base na Role */}
