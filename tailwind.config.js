@@ -1,5 +1,6 @@
 // tailwind config via versão ESM
 /** @type {import ('tailwindcss').Config} */
+import tailwindLineClamp from '@tailwindcss/line-clamp';
 export default {
   content: [
     './index.html',
@@ -27,5 +28,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [tailwindLineClamp],
 };
