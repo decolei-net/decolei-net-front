@@ -19,6 +19,7 @@ import ClienteDashboard from '../pages/Dashboards/ClienteDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
+import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
 
 export default function AppRoutes() {
   return (
