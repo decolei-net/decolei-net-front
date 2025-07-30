@@ -1,18 +1,18 @@
-import api from './api' // Importa a instância do Axios configurada
+import api from './api'; // Importa a instância do Axios configurada
 
 const pacoteService = {
   /**
    * Busca todos os pacotes de viagem, com a opção de aplicar filtros.
    * Corresponde ao método [HttpGet] no PacotesController.
-   * @param {object} filtros - Um objeto opcional com os filtros. 
+   * @param {object} filtros - Um objeto opcional com os filtros.
    * Ex: { destino: 'Praia', precoMax: 2000 }
    * @returns {Promise<Array>} Uma lista de pacotes.
    */
   getPacotes: async (filtros = {}) => {
     // O Axios se encarrega de transformar o objeto 'filtros' em query parameters na URL
     // Ex: /api/Pacotes?destino=Praia&precoMax=2000
-    const response = await api.get('/Pacotes', { params: filtros })
-    return response.data
+    const response = await api.get('/Pacotes', { params: filtros });
+    return response.data;
   },
 
   /**
@@ -22,8 +22,8 @@ const pacoteService = {
    * @returns {Promise<object>} O pacote encontrado.
    */
   getPacotePorId: async (id) => {
-    const response = await api.get(`/Pacotes/${id}`)
-    return response.data
+    const response = await api.get(`/Pacotes/${id}`);
+    return response.data;
   },
 
   /**
@@ -34,8 +34,8 @@ const pacoteService = {
    */
   criarPacote: async (dadosDoPacote) => {
     // O interceptor do api.js irá adicionar o token de autorização automaticamente
-    const response = await api.post('/Pacotes', dadosDoPacote)
-    return response.data
+    const response = await api.post('/Pacotes', dadosDoPacote);
+    return response.data;
   },
 
   /**
@@ -46,8 +46,8 @@ const pacoteService = {
    * @returns {Promise<object>} A resposta de sucesso da API.
    */
   atualizarPacote: async (id, dadosDoPacote) => {
-    const response = await api.put(`/Pacotes/${id}`, dadosDoPacote)
-    return response.data
+    const response = await api.put(`/Pacotes/${id}`, dadosDoPacote);
+    return response.data;
   },
 
   /**
@@ -57,9 +57,9 @@ const pacoteService = {
    * @returns {Promise<object>} A resposta de sucesso da API.
    */
   excluirPacote: async (id) => {
-    const response = await api.delete(`/Pacotes/${id}`)
-    return response.data
-  }
-}
+    const response = await api.delete(`/Pacotes/${id}`);
+    return response.data;
+  },
+};
 
-export default pacoteService
+export default pacoteService;
