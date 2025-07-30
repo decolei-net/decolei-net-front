@@ -18,6 +18,7 @@ import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
+import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
 
 export default function AppRoutes() {
     return (
@@ -49,6 +50,7 @@ export default function AppRoutes() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/suporte" element={<Suporte />} />
                 <Route path="/dashboard-cliente" element={<Navigate to="/home" replace />} />
+                <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
                 {/* Adicione outras rotas do cliente aqui, como "/minha-conta", etc. */}
             </Route>
 
