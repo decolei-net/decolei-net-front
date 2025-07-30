@@ -77,6 +77,7 @@ export default function AppRoutes() {
         <Route path="/suporte" element={<Suporte />} />
         <Route path="/dashboard-cliente" element={<Navigate to="/home" replace />} />
         <Route path="/minha-conta" element={<ClienteDashboard />} />
+        <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
         <Route path="/reservar/:id" element={<SuaTelaDeReserva />} />
         {/* Adicione outras rotas do cliente aqui, como "/minha-conta", etc. */}
       </Route>
