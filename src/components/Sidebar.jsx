@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, User, Coffe , LogIn, UserPlus} from 'lucide-react';
+import { Home, User, LogIn, UserPlus} from 'lucide-react';
 import { useSelector } from "react-redux";
 
 const menuItems = [

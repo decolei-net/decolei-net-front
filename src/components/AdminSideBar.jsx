@@ -1,60 +1,72 @@
-import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { Plane, UserCircle, LogOut } from 'lucide-react';
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { 
+    LayoutDashboard, 
+    Package, 
+    CalendarCheck, 
+    Users, 
+    Star,
+    ChevronLeft,
+    ChevronRight
+} from 'lucide-react';
+import { useSelector } from "react-redux";
 
-// Importe sua ação de logout do slice do Redux
-// import { logoutAction } from "../features/auth/authSlice";
+// Itens do menu específicos para o painel de admin
+const adminMenuItems = [
+    { label: 'Painel',      icon: <LayoutDashboard size={20} />, path: '/admin/dashboard'  }, 
+    { label: 'Pacotes',     icon: <Package size={20} />,         path: '/admin/pacotes'    }, 
+    { label: 'Reservas',    icon: <CalendarCheck size={20} />,   path: '/admin/reservas'   }, 
+    { label: 'Usuários',    icon: <Users size={20} />,           path: '/admin/usuarios'   }, 
+    { label: 'Avaliações',  icon: <Star size={20} />,            path: '/admin/avaliacoes' }
+];
 
-export default function ClientNavbar() {
-    // Busca o estado de autenticação do Redux
-    // Assumimos que o usuário sempre estará logado se este componente for renderizado
-    const { isLoggedIn, user } = useSelector((state) => state.auth);
-    const dispatch = useDispatch();
+export default function AdminSidebar() {
+    const [isOpen, setIsOpen] = useState(true);
+    const location = useLocation();
 
-    const handleLogout = () => {
-        // Descomente a linha abaixo quando tiver sua ação de logout
-        // dispatch(logoutAction());
-        console.log("Usuário deslogado!"); // Placeholder
-    };
+    // CORREÇÃO: Acessa o estado do Redux corretamente
+    const { role } = useSelector((state) => state.auth);
 
-    // Uma boa prática: se por algum motivo o usuário não estiver logado
-    // (ex: na própria página de login), o componente simplesmente não aparece.
-    if (!isLoggedIn) {
+    // Se o usuário não for admin, o componente não renderiza nada.
+    if (role !== 'ADMIN') {
         return null;
     }
 
     return (
-        <header className="bg-gray-800 bg-opacity-70 text-white shadow-md backdrop-blur-sm sticky top-0 z-50">
-            <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-                
-                {/* Lado Esquerdo: Logo */}
-                <Link to="/" className="flex items-center space-x-2">
-                    <Plane className="text-blue-400" size={28} />
-                    <span className="text-xl font-bold">Decolei.net</span>
-                </Link>
+        <motion.aside
+            animate={{ width: isOpen ? 250 : 80 }}
+            className="bg-gray-900 text-gray-200 h-screen p-4 flex flex-col"
+        >
+            <div className="flex items-center justify-between mb-6">
+                {isOpen && <h1 className="text-2xl font-bold text-white">DecoleiNet</h1>}
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="p-1 rounded-full hover:bg-gray-700 focus:outline-none"
+                >
+                    {isOpen ? <ChevronLeft /> : <ChevronRight />}
+                </button>
+            </div>
 
-                {/* Centro: Links de Navegação */}
-                <div className="hidden md:flex items-center space-x-6">
-                    <Link to="/" className="hover:text-blue-300 transition-colors duration-200">
-                        Home
-                    </Link>
-                    <Link to="/suporte" className="hover:text-blue-300 transition-colors duration-200">
-                        Suporte
-                    </Link>
-                </div>
-
-                {/* Lado Direito: Ações do Usuário (Sempre logado) */}
-                <div className="flex items-center space-x-4">
-                    <Link to="/perfil" className="flex items-center space-x-2 hover:text-blue-300 transition-colors duration-200">
-                        <UserCircle size={24} />
-                        <span className="font-medium hidden sm:block">{user?.nomeCompleto || 'Meu Perfil'}</span>
-                    </Link>
-                    <button onClick={handleLogout} className="flex items-center space-x-2 p-2 rounded-md hover:bg-red-500 hover:text-white transition-colors duration-200">
-                        <LogOut size={20} />
-                        <span className="hidden sm:block">Sair</span>
-                    </button>
-                </div>
+            <nav className="flex-grow">
+                <ul>
+                    {adminMenuItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <li key={item.path} className="mb-2">
+                                <Link 
+                                    to={item.path}
+                                    className={`flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200
+                                        ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}
+                                >
+                                    {item.icon}
+                                    {isOpen && <span className="font-medium">{item.label}</span>}
+                                </Link>
+                            </li>
+                        );
+                    })}
+                </ul>
             </nav>
-        </header>
+        </motion.aside>
     );
 }

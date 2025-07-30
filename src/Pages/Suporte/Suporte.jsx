@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
+import { useSelector } from 'react-redux'; // 1. Importe o useSelector
 
 function Suporte() {
   const [assunto, setAssunto] = useState('');
@@ -8,21 +9,25 @@ function Suporte() {
   const [mensagemEnviada, setMensagemEnviada] = useState(false);
   const navigate = useNavigate();
 
-  // Proteção de acesso: só "cliente" pode continuar
+  // 2. Obtenha o usuário e seu papel (role) do estado do Redux
+  const { user, role } = useSelector((state) => state.auth);
+
+  // Proteção de acesso: só "CLIENTE" pode continuar
   useEffect(() => {
-    const perfil = localStorage.getItem('perfil');
-    if (perfil !== 'cliente') {
-      navigate('/'); // Redireciona para a home
+    // 3. Verifique a "role" e se o papel não for 'CLIENTE', redirecione
+    if (role !== 'CLIENTE') {
+      navigate('/login'); // Redireciona para o login
     }
-  }, [navigate]);
+  }, [role, navigate]);
 
   // Função para enviar o e-mail usando EmailJS
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const nomeDoCliente = localStorage.getItem('nome');
-      const emailDoCliente = localStorage.getItem('email');
+      // 4. Use os dados do usuário que já estão no estado do Redux
+      const nomeDoCliente = user?.nomeCompleto;
+      const emailDoCliente = user?.email;
 
       await emailjs.send(
         'service_y4i40bq',
