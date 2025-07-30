@@ -72,31 +72,6 @@ const PacoteDetalhes = () => {
 
   // Se tudo deu certo, exibe os detalhes do pacote com o novo layout.
   return (
-    <div className="min-h-screen bg-gray-100 font-inter"> {/* Adiciona fonte Inter e fundo cinza claro */}
-      {/* Cabeçalho/Navbar com Links para navegação futura */}
-      <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          {/* Link para a Home ao clicar no logo Decolei.net */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img src={logoImage} alt="Logo Decolei.net" className="mx-auto h-12 w-auto" />
-            <span className="text-xl font-bold text-blue-600">Decolei.net</span>
-          </Link>
-        </div>
-        <nav className="hidden md:flex space-x-6 text-gray-600 font-medium">
-          <Link to="/" className="hover:text-blue-600">Home</Link>
-          {/* Rota para Suporte - Você precisará criar esta rota no App.jsx */}
-          <Link to="/suporte" className="hover:text-blue-600">Suporte</Link> 
-        </nav>
-        <div className="flex items-center space-x-4">
-          {/* Link para a página do usuário (ex: dashboard-cliente) */}
-          <Link to="/dashboard-cliente" className="text-gray-600 hover:text-blue-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </Link>
-        </div>
-      </header>
-
       <main className="container mx-auto p-4 md:p-8">
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
           {/* Coluna Esquerda: Placeholder de Vídeo ou Foto Principal e Miniaturas */}
@@ -191,7 +166,6 @@ const PacoteDetalhes = () => {
           )}
         </div>
       </main>
-    </div>
   );
 };
 
