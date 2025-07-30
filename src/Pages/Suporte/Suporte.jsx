@@ -9,28 +9,41 @@ function Suporte() {
   const navigate = useNavigate();
 
   // Proteção de acesso: só "cliente" pode continuar
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    const perfil = localStorage.getItem('perfil');
+    if (perfil !== 'cliente') {
+      navigate('/'); // Redireciona para a home
+    }
+  }, [navigate]);
+
+    // Função para enviar o e-mail usando EmailJS
+  
+    const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    console.log('Enviando...');
-    const result = await emailjs.send(
-      'service_y4i40bq',           // seu service_id
-      'template_n81dn6m',          // seu template_id
+    const nomeDoCliente = localStorage.getItem('nome');
+    const emailDoCliente = localStorage.getItem('email');
+
+    await emailjs.send(
+      'service_y4i40bq',
+      'template_n81dn6m',
       {
         title: assunto,
-        message: descricao
+        message: descricao,
+        name: nomeDoCliente,
+        email: emailDoCliente
       },
-      'xSZEIlBs4odQmajYw'          // sua public_key
+      'xSZEIlBs4odQmajYw'
     );
 
-    console.log('Email enviado:', result.text);
+    console.log('Email enviado com sucesso!');
     setMensagemEnviada(true);
     setAssunto('');
     setDescricao('');
     setTimeout(() => setMensagemEnviada(false), 5000);
   } catch (error) {
-    console.error('Erro no envio:', error);
+    console.error('Erro ao enviar e-mail:', error);
     alert('Erro ao enviar e-mail.');
   }
 };
