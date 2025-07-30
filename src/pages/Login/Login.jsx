@@ -30,7 +30,7 @@ const handleSubmit = async (e) => {
     try {
         const data = await authService.login({ email, senha });
         dispatch(loginSuccess({ token: data.token }));
-        
+
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const userRole = storedUser?.role;
 
@@ -42,10 +42,10 @@ const handleSubmit = async (e) => {
                 navigate('/dashboard-atendente');
                 break;
             case 'CLIENTE':
-                navigate('/dashboard-cliente');
+                navigate('/home');
                 break;
             default:
-                navigate('/'); 
+                navigate('/');
         }
 
     } catch (error) {
@@ -57,7 +57,7 @@ const handleSubmit = async (e) => {
 return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-md">
-            
+
             {/* Usando a tag <img> para exibir sua imagem */}
             <div className="text-center">
                 <img src={logoImage} alt="Logo Decolei.net" className="mx-auto h-12 w-auto" />
@@ -84,7 +84,7 @@ return (
                         placeholder="Email"
                     />
                 </div>
-                
+
                 <div className="relative">
                     <label htmlFor="senha" className="sr-only">Senha</label>
                     <input
