@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // Importa Link e useNavigate
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import pacoteService from '../../services/pacoteServices'; 
 
-import logoImage from '../../assets/decolei.png'; // Importa a imagem do logo
+// Não precisamos mais importar logoImage aqui, pois a navbar está no ClienteLayout
+// import logoImage from '../../assets/decolei.png'; 
 
 const PacoteDetalhes = () => {
   const { id } = useParams(); 
-  const navigate = useNavigate(); // Hook para navegação programática
+  const navigate = useNavigate();
 
   const [pacote, setPacote] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,8 +71,24 @@ const PacoteDetalhes = () => {
     return stars;
   };
 
+  // Helper para formatar datas
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('pt-BR', options);
+  };
+
+  // NOVO HANDLER PARA O BOTÃO RESERVAR AGORA
+  const handleReservarAgora = () => {
+    // Redireciona para a tela de reserva, passando o ID do pacote
+    navigate(`/reservar/${pacote.id}`); 
+  };
+
   // Se tudo deu certo, exibe os detalhes do pacote com o novo layout.
   return (
+    <div className="min-h-screen bg-gray-100 font-inter">
+      {/* O cabeçalho/navbar é fornecido pelo ClienteLayout */}
+
       <main className="container mx-auto p-4 md:p-8">
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
           {/* Coluna Esquerda: Placeholder de Vídeo ou Foto Principal e Miniaturas */}
@@ -81,9 +98,6 @@ const PacoteDetalhes = () => {
               {pacote.imagemURL ? (
                 <img src={pacote.imagemURL} alt={pacote.titulo} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/E0E0E0/808080?text=Imagem+N%C3%A3o+Dispon%C3%ADvel"; }} />
               ) : pacote.videoURL ? (
-                // IMPLEMENTAÇÃO FUTURA: Aqui você pode integrar um player de vídeo real
-                // se o videoURL for um link compatível (ex: YouTube embed).
-                // Por enquanto, é apenas um placeholder de texto.
                 <div className="w-full h-full flex items-center justify-center bg-gray-300">
                   <p>Placeholder de Vídeo (URL: {pacote.videoURL})</p>
                 </div>
@@ -104,7 +118,6 @@ const PacoteDetalhes = () => {
                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/96x80/E0E0E0/808080?text=Mini"; }} />
                 ))}
               */}
-              {/* Por enquanto, mantemos placeholders visuais se não houver galeria de imagens */}
               {(!pacote.galeriaImagens || pacote.galeriaImagens.length === 0) && [1, 2, 3, 4].map((_, index) => (
                 <div key={index} className="flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-sm">
                   Mini {index + 1}
@@ -120,7 +133,6 @@ const PacoteDetalhes = () => {
             {/* Avaliações */}
             <div className="flex items-center mb-4">
               <div className="flex text-yellow-400 text-lg">
-                {/* Calcula a média das notas se houver avaliações, caso contrário usa 0 */}
                 {renderStars(pacote.avaliacoes && pacote.avaliacoes.length > 0 
                   ? pacote.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / pacote.avaliacoes.length 
                   : 0)}
@@ -132,13 +144,22 @@ const PacoteDetalhes = () => {
               {pacote.descricao || 'Descrição detalhada do pacote de viagem, incluindo todos os benefícios e experiências oferecidas.'}
             </p>
 
+            {/* Datas Disponíveis */}
+            <div className="mb-6 text-gray-700">
+              <p className="font-semibold text-lg mb-2">Datas Disponíveis:</p>
+              <p>De: <span className="font-medium">{formatDate(pacote.dataInicio)}</span></p>
+              <p>Até: <span className="font-medium">{formatDate(pacote.dataFim)}</span></p>
+            </div>
+
             {/* Preço e Botão */}
-            <div className="mt-auto border-t pt-6"> {/* mt-auto para empurrar para baixo, border-t para linha divisória */}
+            <div className="mt-auto border-t pt-6">
               <p className="text-gray-600 text-sm mb-2">A partir de</p>
               <p className="text-4xl font-bold text-blue-600 mb-4">
                 R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'} <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
               </p>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
+              <button 
+                onClick={handleReservarAgora} 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
                 Reservar Agora
               </button>
             </div>
@@ -153,7 +174,7 @@ const PacoteDetalhes = () => {
             pacote.avaliacoes.map((avaliacao, index) => (
               <div key={index} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
                 <div className="flex items-center mb-2">
-                  <span className="font-semibold text-gray-800">{avaliacao.usuarioNome || 'Usuário Anônimo'}</span> 
+                  <span className="font-semibold text-gray-800">{avaliacao.usuario || 'Usuário Anônimo'}</span> 
                   <div className="flex text-yellow-400 text-sm ml-3">
                     {renderStars(avaliacao.nota)}
                   </div>
@@ -166,6 +187,7 @@ const PacoteDetalhes = () => {
           )}
         </div>
       </main>
+    </div>
   );
 };
 

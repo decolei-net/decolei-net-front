@@ -19,6 +19,7 @@ import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
 import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
+import SuaTelaDeReserva from '../Pages/Reserva/Reserva.jsx';
 
 export default function AppRoutes() {
     return (
@@ -51,6 +52,7 @@ export default function AppRoutes() {
                 <Route path="/suporte" element={<Suporte />} />
                 <Route path="/dashboard-cliente" element={<Navigate to="/home" replace />} />
                 <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
+                <Route path="/reservar/:id" element={<SuaTelaDeReserva />} />
                 {/* Adicione outras rotas do cliente aqui, como "/minha-conta", etc. */}
             </Route>
 
