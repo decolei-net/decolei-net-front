@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Plane, UserCircle, LogOut, LogIn, UserPlus } from 'lucide-react';
-import { logout } from '../store/authSlice'; // Importando a action de logout
-import logoImage from '../assets/decolei.png'; // Usando sua imagem de logo
+import { UserCircle, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { logout } from '../store/authSlice';
+import logoImage from '../assets/decolei.png';
 
 export default function NavBar() {
     const { token, user } = useSelector((state) => state.auth);
@@ -10,28 +10,36 @@ export default function NavBar() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        dispatch(logout()); // Dispara a ação para limpar o estado e o localStorage
-        navigate('/login'); // Redireciona para a tela de login
+        dispatch(logout());
+        navigate('/login');
     };
+
+    // Define o link principal com base no status de login
+    const homeLink = token ? "/home" : "/";
 
     return (
         <header className="bg-gray-900 bg-opacity-80 text-white shadow-md backdrop-blur-sm sticky top-0 z-50">
             <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-                
+
                 {/* Lado Esquerdo: Logo */}
-                <Link to="/" className="flex items-center space-x-3">
+                {/* ✅ O link agora é dinâmico. Se logado, vai para /home. */}
+                <Link to={homeLink} className="flex items-center space-x-3">
                     <img src={logoImage} alt="Decolei.net Logo" className="h-8 w-8" />
                     <span className="text-xl font-bold tracking-wider">Decolei.net</span>
                 </Link>
 
                 {/* Centro: Links de Navegação */}
                 <div className="hidden md:flex items-center space-x-8">
-                    <Link to="/" className="text-gray-300 hover:text-white transition-colors duration-200">
+                    {/* ✅ O link "Home" também é dinâmico. */}
+                    <Link to={homeLink} className="text-gray-300 hover:text-white transition-colors duration-200">
                         Home
                     </Link>
-                    <Link to="/suporte" className="text-gray-300 hover:text-white transition-colors duration-200">
-                        Suporte
-                    </Link>
+                    {/* Apenas usuários logados veem o link de Suporte */}
+                    {token && (
+                      <Link to="/suporte" className="text-gray-300 hover:text-white transition-colors duration-200">
+                          Suporte
+                      </Link>
+                    )}
                 </div>
 
                 {/* Lado Direito: Ações do Usuário */}
