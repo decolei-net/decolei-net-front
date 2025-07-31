@@ -1,4 +1,4 @@
-import api from './api' // Sua instância do Axios já configurada
+import api from './api'; // Sua instância do Axios já configurada
 
 const avaliacaoService = {
   /**
@@ -9,8 +9,13 @@ const avaliacaoService = {
    */
   criarAvaliacao: async (dadosAvaliacao) => {
     // Se você aplicar a correção de segurança, o backend pegará o ID do usuário do token.
-    const response = await api.post('/avaliacoes', dadosAvaliacao)
-    return response.data
+    const response = await api.post('/avaliacoes', dadosAvaliacao);
+    return response.data;
+  },
+
+  getMinhasAvaliacoes: async () => {
+    const response = await api.get('/avaliacoes/minhas-avaliacoes');
+    return response.data;
   },
 
   /**
@@ -20,8 +25,8 @@ const avaliacaoService = {
    * @param {number} idPacote - O ID do pacote de viagem.
    */
   getAvaliacoesPorPacote: async (idPacote) => {
-    const response = await api.get(`/avaliacoes/pacote/${idPacote}`)
-    return response.data
+    const response = await api.get(`/avaliacoes/pacote/${idPacote}`);
+    return response.data;
   },
 
   /**
@@ -30,8 +35,8 @@ const avaliacaoService = {
    * Corresponde a: GET /avaliacoes/pendentes
    */
   getAvaliacoesPendentes: async () => {
-    const response = await api.get('/avaliacoes/pendentes')
-    return response.data
+    const response = await api.get('/avaliacoes/pendentes');
+    return response.data;
   },
 
   /**
@@ -43,9 +48,9 @@ const avaliacaoService = {
   moderarAvaliacao: async (idAvaliacao, acao) => {
     // Monta o corpo da requisição como o DTO do backend espera: { "acao": "aprovar" }
     const dados = { acao: acao };
-    const response = await api.put(`/avaliacoes/${idAvaliacao}`, dados)
-    return response.data
-  }
-}
+    const response = await api.put(`/avaliacoes/${idAvaliacao}`, dados);
+    return response.data;
+  },
+};
 
-export default avaliacaoService
+export default avaliacaoService;
