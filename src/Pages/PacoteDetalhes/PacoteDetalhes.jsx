@@ -14,6 +14,7 @@ const PacoteDetalhes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isReservando, setIsReservando] = useState(false);
+  const [imagemPrincipal, setImagemPrincipal] = useState(placeholderImg);
 
   useEffect(() => {
     const fetchPacote = async () => {
@@ -39,6 +40,7 @@ const PacoteDetalhes = () => {
             totalAvaliacoes
         });
 
+        setImagemPrincipal(dadosDoPacote?.imagemURL || placeholderImg);
       } catch (err) {
         console.error("Erro ao buscar detalhes do pacote:", err);
         setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde.");
@@ -65,9 +67,34 @@ const PacoteDetalhes = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-10 font-bold">Carregando detalhes do pacote...</div>;
-  if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;
-  if (!pacote) return <div className="text-center p-10 text-yellow-600 font-bold">Pacote não encontrado.</div>;
+  // Se ainda estiver carregando, exibe um loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-lg font-semibold text-gray-700">Carregando detalhes do pacote...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md">
+        <p className="text-lg font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  if (!pacote) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md">
+        <p className="text-lg font-semibold">Pacote não encontrado.</p>
+      </div>
+    );
+  }
+
+  const miniaturas = pacote.galeriaImagens && pacote.galeriaImagens.length > 0
+    ? pacote.galeriaImagens
+    : [placeholderImg, placeholderImg, placeholderImg, placeholderImg];
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
@@ -75,8 +102,27 @@ const PacoteDetalhes = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
 
           <div className="flex-1 lg:w-2/3">
-            <div className="w-full h-64 md:h-96 bg-gray-200 rounded-lg overflow-hidden relative">
-              <img src={pacote.imagemURL || placeholderImg} alt={pacote.titulo} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = placeholderImg; }} />
+            <div className="w-full h-64 md:h-96 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-lg font-medium overflow-hidden relative">
+              <img
+                src={imagemPrincipal}
+                alt={pacote.titulo || 'Imagem do Pacote'}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.src = placeholderImg; }}
+              />
+            </div>
+
+            <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
+              {miniaturas.map((imgUrl, index) => (
+                <img
+                  key={index}
+                  src={imgUrl}
+                  alt={`Miniatura ${index + 1}`}
+                  className={`flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer
+                    ${imagemPrincipal === imgUrl ? 'ring-2 ring-blue-500' : ''}`}
+                  onClick={() => setImagemPrincipal(imgUrl)}
+                  onError={(e) => { e.currentTarget.src = 'https://placehold.co/96x80/E0E0E0/808080?text=Mini'; }}
+                />
+              ))}
             </div>
           </div>
 
@@ -103,7 +149,8 @@ const PacoteDetalhes = () => {
             <div className="mt-auto border-t pt-6">
               <p className="text-gray-600 text-sm mb-2">Valor por pessoa</p>
               <p className="text-4xl font-bold text-blue-600 mb-4">
-                R$ {pacote.valor.toFixed(2).replace('.', ',')}
+                R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'}
+                <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
               </p>
               <button
                 onClick={handleReservarAgora}
@@ -116,7 +163,7 @@ const PacoteDetalhes = () => {
           </div>
         </div>
 
-        {/* SEÇÃO DETALHADA DE AVALIAÇÕES */}
+        {/* Seção de Avaliações */}
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">O que os viajantes dizem</h2>
           {pacote.totalAvaliacoes > 0 ? (
