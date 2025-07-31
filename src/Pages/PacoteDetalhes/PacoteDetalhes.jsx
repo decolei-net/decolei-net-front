@@ -174,7 +174,7 @@ const PacoteDetalhes = () => {
             pacote.avaliacoes.map((avaliacao, index) => (
               <div key={index} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
                 <div className="flex items-center mb-2">
-                  <span className="font-semibold text-gray-800">{avaliacao.usuario || 'Usuário Anônimo'}</span> 
+                  <span className="font-semibold text-gray-800">{avaliacao.usuarioNome || 'Usuário Anônimo'}</span> 
                   <div className="flex text-yellow-400 text-sm ml-3">
                     {renderStars(avaliacao.nota)}
                   </div>
