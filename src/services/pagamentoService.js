@@ -1,4 +1,4 @@
-import api from './api' // Sua instância configurada do Axios
+import api from './api'; // Sua instância configurada do Axios
 
 const pagamentoService = {
   /**
@@ -8,8 +8,8 @@ const pagamentoService = {
    */
   obterStatusPagamento: async (id) => {
     // O interceptor cuidará da autorização
-    const response = await api.get(`/pagamentos/status/${id}`)
-    return response.data
+    const response = await api.get(`/Pagamentos/status/${id}`);
+    return response.data;
   },
 
   /**
@@ -19,8 +19,8 @@ const pagamentoService = {
    * Ex: { reservaId: 1, tipoPagamento: 'CARTAO_CREDITO', dadosCartao: {...} }
    */
   criarPagamento: async (dadosPagamento) => {
-    const response = await api.post('/pagamentos', dadosPagamento)
-    return response.data
+    const response = await api.post('/Pagamentos', dadosPagamento);
+    return response.data;
   },
 
   /**
@@ -30,9 +30,9 @@ const pagamentoService = {
    * @param {string} novoStatus O novo status do pagamento (ex: "APROVADO", "RECUSADO").
    */
   atualizarStatusPagamento: async (id, novoStatus) => {
-    const response = await api.put(`/pagamentos/${id}`, { status: novoStatus })
-    return response.data
-  }
-}
+    const response = await api.put(`/Pagamentos/${id}`, { status: novoStatus });
+    return response.data;
+  },
+};
 
-export default pagamentoService
+export default pagamentoService;

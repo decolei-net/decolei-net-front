@@ -1,31 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import pacoteService from '../../services/pacoteServices'; 
+import { useParams, useNavigate } from 'react-router-dom';
+import pacoteService from '../../services/pacoteServices';
+import reservaService from '../../services/reservaService';
+import StarRating from '../../components/StarRating';
 
-// Não precisamos mais importar logoImage aqui, pois a navbar está no ClienteLayout
-// import logoImage from '../../assets/decolei.png'; 
+const placeholderImg = 'https://placehold.co/600x400/374151/FFFFFF/png?text=Decolei.net';
 
 const PacoteDetalhes = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [pacote, setPacote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isReservando, setIsReservando] = useState(false);
 
   useEffect(() => {
     const fetchPacote = async () => {
       try {
-        setLoading(true); 
-        setError(null);   
+        setLoading(true);
+        setError(null);
 
+        // 1. Busca os dados do pacote. O backend já inclui a lista de avaliações.
         const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
-        setPacote(dadosDoPacote); 
+
+        // 2. Calcula a média e o total de avaliações no frontend
+        const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
+        let mediaAvaliacoes = 0;
+        if (totalAvaliacoes > 0) {
+            const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
+            mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
+        }
+
+        // 3. Salva o pacote "enriquecido" com os dados calculados no estado
+        setPacote({
+            ...dadosDoPacote,
+            mediaAvaliacoes,
+            totalAvaliacoes
+        });
+
       } catch (err) {
         console.error("Erro ao buscar detalhes do pacote:", err);
-        setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde."); 
+        setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde.");
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -34,156 +52,89 @@ const PacoteDetalhes = () => {
     }
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-lg font-semibold text-gray-700">Carregando detalhes do pacote...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md">
-        <p className="text-lg font-semibold">{error}</p>
-      </div>
-    );
-  }
-
-  if (!pacote) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md">
-        <p className="text-lg font-semibold">Pacote não encontrado.</p>
-      </div>
-    );
-  }
-
-  // Helper para renderizar estrelas
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      if (i < rating) {
-        stars.push(<span key={i} className="text-yellow-400">&#9733;</span>); // Estrela preenchida
-      } else {
-        stars.push(<span key={i} className="text-gray-300">&#9733;</span>); // Estrela vazia
-      }
+  const handleReservarAgora = async () => {
+    setIsReservando(true);
+    try {
+      const novaReserva = await reservaService.criarReserva({ pacoteViagemId: pacote.id });
+      navigate(`/pagamento/${novaReserva.id}`);
+    } catch (err) {
+      console.error("Erro ao iniciar a reserva:", err);
+      alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
+    } finally {
+      setIsReservando(false);
     }
-    return stars;
   };
 
-  // Helper para formatar datas
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('pt-BR', options);
-  };
+  if (loading) return <div className="text-center p-10 font-bold">Carregando detalhes do pacote...</div>;
+  if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;
+  if (!pacote) return <div className="text-center p-10 text-yellow-600 font-bold">Pacote não encontrado.</div>;
 
-  // NOVO HANDLER PARA O BOTÃO RESERVAR AGORA
-  const handleReservarAgora = () => {
-    // Redireciona para a tela de reserva, passando o ID do pacote
-    navigate(`/reservar/${pacote.id}`); 
-  };
-
-  // Se tudo deu certo, exibe os detalhes do pacote com o novo layout.
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
-      {/* O cabeçalho/navbar é fornecido pelo ClienteLayout */}
-
       <main className="container mx-auto p-4 md:p-8">
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
-          {/* Coluna Esquerda: Placeholder de Vídeo ou Foto Principal e Miniaturas */}
-          <div className="flex-1 lg:w-2/3">
-            {/* Placeholder de Vídeo ou Foto Principal */}
-            <div className="w-full h-64 md:h-96 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-lg font-medium overflow-hidden relative">
-              {pacote.imagemURL ? (
-                <img src={pacote.imagemURL} alt={pacote.titulo} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/E0E0E0/808080?text=Imagem+N%C3%A3o+Dispon%C3%ADvel"; }} />
-              ) : pacote.videoURL ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                  <p>Placeholder de Vídeo (URL: {pacote.videoURL})</p>
-                </div>
-              ) : (
-                <p>Placeholder de Vídeo ou Foto Principal</p>
-              )}
-            </div>
 
-            {/* Miniaturas (se houver mais imagens) */}
-            <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
-              {/*
-                IMPLEMENTAÇÃO FUTURA: Para ter miniaturas dinâmicas, seu objeto 'pacote'
-                precisaria ter uma propriedade como 'galeriaImagens' que é um array de URLs de imagens.
-                Exemplo de como você mapearia se essa propriedade existisse:
-                {pacote.galeriaImagens && pacote.galeriaImagens.map((imgUrl, index) => (
-                  <img key={index} src={imgUrl} alt={`Miniatura ${index + 1}`} 
-                       className="flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg object-cover" 
-                       onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/96x80/E0E0E0/808080?text=Mini"; }} />
-                ))}
-              */}
-              {(!pacote.galeriaImagens || pacote.galeriaImagens.length === 0) && [1, 2, 3, 4].map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-sm">
-                  Mini {index + 1}
-                </div>
-              ))}
+          <div className="flex-1 lg:w-2/3">
+            <div className="w-full h-64 md:h-96 bg-gray-200 rounded-lg overflow-hidden relative">
+              <img src={pacote.imagemURL || placeholderImg} alt={pacote.titulo} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = placeholderImg; }} />
             </div>
           </div>
 
-          {/* Coluna Direita: Detalhes do Pacote, Preço e Botão */}
           <div className="flex-1 lg:w-1/3 flex flex-col">
-            <h1 className="text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo || 'Nome do Pacote'}</h1>
-            
-            {/* Avaliações */}
-            <div className="flex items-center mb-4">
-              <div className="flex text-yellow-400 text-lg">
-                {renderStars(pacote.avaliacoes && pacote.avaliacoes.length > 0 
-                  ? pacote.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / pacote.avaliacoes.length 
-                  : 0)}
-              </div>
-              <span className="text-gray-600 ml-2 text-sm">{pacote.avaliacoes ? pacote.avaliacoes.length : 0} avaliações</span>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo}</h1>
+
+            {/* SEÇÃO DE AVALIAÇÃO COM STAR RATING */}
+            <div className="flex items-center gap-2 mb-4">
+              <StarRating rating={pacote.mediaAvaliacoes} />
+              <span className="text-gray-600 text-sm">
+                ({pacote.totalAvaliacoes} {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})
+              </span>
             </div>
 
-            <p className="text-gray-700 leading-relaxed mb-6">
-              {pacote.descricao || 'Descrição detalhada do pacote de viagem, incluindo todos os benefícios e experiências oferecidas.'}
-            </p>
+            <p className="text-gray-700 leading-relaxed mb-6">{pacote.descricao}</p>
 
-            {/* Datas Disponíveis */}
             <div className="mb-6 text-gray-700">
-              <p className="font-semibold text-lg mb-2">Datas Disponíveis:</p>
-              <p>De: <span className="font-medium">{formatDate(pacote.dataInicio)}</span></p>
-              <p>Até: <span className="font-medium">{formatDate(pacote.dataFim)}</span></p>
+              <p className="font-semibold text-lg mb-2">Período da Viagem:</p>
+              <p>De: <span className="font-medium">{new Date(pacote.dataInicio).toLocaleDateString('pt-BR')}</span></p>
+              <p>Até: <span className="font-medium">{new Date(pacote.dataFim).toLocaleDateString('pt-BR')}</span></p>
+              <p className="mt-2">Vagas disponíveis: <span className="font-bold">{pacote.vagasDisponiveis}</span></p>
             </div>
 
-            {/* Preço e Botão */}
             <div className="mt-auto border-t pt-6">
-              <p className="text-gray-600 text-sm mb-2">A partir de</p>
+              <p className="text-gray-600 text-sm mb-2">Valor por pessoa</p>
               <p className="text-4xl font-bold text-blue-600 mb-4">
-                R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'} <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
+                R$ {pacote.valor.toFixed(2).replace('.', ',')}
               </p>
-              <button 
-                onClick={handleReservarAgora} 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-                Reservar Agora
+              <button
+                onClick={handleReservarAgora}
+                disabled={isReservando}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out disabled:bg-blue-300 disabled:cursor-not-allowed"
+              >
+                {isReservando ? 'Processando...' : 'Reservar e Pagar'}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Seção de Avaliações e Comentários */}
+        {/* SEÇÃO DETALHADA DE AVALIAÇÕES */}
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Avaliações e Comentários</h2>
-          
-          {pacote.avaliacoes && pacote.avaliacoes.length > 0 ? (
-            pacote.avaliacoes.map((avaliacao, index) => (
-              <div key={index} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">O que os viajantes dizem</h2>
+          {pacote.totalAvaliacoes > 0 ? (
+            pacote.avaliacoes.map((avaliacao) => (
+              <div key={avaliacao.id} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
                 <div className="flex items-center mb-2">
-                  <span className="font-semibold text-gray-800">{avaliacao.usuarioNome || 'Usuário Anônimo'}</span> 
-                  <div className="flex text-yellow-400 text-sm ml-3">
-                    {renderStars(avaliacao.nota)}
-                  </div>
+                  {/* O nome do usuário virá do backend, se a propriedade for incluída */}
+                  <span className="font-semibold text-gray-800">{avaliacao.usuarioNome || 'Viajante'}</span>
+                </div>
+                <div className='flex items-center gap-2 mb-2'>
+                  <StarRating rating={avaliacao.nota} />
+                  <span className='text-xs text-gray-400'>{new Date(avaliacao.data).toLocaleDateString('pt-BR')}</span>
                 </div>
                 <p className="text-gray-700 italic">"{avaliacao.comentario || 'Sem comentário.'}"</p>
               </div>
             ))
           ) : (
-            <p className="text-gray-600">Nenhuma avaliação encontrada para este pacote.</p>
+            <p className="text-gray-600">Este pacote ainda não recebeu avaliações. Seja o primeiro a viajar e contar sua experiência!</p>
           )}
         </div>
       </main>
