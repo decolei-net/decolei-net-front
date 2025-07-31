@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import pacoteService from '../../services/pacoteServices.js';
 import avaliacaoService from '../../services/avaliacoesServices.js';
 import Card from '../../components/Card';
-import Pagination from '../../components/Pagination'; // ✅ Importe o componente de paginação
+import Pagination from '../../components/Pagination'; 
 
 const PACOTES_POR_PAGINA = 24;
 
@@ -72,7 +72,7 @@ export default function Home() {
         fetchDados();
     }, [filtrosAplicados]); // Re-executa a busca sempre que os filtros aplicados mudarem
 
-    // ✅ 'useMemo' para calcular apenas os pacotes da página atual, otimizando a performance
+    // 'useMemo' para calcular apenas os pacotes da página atual, otimizando a performance
     const pacotesDaPaginaAtual = useMemo(() => {
         const primeiroIndice = (paginaAtual - 1) * PACOTES_POR_PAGINA;
         const ultimoIndice = primeiroIndice + PACOTES_POR_PAGINA;
