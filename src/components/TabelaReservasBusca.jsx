@@ -23,15 +23,17 @@ const TabelaReservasBusca = ({ reservas }) => {
               className="border-t hover:bg-gray-50 transition-colors duration-200"
             >
               <td className="px-6 py-4 font-medium text-gray-900">#{r.id}</td>
-              <td className="px-6 py-4">{r.cliente}</td>
-              <td className="px-6 py-4">{r.pacote}</td>
+              <td className="px-6 py-4">{r.usuario?.nomeCompleto || '—'}</td>
+              <td className="px-6 py-4">{r.pacoteViagem?.destino || '—'}</td>
               <td className="px-6 py-4">
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-sm font-semibold text-white ${
-                    r.status === 'Confirmada'
-                      ? 'bg-green-500'
-                      : r.status === 'Pendente'
+                    r.status === 'CONFIRMADO'
+                      ? 'bg-green-600'
+                      : r.status === 'PENDENTE'
                       ? 'bg-yellow-500'
+                      : r.status === 'CANCELADO'
+                      ? 'bg-red-500'
                       : 'bg-gray-400'
                   }`}
                 >
@@ -41,7 +43,7 @@ const TabelaReservasBusca = ({ reservas }) => {
               <td className="px-6 py-4 text-center">
                 <button
                   onClick={() =>
-                    navigate(`/dashboard-atendente/detalhes-cliente/${r.id}`)
+                    navigate(`/dashboard-atendente/detalhes-cliente/${r.usuario?.id}`)
                   }
                   className="text-blue-600 font-medium hover:underline"
                 >

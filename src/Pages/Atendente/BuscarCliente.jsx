@@ -1,27 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClienteResumoCard from '../../components/ClienteResumoCard';
+import usuarioService from '../../services/usuarioService';
 
 const BuscarCliente = () => {
   const [busca, setBusca] = useState('');
+  const [clientes, setClientes] = useState([]);
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
-  const [buscou, setBuscou] = useState(false); // <- controla se houve tentativa de busca
+  const [buscou, setBuscou] = useState(false);
 
-  const todosClientes = [
-    { id: 1, nome: 'Carla Mendes', cpf: '111.111.111-11', pacote: 'Pacote Férias em Cancún', status: 'Confirmada' },
-    { id: 2, nome: 'Rafael Souza', cpf: '222.222.222-22', pacote: 'Pacote Aventura Amazônia', status: 'Pendente' },
-    { id: 3, nome: 'Joana Silva', cpf: '333.333.333-33', pacote: 'Viagem a Paris', status: 'Cancelada' },
-    { id: 4, nome: 'Marcos Paulo', cpf: '444.444.444-44', pacote: 'Roteiro Sul do Brasil', status: 'Confirmada' },
-  ];
+  useEffect(() => {
+    const carregarClientes = async () => {
+      try {
+        const dados = await usuarioService.getUsuarios();
+        console.log('Clientes recebidos:', dados); // <-- Aqui é onde o log foi inserido
+        setClientes(dados);
+      } catch (error) {
+        console.error('Erro ao carregar clientes:', error);
+      }
+    };
+    carregarClientes();
+  }, []);
 
   const handleBuscar = () => {
     const termo = busca.toLowerCase().trim();
-    const resultado = todosClientes.filter(
+    const resultado = clientes.filter(
       (cliente) =>
-        cliente.nome.toLowerCase().includes(termo) ||
-        cliente.cpf.toLowerCase().includes(termo)
+        cliente.nomeCompleto?.toLowerCase().includes(termo) ||
+        cliente.email?.toLowerCase().includes(termo)
     );
     setClientesFiltrados(resultado);
-    setBuscou(true); // <- marca que o usuário clicou em buscar
+    setBuscou(true);
   };
 
   return (
@@ -31,7 +39,7 @@ const BuscarCliente = () => {
       <div className="flex gap-2 mb-4">
         <input
           type="text"
-          placeholder="Digite o nome ou CPF do cliente..."
+          placeholder="Digite o nome ou e-mail do cliente..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           className="flex-1 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -51,7 +59,7 @@ const BuscarCliente = () => {
             <ClienteResumoCard key={cliente.id} cliente={cliente} />
           ))
         ) : buscou ? (
-          <p className="text-gray-500">Nenhum cliente encontrado com esse nome ou CPF.</p>
+          <p className="text-gray-500">Nenhum cliente encontrado com esse nome ou e-mail.</p>
         ) : null}
       </div>
     </div>
