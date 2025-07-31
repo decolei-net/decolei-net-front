@@ -4,32 +4,41 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import ClienteLayout from '../layouts/ClienteLayout.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
+import AtendenteLayout from '../layouts/AtendenteLayout.jsx'; // ✅ layout leve do atendente
 
 // Protetores de Rota e Componente de Entrada
 import PrivateRoute from '../components/PrivateRoute.jsx';
 import PublicRoute from '../components/PublicRoute.jsx';
 import Root from '../components/Root.jsx';
 
-// Páginas
+// Páginas Públicas
 import Login from '../Pages/Login/Login.jsx';
 import Cadastro from '../pages/Cadastro/Cadastro.jsx';
 import Unauthorized from '../pages/Unauthorized/Unauthorized.jsx';
+
+// Dashboards
 import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
 import ClienteDashboard from '../pages/Dashboards/ClienteDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
+
+// Cliente
 import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
 import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
 import SuaTelaDeReserva from '../Pages/Reserva/Reserva.jsx';
 
+// Atendente
+import BuscarCliente from '../Pages/Atendente/BuscarCliente.jsx';
+import ReservasRecentes from '../Pages/Atendente/ReservasRecentes.jsx';
+import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
+
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Rota Raiz ('/'): Ponto de entrada que decide para onde redirecionar o usuário. */}
+      {/* Rota Raiz */}
       <Route path="/" element={<Root />} />
 
-      {/* --- Grupo de Rotas Públicas --- */}
-      {/* Visíveis apenas para usuários DESLOGADOS, graças ao PublicRoute. */}
+      {/* Rotas Públicas */}
       <Route
         element={
           <PublicRoute>
@@ -41,8 +50,7 @@ export default function AppRoutes() {
         <Route path="/cadastro" element={<Cadastro />} />
       </Route>
 
-      {/* --- Grupo de Rotas Privadas (Admin e Atendente) --- */}
-      {/* Visíveis apenas para usuários LOGADOS com as roles corretas. */}
+      {/* Rotas Privadas - Admin */}
       <Route
         path="/dashboard-admin"
         element={
@@ -53,19 +61,23 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       />
+
+      {/* ✅ Rotas Privadas - Atendente com layout mínimo */}
       <Route
         path="/dashboard-atendente"
         element={
-          <PrivateRoute roles={['ADMIN', 'ATENDENTE']}>
-            <AdminLayout>
-              <AtendenteDashboard />
-            </AdminLayout>
+          <PrivateRoute roles={['ATENDENTE', 'ADMIN']}>
+            <AtendenteLayout />
           </PrivateRoute>
         }
-      />
+      >
+        <Route index element={<AtendenteDashboard />} />
+        <Route path="buscar-cliente" element={<BuscarCliente />} />
+        <Route path="reservas-recentes" element={<ReservasRecentes />} />
+        <Route path="detalhes-cliente/:id" element={<DetalhesClientes />} />
+      </Route>
 
-      {/* --- Grupo de Rotas Privadas (Cliente) --- */}
-      {/* Visíveis para CLIENTES e ADMINS (para que admins possam ver a interface do cliente). */}
+      {/* Rotas Privadas - Cliente */}
       <Route
         element={
           <PrivateRoute roles={['CLIENTE', 'ADMIN']}>
@@ -79,15 +91,12 @@ export default function AppRoutes() {
         <Route path="/minha-conta" element={<ClienteDashboard />} />
         <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
         <Route path="/reservar/:id" element={<SuaTelaDeReserva />} />
-        {/* Adicione outras rotas do cliente aqui, como "/minha-conta", etc. */}
       </Route>
 
-      {/* Rota para a página de "Acesso Não Autorizado" */}
+      {/* Página de Acesso Negado */}
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* --- Rota "Catch-All" --- */}
-      {/* Se nenhuma das rotas acima corresponder, o usuário será redirecionado para a raiz. */}
-      {/* O componente Root na raiz decidirá o que fazer com ele. */}
+      {/* Catch-all (404) */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
