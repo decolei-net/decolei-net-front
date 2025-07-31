@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import reservaService from '../../services/reservaService';
 import avaliacoesService from '../../services/avaliacoesServices';
+import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx'; // 1. IMPORTAÇÃO DO MODAL
 
 // -- COMPONENTE DE HELPER PARA FORMATAR DATA --
 const formatarData = (dataString) => {
   if (!dataString) return 'Data indisponível';
   try {
-    return new Date(dataString).toLocaleDateString();
+    const data = new Date(dataString);
+    // Ajuste para o fuso horário local, somando um dia para evitar o problema de "um dia a menos"
+    data.setDate(data.getDate() + 1);
+    return new Intl.DateTimeFormat('pt-BR').format(data);
   } catch (error) {
     return 'Data inválida';
   }
@@ -43,13 +46,28 @@ export default function ClienteDashboard() {
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
 
+  // 2. ESTADOS PARA CONTROLAR O MODAL
+  const [modalAberta, setModalAberta] = useState(false);
+  const [reservaSelecionada, setReservaSelecionada] = useState(null);
+
+  // 3. FUNÇÕES PARA ABRIR E FECHAR O MODAL
+  const abrirModal = (reserva) => {
+    setReservaSelecionada(reserva);
+    setModalAberta(true);
+  };
+
+  const fecharModal = () => {
+    setModalAberta(false);
+    setReservaSelecionada(null);
+  };
+
   useEffect(() => {
     const fetchReservas = async () => {
       try {
         setLoadingReservas(true);
         const dadosDaApi = await reservaService.getMinhasReservas();
-        if (dadosDaApi && Array.isArray(dadosDaApi.content)) {
-          setReservas(dadosDaApi.content);
+        if (dadosDaApi && Array.isArray(dadosDaApi)) {
+          setReservas(dadosDaApi);
         } else {
           setReservas([]);
         }
@@ -65,7 +83,7 @@ export default function ClienteDashboard() {
 
   useEffect(() => {
     const fetchAvaliacoes = async () => {
-      if (avaliacoes.length > 0) return;
+      if (activeTab !== 'avaliacoes' || avaliacoes.length > 0) return;
       try {
         setLoadingAvaliacoes(true);
         const dadosDaApi = await avaliacoesService.getMinhasAvaliacoes();
@@ -81,10 +99,8 @@ export default function ClienteDashboard() {
         setLoadingAvaliacoes(false);
       }
     };
-    if (activeTab === 'avaliacoes') {
-      fetchAvaliacoes();
-    }
-  }, [activeTab]);
+    fetchAvaliacoes();
+  }, [activeTab, avaliacoes.length]);
 
   const reservasPendentes = reservas.filter((r) => r?.status === 'PENDENTE');
   const reservasConcluidas = reservas.filter(
@@ -125,9 +141,7 @@ export default function ClienteDashboard() {
         </nav>
       </div>
 
-      {/* RENDERIZAÇÃO CONDICIONAL DA ABA VIAGENS */}
       {activeTab === 'viagens' && (
-        // ======================= CÓDIGO CORRIGIDO ABAIXO =======================
         <div>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Reservas Pendentes</h2>
           {loadingReservas ? (
@@ -142,23 +156,23 @@ export default function ClienteDashboard() {
                   <div className="w-16 h-16 rounded-lg bg-gray-200 mr-4 flex-shrink-0"></div>
                   <div>
                     <h3 className="font-bold text-lg">
-                      Viagem para {reserva?.pacote?.destino || 'Destino não informado'}
+                      Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Data: {formatarData(reserva?.pacote?.dataPartida)} -{' '}
-                      {formatarData(reserva?.pacote?.dataRetorno)}
+                      Data da Reserva: {formatarData(reserva?.data)}
                     </p>
                     <span className="mt-2 inline-block px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full">
                       Pendente
                     </span>
                   </div>
                 </div>
-                <Link
-                  to={`/reservas/${reserva.id}`}
+                {/* 4. BOTÃO PARA ABRIR O MODAL */}
+                <button
+                  onClick={() => abrirModal(reserva)}
                   className="px-5 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold"
                 >
                   Ver Detalhes
-                </Link>
+                </button>
               </div>
             ))
           ) : (
@@ -178,11 +192,10 @@ export default function ClienteDashboard() {
                   <div className="w-16 h-16 rounded-lg bg-gray-200 mr-4 flex-shrink-0"></div>
                   <div>
                     <h3 className="font-bold text-lg">
-                      Viagem para {reserva?.pacote?.destino || 'Destino não informado'}
+                      Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Data: {formatarData(reserva?.pacote?.dataPartida)} -{' '}
-                      {formatarData(reserva?.pacote?.dataRetorno)}
+                      Data da Reserva: {formatarData(reserva?.data)}
                     </p>
                     <span className="mt-2 inline-block px-3 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">
                       Concluída
@@ -198,10 +211,8 @@ export default function ClienteDashboard() {
             <p className="text-gray-500">Nenhuma reserva concluída encontrada.</p>
           )}
         </div>
-        // ======================= FIM DO CÓDIGO CORRIGIDO =======================
       )}
 
-      {/* RENDERIZAÇÃO CONDICIONAL DA ABA AVALIAÇÕES */}
       {activeTab === 'avaliacoes' && (
         <div>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Minhas Avaliações Publicadas</h2>
@@ -235,13 +246,15 @@ export default function ClienteDashboard() {
         </div>
       )}
 
-      {/* RENDERIZAÇÃO CONDICIONAL DA ABA CONFIGURAÇÕES */}
       {activeTab === 'configuracoes' && (
         <div>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Configurações da Conta</h2>
           <p className="text-gray-500">Em construção...</p>
         </div>
       )}
+
+      {/* 5. RENDERIZAÇÃO CONDICIONAL DO MODAL */}
+      {modalAberta && <ModalDetalhesReservas reserva={reservaSelecionada} onClose={fecharModal} />}
     </div>
   );
 }
