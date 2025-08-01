@@ -27,6 +27,7 @@ import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
 import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
 import Pagamento from '../Pages/Pagamento/Pagamento.jsx';
+import Reserva from '../pages/Reserva/Reserva.jsx';
 
 // Atendente
 import BuscarCliente from '../Pages/Atendente/BuscarCliente.jsx';
@@ -92,6 +93,7 @@ export default function AppRoutes() {
         <Route path="/dashboard-cliente" element={<Navigate to="/home" replace />} />
         <Route path="/minha-conta" element={<ClienteDashboard />} />
         <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
+        <Route path="/reservar/:pacoteId" element={<Reserva />} />
         <Route path="/pagamento/:reservaId" element={<Pagamento />} />
       </Route>
 
