@@ -41,11 +41,8 @@ const PacoteDetalhes = () => {
         setLoading(true);
         setError(null);
         const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
-
-        // Ferramenta de Debug: Verifique os dados no console do navegador (F12)
-        console.log("Dados do Pacote Recebidos da API:", dadosDoPacote);
-
         const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
+
         let mediaAvaliacoes = 0;
         if (totalAvaliacoes > 0) {
           const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
@@ -62,7 +59,6 @@ const PacoteDetalhes = () => {
         setIndiceAtual(0);
 
       } catch (err) {
-        console.error("Erro ao buscar detalhes do pacote:", err);
         setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde.");
       } finally {
         setLoading(false);
@@ -86,9 +82,8 @@ const PacoteDetalhes = () => {
     setIsReservando(true);
     try {
       const novaReserva = await reservaService.criarReserva({ pacoteViagemId: pacote.id });
-      navigate(`/pagamento/${novaReserva.id}`);
+      navigate(`/reservar/${pacote.id}`);
     } catch (err) {
-      console.error("Erro ao iniciar a reserva:", err);
       alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
     } finally {
       setIsReservando(false);
@@ -118,7 +113,7 @@ const PacoteDetalhes = () => {
       </div>
     );
   }
-  
+
   const listaImagens = pacote.imagens?.map(urlRelativa => `${API_BASE_URL}/${urlRelativa}`) || [];
   const imagemPrincipal = listaImagens.length > 0 ? listaImagens[indiceAtual] : placeholderImg;
 
@@ -174,7 +169,7 @@ const PacoteDetalhes = () => {
                 <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
               </p>
               <button onClick={handleReservarAgora} disabled={isReservando} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out disabled:bg-blue-300 disabled:cursor-not-allowed">
-                {isReservando ? 'Processando...' : 'Reservar e Pagar'}
+                {isReservando ? 'Processando...' : 'Reservar'}
               </button>
             </div>
           </div>
