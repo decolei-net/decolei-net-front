@@ -42,9 +42,10 @@ const TabelaReservasBusca = ({ reservas }) => {
               </td>
               <td className="px-6 py-4 text-center">
                 <button
-                  onClick={() =>
-                    navigate(`/dashboard-atendente/detalhes-cliente/${r.usuario?.id}`)
-                  }
+                  onClick={() => {
+                    console.log('ID do usuário ao clicar em "Ver Detalhes":', r.usuario?.id);
+                    navigate(`/dashboard-atendente/detalhes-cliente/${r.usuario?.id}`);
+                  }}
                   className="text-blue-600 font-medium hover:underline"
                 >
                   Ver Detalhes
