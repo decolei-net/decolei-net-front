@@ -82,7 +82,7 @@ export default function AppRoutes() {
       {/* Rotas Privadas - Cliente */}
       <Route
         element={
-          <PrivateRoute roles={['CLIENTE', 'ADMIN']}>
+          <PrivateRoute roles={['CLIENTE', 'ADMIN', 'ATENDENTE']}>
             <ClienteLayout />
           </PrivateRoute>
         }
