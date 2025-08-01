@@ -15,6 +15,7 @@ import Root from '../components/Root.jsx';
 import Login from '../Pages/Login/Login.jsx';
 import Cadastro from '../pages/Cadastro/Cadastro.jsx';
 import Unauthorized from '../pages/Unauthorized/Unauthorized.jsx';
+import ResetPassword from '../Pages/ResetPassword/ResetPassword.jsx';
 
 // Dashboards
 import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
@@ -48,6 +49,7 @@ export default function AppRoutes() {
       >
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
       {/* Rotas Privadas - Admin */}
