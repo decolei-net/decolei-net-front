@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+// ✅ 1. Importando os serviços e os novos ícones
 import reservaService from '../../services/reservaService.js';
 import usuarioService from '../../services/usuarioService.js';
 import pacoteService from '../../services/pacoteServices.js';
+import { CreditCardIcon, UsersIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
-// --- Componentes de UI ---
-
-// Componente para os cards de informação
-const InfoCard = ({ title, children }) => (
+// ✅ 2. Componente InfoCard agora aceita e exibe um ícone
+const InfoCard = ({ title, icon, children }) => (
   <div className="bg-white p-6 rounded-lg shadow-md">
-    <h3 className="text-xl font-bold text-[rgb(0,84,161)] border-b pb-2 mb-4">{title}</h3>
+    <div className="flex items-center gap-3 text-xl font-bold text-[rgb(0,84,161)] border-b pb-2 mb-4">
+      {/* Adiciona o ícone se ele for passado como prop */}
+      {icon && React.cloneElement(icon, { className: 'h-6 w-6' })}
+      <h3>{title}</h3>
+    </div>
     <div className="space-y-3">{children}</div>
   </div>
 );
 
-// Componente para as linhas de detalhe, agora com alinhamento
 const DetailRow = ({ label, value }) => (
   <div className="flex justify-between items-center text-gray-800 break-words">
     <span className="font-semibold text-gray-600">{label}:</span>
@@ -22,7 +25,6 @@ const DetailRow = ({ label, value }) => (
   </div>
 );
 
-// Componente reutilizável para os 'badges' de status
 const StatusBadge = ({ status, children }) => {
   const statusClasses = {
     PENDENTE: 'bg-yellow-100 text-yellow-800',
@@ -48,7 +50,6 @@ const DetalhesReservaGestao = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Lógica completa para carregar todos os dados
   useEffect(() => {
     const carregarTudo = async () => {
       try {
@@ -79,7 +80,6 @@ const DetalhesReservaGestao = () => {
   if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
   if (!reserva) return <div className="p-10 text-center">Reserva não encontrada.</div>;
 
-  // Funções de formatação
   const formatarValor = (valor) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
   const formatarData = (dataString) => {
@@ -92,7 +92,6 @@ const DetalhesReservaGestao = () => {
       ? reserva.valorTotal / reserva.viajantes.length
       : reserva.valorTotal;
 
-  // Mapeamento para o texto do status de pagamento
   const statusPagamentoTexto = {
     PENDENTE: 'Aguardando Pagamento',
     CONFIRMADO: 'Pagamento Aprovado',
@@ -106,12 +105,15 @@ const DetalhesReservaGestao = () => {
         <Link to="/dashboard-atendente/reservas-recentes" className="text-blue-600 hover:underline">
           &larr; Voltar para Reservas Recentes
         </Link>
-        <h2 className="text-3xl font-bold text-gray-800 mt-2">Gestão da Reserva #{reserva.id}</h2>
+        <h2 className="text-3xl font-bold text-[rgb(0,84,161)] mt-2">
+          Gestão da Reserva #{reserva.id}
+        </h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <InfoCard title="Detalhes Financeiros e do Pacote">
+          {/* ✅ 3. Passando os ícones para cada InfoCard */}
+          <InfoCard title="Detalhes Financeiros e do Pacote" icon={<CreditCardIcon />}>
             <DetailRow label="Destino" value={pacote?.destino} />
             <DetailRow
               label="Status da Reserva"
@@ -134,7 +136,7 @@ const DetalhesReservaGestao = () => {
             <DetailRow label="Valor por Viajante" value={formatarValor(valorUnitario)} />
           </InfoCard>
 
-          <InfoCard title="Viajantes da Reserva">
+          <InfoCard title="Viajantes da Reserva" icon={<UsersIcon />}>
             {reserva.viajantes?.length > 0 ? (
               <ul className="list-disc list-inside space-y-2">
                 {reserva.viajantes.map((viajante, index) => (
@@ -150,7 +152,7 @@ const DetalhesReservaGestao = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <InfoCard title="Informações do Cliente">
+          <InfoCard title="Informações do Cliente" icon={<UserCircleIcon />}>
             <DetailRow label="Nome" value={cliente?.nomeCompleto} />
             <DetailRow label="Email" value={cliente?.email} />
             <DetailRow label="Telefone" value={cliente?.telefone} />
