@@ -19,7 +19,6 @@ import ResetPassword from '../Pages/ResetPassword/ResetPassword.jsx';
 
 // Dashboards
 import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
-// ✅ CORREÇÃO APLICADA AQUI
 import ClienteDashboard from '../Pages/Dashboards/ClienteDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 
@@ -34,7 +33,6 @@ import Reserva from '../pages/Reserva/Reserva.jsx';
 import BuscarCliente from '../Pages/Atendente/BuscarCliente.jsx';
 import ReservasRecentes from '../Pages/Atendente/ReservasRecentes.jsx';
 import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
-// Importe a nova página que criamos
 import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 export default function AppRoutes() {
@@ -80,9 +78,8 @@ export default function AppRoutes() {
         <Route index element={<AtendenteDashboard />} />
         <Route path="buscar-cliente" element={<BuscarCliente />} />
         <Route path="reservas-recentes" element={<ReservasRecentes />} />
-        <Route path="detalhes-cliente/:id" element={<DetalhesClientes />} />
-        {/* Rota da nova página de gestão */}
         <Route path="detalhes-reserva/:id" element={<DetalhesReservaGestao />} />
+        <Route path="detalhes-clientes/:id" element={<DetalhesClientes />} />
       </Route>
 
       {/* Rotas Privadas - Cliente */}

@@ -15,7 +15,7 @@ const ClienteResumoCard = ({ cliente }) => {
 
   // Função para navegar para a página de detalhes do cliente
   const handleVerDetalhes = () => {
-    navigate(`/dashboard-atendente/detalhes-cliente/${cliente.id}`);
+    navigate(`/dashboard-atendente/detalhes-clientes/${cliente.id}`);
   };
 
   return (
