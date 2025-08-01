@@ -16,4 +16,14 @@ const logout = () => {
     localStorage.removeItem('token');
 }
 
-export default {login, logout}
+const forgotPassword = async ({ email }) =>{
+    const response = await api.post('/Usuario/recuperar-senha', { email });
+    return response.data;
+}
+
+const resetPassword = async ({ email, token, novaSenha }) => {
+    const response = await api.post('/Usuario/redefinir-senha', { email, token, novaSenha });
+    return response.data;
+};
+
+export default {login, logout, forgotPassword, resetPassword}
