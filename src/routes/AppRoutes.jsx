@@ -62,7 +62,18 @@ export default function AppRoutes() {
             </AdminLayout>
           </PrivateRoute>
         }
-      />
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+
+        {/* Rotas futuras para cada item da sidebar (não precisam de alteração) */}
+        {/* <Route path="pacotes" element={<GerenciarPacotes />} /> */}
+        {/* <Route path="reservas" element={<GerenciarReservas />} /> */}
+        {/* <Route path="usuarios" element={<GerenciarUsuarios />} /> */}
+        {/* <Route path="avaliacoes" element={<GerenciarAvaliacoes />} /> */}
+
+        {/* O <Navigate> foi removido para evitar o loop. */}
+      </Route>
 
       {/* ✅ Rotas Privadas - Atendente com layout mínimo */}
       <Route
