@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import ClienteLayout from '../layouts/ClienteLayout.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
-import AtendenteLayout from '../layouts/AtendenteLayout.jsx'; // ✅ layout leve do atendente
+import AtendenteLayout from '../layouts/AtendenteLayout.jsx';
 
 // Protetores de Rota e Componente de Entrada
 import PrivateRoute from '../components/PrivateRoute.jsx';
@@ -19,7 +19,8 @@ import ResetPassword from '../Pages/ResetPassword/ResetPassword.jsx';
 
 // Dashboards
 import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
-import ClienteDashboard from '../pages/Dashboards/ClienteDashboard.jsx';
+// ✅ CORREÇÃO APLICADA AQUI
+import ClienteDashboard from '../Pages/Dashboards/ClienteDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 
 // Cliente
@@ -32,6 +33,8 @@ import Pagamento from '../Pages/Pagamento/Pagamento.jsx';
 import BuscarCliente from '../Pages/Atendente/BuscarCliente.jsx';
 import ReservasRecentes from '../Pages/Atendente/ReservasRecentes.jsx';
 import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
+// Importe a nova página que criamos
+import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 export default function AppRoutes() {
   return (
@@ -64,7 +67,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* ✅ Rotas Privadas - Atendente com layout mínimo */}
+      {/* Rotas Privadas - Atendente */}
       <Route
         path="/dashboard-atendente"
         element={
@@ -77,6 +80,8 @@ export default function AppRoutes() {
         <Route path="buscar-cliente" element={<BuscarCliente />} />
         <Route path="reservas-recentes" element={<ReservasRecentes />} />
         <Route path="detalhes-cliente/:id" element={<DetalhesClientes />} />
+        {/* Rota da nova página de gestão */}
+        <Route path="detalhes-reserva/:id" element={<DetalhesReservaGestao />} />
       </Route>
 
       {/* Rotas Privadas - Cliente */}
