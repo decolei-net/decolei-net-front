@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 
-// Importando os ícones que vamos usar
+// Importando os ícones
 import {
   ChartPieIcon,
   MagnifyingGlassIcon,
@@ -40,8 +40,8 @@ const AtendenteSideBar = () => {
 
       {/* Navegação */}
       <nav className="flex flex-col gap-3 flex-grow">
-        {/* ✅ Botão Home */}
-        <NavLink to="/" end className={linkStyle}>
+        {/* ✅ Botão Home corrigido */}
+        <NavLink to="/home" className={linkStyle}>
           <HomeIcon className="h-6 w-6" />
           <span>Home</span>
         </NavLink>
@@ -50,10 +50,12 @@ const AtendenteSideBar = () => {
           <ChartPieIcon className="h-6 w-6" />
           <span>Dashboard</span>
         </NavLink>
+
         <NavLink to="/dashboard-atendente/buscar-cliente" className={linkStyle}>
           <MagnifyingGlassIcon className="h-6 w-6" />
           <span>Buscar Clientes</span>
         </NavLink>
+
         <NavLink to="/dashboard-atendente/reservas-recentes" className={linkStyle}>
           <DocumentTextIcon className="h-6 w-6" />
           <span>Reservas</span>

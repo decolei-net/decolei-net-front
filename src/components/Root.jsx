@@ -19,7 +19,7 @@ export default function Root() {
     case 'ADMIN':
         return <Navigate to="/dashboard-admin" replace />;
     case 'ATENDENTE':
-        return <Navigate to="/home" replace />;
+        return <Navigate to="/dashboard-atendente" replace />;
     case 'CLIENTE':
     default:
         // O padrão para qualquer outra role (ou se a role for nula) é a home do cliente.
