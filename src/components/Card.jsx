@@ -1,15 +1,25 @@
 import StarRating from './StarRating';
+// Adicione o import da sua URL base da API
+import { API_BASE_URL } from '../services/api'; // <-- AJUSTE O CAMINHO SE NECESSÁRIO
 
 const placeholderImg = 'https://placehold.co/600x400/374151/FFFFFF/png?text=Decolei.net';
 
 export default function Card({ pacote }) {
     const temAvaliacoes = pacote.totalAvaliacoes > 0;
 
+    // Lógica para pegar a primeira imagem da lista ou usar o placeholder
+    const imagemDoCard = 
+        pacote.imagens && pacote.imagens.length > 0
+            ? `${API_BASE_URL}/${pacote.imagens[0]}` // Pega a primeira imagem da lista
+            : placeholderImg; // Usa o placeholder se não houver imagens
+
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-xl w-full h-full flex flex-col">
             <img
-                src={pacote.imagemURL || placeholderImg}
+                // A fonte da imagem agora é a nossa variável 'imagemDoCard'
+                src={imagemDoCard}
                 alt={`Imagem do pacote para ${pacote.destino}`}
+                // O 'onError' continua sendo uma boa prática
                 onError={(e) => { e.currentTarget.src = placeholderImg; }}
                 className="w-full h-40 object-cover"
             />
