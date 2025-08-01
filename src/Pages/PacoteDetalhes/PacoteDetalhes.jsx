@@ -153,6 +153,7 @@ const PacoteDetalhes = () => {
 
           <div className="flex-1 lg:w-1/3 flex flex-col">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo}</h1>
+            <p className="text-xl font-bold text-gray-600 -mt-2 mb-4">Destino: {pacote.destino}</p>
             <div className="flex items-center gap-2 mb-4">
               <StarRating rating={pacote.mediaAvaliacoes} />
               <span className="text-gray-600 text-sm">
