@@ -73,10 +73,14 @@ const DetalhesClientes = () => {
           <TabelaHistoricoReservas
             reservas={reservas.map((reserva) => ({
               pacote: reserva.pacoteViagem?.destino || '—',
-              dataInicio: reserva.pacoteViagem?.dataInicio?.split('T')[0] || '—',
-              dataFim: reserva.pacoteViagem?.dataFim?.split('T')[0] || '—',
+              dataInicio: reserva.pacoteViagem?.dataInicio
+                ? new Date(reserva.pacoteViagem.dataInicio).toLocaleDateString('pt-BR')
+                : '—',
+              dataFim: reserva.pacoteViagem?.dataFim
+                ? new Date(reserva.pacoteViagem.dataFim).toLocaleDateString('pt-BR')
+                : '—',
               statusReserva: reserva.status || '—',
-              statusPagamento: reserva.pagamento?.status || 'PENDENTE'
+              statusPagamento: reserva.pagamento?.status || 'PENDENTE',
             }))}
           />
         </div>
