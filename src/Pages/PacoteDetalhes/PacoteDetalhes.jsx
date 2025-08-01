@@ -5,10 +5,10 @@ import reservaService from '../../services/reservaService';
 import StarRating from '../../components/StarRating';
 import { API_BASE_URL } from '../../services/api';
 
-// Ícones para as setas do carrossel
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+// Ícones para as setas e para o thumbnail de vídeo
+import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 
-const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Imagem+Indisponível';
+const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Mídia+Indisponível';
 
 const PacoteDetalhes = () => {
   const { id } = useParams();
@@ -18,32 +18,28 @@ const PacoteDetalhes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isReservando, setIsReservando] = useState(false);
-
-  // Controlamos o carrossel pelo índice da imagem atual.
   const [indiceAtual, setIndiceAtual] = useState(0);
+  const [timerAtivo, setTimerAtivo] = useState(true);
 
-  // useCallback memoriza as funções para otimizar a performance.
-  const proximaImagem = useCallback(() => {
+  const proximaMidia = useCallback(() => {
     if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      setIndiceAtual((indiceAnterior) => (indiceAnterior + 1) % pacote.imagens.length);
+      setIndiceAtual((prev) => (prev + 1) % pacote.imagens.length);
     }
   }, [pacote]);
 
-  const imagemAnterior = () => {
+  const midiaAnterior = () => {
     if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      setIndiceAtual((indiceAnterior) => (indiceAnterior - 1 + pacote.imagens.length) % pacote.imagens.length);
+      setIndiceAtual((prev) => (prev - 1 + pacote.imagens.length) % pacote.imagens.length);
     }
   };
 
   useEffect(() => {
     const fetchPacote = async () => {
+      if (!id) return;
       try {
         setLoading(true);
         setError(null);
         const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
-
-        // Ferramenta de Debug: Verifique os dados no console do navegador (F12)
-        console.log("Dados do Pacote Recebidos da API:", dadosDoPacote);
 
         const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
         let mediaAvaliacoes = 0;
@@ -51,36 +47,33 @@ const PacoteDetalhes = () => {
           const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
           mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
         }
-
-        setPacote({
-          ...dadosDoPacote,
-          mediaAvaliacoes,
-          totalAvaliacoes
-        });
-
-        // Reseta o índice para a primeira imagem sempre que um novo pacote é carregado.
+        setPacote({ ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes });
         setIndiceAtual(0);
-
       } catch (err) {
         console.error("Erro ao buscar detalhes do pacote:", err);
-        setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde.");
+        setError("Não foi possível carregar os detalhes do pacote.");
       } finally {
         setLoading(false);
       }
     };
-
-    if (id) {
-      fetchPacote();
-    }
+    fetchPacote();
   }, [id]);
 
-  // Efeito para o carrossel automático
   useEffect(() => {
-    if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      const timerId = setInterval(proximaImagem, 5000); // Muda a cada 5 segundos
-      return () => clearInterval(timerId); // Limpa o timer ao sair do componente
+    // Pega a mídia que está sendo exibida no momento
+    const midiaAtual = pacote?.imagens?.[indiceAtual];
+
+    // A condição agora é:
+    // 1. Tem que ter mais de uma mídia.
+    // 2. A mídia atual NÃO PODE ser um vídeo.
+    if (pacote?.imagens?.length > 1 && midiaAtual && !midiaAtual.isVideo) {
+      const timerId = setInterval(proximaMidia, 5000);
+      // Limpa o timer se o componente for desmontado ou se o slide mudar
+      return () => clearInterval(timerId);
     }
-  }, [pacote, proximaImagem]);
+    // O timer agora depende do indiceAtual. Toda vez que o slide muda,
+    // este código roda de novo e decide se o timer deve ou não ser ativado.
+  }, [pacote, proximaMidia, indiceAtual]);
 
   const handleReservarAgora = async () => {
     setIsReservando(true);
@@ -118,47 +111,69 @@ const PacoteDetalhes = () => {
       </div>
     );
   }
-  
-  const listaImagens = pacote.imagens?.map(urlRelativa => `${API_BASE_URL}/${urlRelativa}`) || [];
-  const imagemPrincipal = listaImagens.length > 0 ? listaImagens[indiceAtual] : placeholderImg;
+
+  const listaMidia = pacote.imagens || [];
+  const midiaAtual = listaMidia.length > 0 ? listaMidia[indiceAtual] : null;
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
       <main className="container mx-auto p-4 md:p-8">
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
-
           <div className="flex-1 lg:w-2/3">
-            <div className="w-full h-64 md:h-96 bg-gray-200 rounded-lg shadow-md overflow-hidden relative group">
-              {listaImagens.length > 1 && (
+            <div className="w-full h-64 md:h-96 bg-gray-900 rounded-lg shadow-md overflow-hidden relative group">
+              {listaMidia.length > 1 && (
                 <>
-                  <button onClick={imagemAnterior} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 m-2 bg-black bg-opacity-30 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Imagem Anterior">
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button onClick={proximaImagem} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 m-2 bg-black bg-opacity-30 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Próxima Imagem">
-                    <ChevronRight size={24} />
-                  </button>
+                  <button onClick={midiaAnterior} className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 m-2 bg-black bg-opacity-40 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Mídia Anterior"><ChevronLeft size={24} /></button>
+                  <button onClick={proximaMidia} className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 m-2 bg-black bg-opacity-40 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Próxima Mídia"><ChevronRight size={24} /></button>
                 </>
               )}
-              <img src={imagemPrincipal} alt={pacote.titulo || 'Imagem do Pacote'} className="w-full h-full object-cover transition-opacity duration-500 ease-in-out" key={imagemPrincipal} onError={(e) => { e.currentTarget.src = placeholderImg; }} />
+              {midiaAtual && midiaAtual.isVideo ? (
+                <iframe
+                  className="w-full h-full"
+                  src={midiaAtual.url}
+                  title="Player de vídeo do pacote"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <img
+                  src={midiaAtual ? `${API_BASE_URL}/${midiaAtual.url}` : placeholderImg}
+                  alt={pacote.titulo || 'Mídia do Pacote'}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
-
-            {listaImagens.length > 1 && (
+            {listaMidia.length > 1 && (
               <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
-                {listaImagens.map((urlCompleta, index) => (
-                  <img key={index} src={urlCompleta} alt={`Miniatura ${index + 1}`} className={`flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`} onClick={() => setIndiceAtual(index)} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                ))}
+                {listaMidia.map((midia, index) => {
+                  let thumbnailUrl = placeholderImg;
+                  if (midia.isVideo) {
+                    const videoId = midia.url.split('/embed/').pop().split('?')[0];
+                    thumbnailUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+                  } else {
+                    thumbnailUrl = `${API_BASE_URL}/${midia.url}`;
+                  }
+                  return (
+                    <div key={index} onClick={() => setIndiceAtual(index)} className={`relative flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`}>
+                      <img src={thumbnailUrl} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
+                      {midia.isVideo && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                          <PlayCircle size={32} className="text-white" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
-
           <div className="flex-1 lg:w-1/3 flex flex-col">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo}</h1>
-            <p className="text-xl font-bold text-gray-600 -mt-2 mb-4">Destino: {pacote.destino}</p>
+            <p className="text-lg text-gray-500 mb-4">{pacote.destino}</p>
             <div className="flex items-center gap-2 mb-4">
               <StarRating rating={pacote.mediaAvaliacoes} />
-              <span className="text-gray-600 text-sm">
-                ({pacote.totalAvaliacoes} {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})
-              </span>
+              <span className="text-gray-600 text-sm">({pacote.totalAvaliacoes} {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})</span>
             </div>
             <p className="text-gray-700 leading-relaxed mb-6">{pacote.descricao}</p>
             <div className="mb-6 text-gray-700">
@@ -169,17 +184,11 @@ const PacoteDetalhes = () => {
             </div>
             <div className="mt-auto border-t pt-6">
               <p className="text-gray-600 text-sm mb-2">Valor por pessoa</p>
-              <p className="text-4xl font-bold text-blue-600 mb-4">
-                R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'}
-                <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
-              </p>
-              <button onClick={handleReservarAgora} disabled={isReservando} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out disabled:bg-blue-300 disabled:cursor-not-allowed">
-                {isReservando ? 'Processando...' : 'Reservar e Pagar'}
-              </button>
+              <p className="text-4xl font-bold text-blue-600 mb-4">R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'}<span className="text-lg text-gray-600 font-normal">/ pessoa</span></p>
+              <button onClick={handleReservarAgora} disabled={isReservando} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out disabled:bg-blue-300 disabled:cursor-not-allowed">{isReservando ? 'Processando...' : 'Reservar e Pagar'}</button>
             </div>
           </div>
         </div>
-
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">O que os viajantes dizem</h2>
           {pacote.totalAvaliacoes > 0 ? (
