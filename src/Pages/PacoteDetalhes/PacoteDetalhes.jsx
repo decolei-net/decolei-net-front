@@ -5,122 +5,115 @@ import reservaService from '../../services/reservaService';
 import StarRating from '../../components/StarRating';
 import { API_BASE_URL } from '../../services/api';
 
-// Ícones para as setas do carrossel
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+// Ícones para as setas e para o thumbnail de vídeo
+import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 
-const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Imagem+Indisponível';
+const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Mídia+Indisponível';
 
 const PacoteDetalhes = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-  const [pacote, setPacote] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isReservando, setIsReservando] = useState(false);
+    const [pacote, setPacote] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isReservando, setIsReservando] = useState(false);
+    const [indiceAtual, setIndiceAtual] = useState(0);
+    const [timerAtivo, setTimerAtivo] = useState(true);
 
-  // Controlamos o carrossel pelo índice da imagem atual.
-  const [indiceAtual, setIndiceAtual] = useState(0);
-
-  // useCallback memoriza as funções para otimizar a performance.
-  const proximaImagem = useCallback(() => {
-    if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      setIndiceAtual((indiceAnterior) => (indiceAnterior + 1) % pacote.imagens.length);
-    }
-  }, [pacote]);
-
-  const imagemAnterior = () => {
-    if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      setIndiceAtual((indiceAnterior) => (indiceAnterior - 1 + pacote.imagens.length) % pacote.imagens.length);
-    }
-  };
-
-  useEffect(() => {
-    const fetchPacote = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
-
-        // Ferramenta de Debug: Verifique os dados no console do navegador (F12)
-        console.log("Dados do Pacote Recebidos da API:", dadosDoPacote);
-
-        const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
-        let mediaAvaliacoes = 0;
-        if (totalAvaliacoes > 0) {
-          const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
-          mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
+    const proximaMidia = useCallback(() => {
+        if (pacote && pacote.imagens && pacote.imagens.length > 1) {
+            setIndiceAtual((prev) => (prev + 1) % pacote.imagens.length);
         }
+    }, [pacote]);
 
-        setPacote({
-          ...dadosDoPacote,
-          mediaAvaliacoes,
-          totalAvaliacoes
-        });
-
-        // Reseta o índice para a primeira imagem sempre que um novo pacote é carregado.
-        setIndiceAtual(0);
-
-      } catch (err) {
-        console.error("Erro ao buscar detalhes do pacote:", err);
-        setError("Não foi possível carregar os detalhes do pacote. Tente novamente mais tarde.");
-      } finally {
-        setLoading(false);
-      }
+    const midiaAnterior = () => {
+        if (pacote && pacote.imagens && pacote.imagens.length > 1) {
+            setIndiceAtual((prev) => (prev - 1 + pacote.imagens.length) % pacote.imagens.length);
+        }
     };
 
-    if (id) {
-      fetchPacote();
+    useEffect(() => {
+        const fetchPacote = async () => {
+            if (!id) return;
+            try {
+                setLoading(true);
+                setError(null);
+                const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
+
+                const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
+                let mediaAvaliacoes = 0;
+                if (totalAvaliacoes > 0) {
+                    const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
+                    mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
+                }
+                setPacote({ ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes });
+                setIndiceAtual(0);
+            } catch (err) {
+                console.error("Erro ao buscar detalhes do pacote:", err);
+                setError("Não foi possível carregar os detalhes do pacote.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPacote();
+    }, [id]);
+
+useEffect(() => {
+        // Pega a mídia que está sendo exibida no momento
+        const midiaAtual = pacote?.imagens?.[indiceAtual];
+
+        // A condição agora é:
+        // 1. Tem que ter mais de uma mídia.
+        // 2. A mídia atual NÃO PODE ser um vídeo.
+        if (pacote?.imagens?.length > 1 && midiaAtual && !midiaAtual.isVideo) {
+            const timerId = setInterval(proximaMidia, 5000);
+            // Limpa o timer se o componente for desmontado ou se o slide mudar
+            return () => clearInterval(timerId);
+        }
+        // O timer agora depende do indiceAtual. Toda vez que o slide muda,
+        // este código roda de novo e decide se o timer deve ou não ser ativado.
+    }, [pacote, proximaMidia, indiceAtual]);
+
+    const handleReservarAgora = async () => {
+        setIsReservando(true);
+        try {
+            const novaReserva = await reservaService.criarReserva({ pacoteViagemId: pacote.id });
+            navigate(`/pagamento/${novaReserva.id}`);
+        } catch (err) {
+            console.error("Erro ao iniciar a reserva:", err);
+            alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
+        } finally {
+            setIsReservando(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <p className="text-lg font-semibold text-gray-700">Carregando detalhes do pacote...</p>
+            </div>
+        );
     }
-  }, [id]);
 
-  // Efeito para o carrossel automático
-  useEffect(() => {
-    if (pacote && pacote.imagens && pacote.imagens.length > 1) {
-      const timerId = setInterval(proximaImagem, 5000); // Muda a cada 5 segundos
-      return () => clearInterval(timerId); // Limpa o timer ao sair do componente
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md">
+                <p className="text-lg font-semibold">{error}</p>
+            </div>
+        );
     }
-  }, [pacote, proximaImagem]);
 
-  const handleReservarAgora = async () => {
-    setIsReservando(true);
-    try {
-      const novaReserva = await reservaService.criarReserva({ pacoteViagemId: pacote.id });
-      navigate(`/pagamento/${novaReserva.id}`);
-    } catch (err) {
-      console.error("Erro ao iniciar a reserva:", err);
-      alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
-    } finally {
-      setIsReservando(false);
+    if (!pacote) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md">
+                <p className="text-lg font-semibold">Pacote não encontrado.</p>
+            </div>
+        );
     }
-  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-lg font-semibold text-gray-700">Carregando detalhes do pacote...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md">
-        <p className="text-lg font-semibold">{error}</p>
-      </div>
-    );
-  }
-
-  if (!pacote) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md">
-        <p className="text-lg font-semibold">Pacote não encontrado.</p>
-      </div>
-    );
-  }
-  
-  const listaImagens = pacote.imagens?.map(urlRelativa => `${API_BASE_URL}/${urlRelativa}`) || [];
-  const imagemPrincipal = listaImagens.length > 0 ? listaImagens[indiceAtual] : placeholderImg;
+    const listaMidia = pacote.imagens || [];
+    const midiaAtual = listaMidia.length > 0 ? listaMidia[indiceAtual] : null;
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
