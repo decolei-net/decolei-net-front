@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
   ArrowLeftOnRectangleIcon,
+  HomeIcon,
 } from '@heroicons/react/24/solid';
 
 const AtendenteSideBar = () => {
@@ -30,7 +31,6 @@ const AtendenteSideBar = () => {
     }`;
 
   return (
-    // ✅ CORREÇÃO PRINCIPAL: h-screen para ocupar a altura toda da tela
     <aside className="flex flex-col h-screen bg-white w-72 p-6 border-r border-gray-100">
       {/* Cabeçalho */}
       <div className="mb-10 text-left">
@@ -38,8 +38,14 @@ const AtendenteSideBar = () => {
         <p className="text-sm text-gray-400 -mt-1">Painel do Atendente</p>
       </div>
 
-      {/* Navegação - ✅ flex-grow faz esta área crescer e empurrar o logout para baixo */}
+      {/* Navegação */}
       <nav className="flex flex-col gap-3 flex-grow">
+        {/* ✅ Botão Home */}
+        <NavLink to="/" end className={linkStyle}>
+          <HomeIcon className="h-6 w-6" />
+          <span>Home</span>
+        </NavLink>
+
         <NavLink to="/dashboard-atendente" end className={linkStyle}>
           <ChartPieIcon className="h-6 w-6" />
           <span>Dashboard</span>
@@ -54,7 +60,7 @@ const AtendenteSideBar = () => {
         </NavLink>
       </nav>
 
-      {/* Rodapé com o botão de logout */}
+      {/* Rodapé com botão logout */}
       <div className="pt-6 border-t border-gray-100">
         <button
           onClick={handleLogout}
