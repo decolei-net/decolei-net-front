@@ -1,25 +1,38 @@
 import StarRating from './StarRating';
-// Adicione o import da sua URL base da API
-import { API_BASE_URL } from '../services/api'; // <-- AJUSTE O CAMINHO SE NECESSÁRIO
+import { API_BASE_URL } from '../services/api';
 
 const placeholderImg = 'https://placehold.co/600x400/374151/FFFFFF/png?text=Decolei.net';
 
 export default function Card({ pacote }) {
     const temAvaliacoes = pacote.totalAvaliacoes > 0;
 
-    // Lógica para pegar a primeira imagem da lista ou usar o placeholder
-    const imagemDoCard = 
-        pacote.imagens && pacote.imagens.length > 0
-            ? `${API_BASE_URL}/${pacote.imagens[0]}` // Pega a primeira imagem da lista
-            : placeholderImg; // Usa o placeholder se não houver imagens
+    // LÓGICA CORRIGIDA PARA A IMAGEM DO CARD
+    const getImagemDoCard = () => {
+        if (!pacote.imagens || pacote.imagens.length === 0) {
+            return placeholderImg; // Retorna placeholder se não houver mídia
+        }
+
+        // Tenta encontrar a primeira mídia que NÃO é um vídeo
+        const primeiraImagem = pacote.imagens.find(midia => !midia.isVideo);
+        
+        if (primeiraImagem) {
+            return `${API_BASE_URL}/${primeiraImagem.url}`;
+        }
+        
+        // Se só houver vídeos, pega a thumbnail do primeiro vídeo
+        const primeiroVideo = pacote.imagens[0];
+        const urlParts = primeiroVideo.url.split('/embed/');
+        const videoId = urlParts.length > 1 ? urlParts[1].split('?')[0] : null;
+        return videoId ? `https://www.youtube.com/embed/2{videoId}/0.jpg` : placeholderImg;
+    };
+
+    const imagemDoCard = getImagemDoCard();
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-xl w-full h-full flex flex-col">
             <img
-                // A fonte da imagem agora é a nossa variável 'imagemDoCard'
                 src={imagemDoCard}
                 alt={`Imagem do pacote para ${pacote.destino}`}
-                // O 'onError' continua sendo uma boa prática
                 onError={(e) => { e.currentTarget.src = placeholderImg; }}
                 className="w-full h-40 object-cover"
             />
