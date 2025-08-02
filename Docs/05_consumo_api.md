@@ -72,7 +72,8 @@ A jornada do cliente é focada na autonomia, permitindo que ele gerencie todo o 
     * A partir dessa tela, ele clica para fazer a reserva.
 
 4.  **Pagamento e Confirmação:**
-    * É direcionado para a tela de pagamento. Ele insere os dados dos demais viajantes e pode escolher entre as formas de pagamento disponíveis: Cartão de Crédito, Débito, Pix ou Boleto.
+    * É direcionado para a tela de incluir viajantes na reserva (caso queira).
+    * Após isso, é direcionado para a tela de pagamento. Ele insere os dados dos demais viajantes e pode escolher entre as formas de pagamento disponíveis: Cartão de Crédito, Débito, Pix ou Boleto.
     * **Para Cartões e Pix:** O pagamento é aprovado instantaneamente, desde que as informações do cartão (com pelo menos 12 dígitos) estejam corretas. O cliente recebe um e-mail de confirmação imediata.
     * **Para Boleto:** A reserva fica com status "Pendente". O cliente recebe um e-mail com o comprovante de pagamento pendente e, após 1 minuto (simulando a compensação bancária), ele recebe um segundo e-mail confirmando que o pagamento foi aprovado.
 

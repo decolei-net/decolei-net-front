@@ -1,19 +1,29 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import aiService from '../services/aiService';
 
 export default function ChatBot() {
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
             id: 1,
-            text: "Olá! Sou o assistente virtual da Decolei.net. Como posso te ajudar hoje?",
+            text: "Olá! Sou o Celio, assistente virtual da Decolei.net! Como posso te ajudar hoje?",
             isBot: true,
             timestamp: new Date()
         }
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+
+    // Páginas onde o ChatBot não deve aparecer
+    const hiddenPages = ['/login', '/cadastro', '/reset-password'];
+    
+    // Se estiver em uma página onde deve ser ocultado, não renderiza o componente
+    if (hiddenPages.includes(location.pathname)) {
+        return null;
+    }
 
     const handleSendMessage = async () => {
         if (!inputMessage.trim()) return;
@@ -48,7 +58,7 @@ export default function ChatBot() {
             // Fallback para resposta local em caso de erro
             const botResponse = {
                 id: Date.now() + 1,
-                text: "Desculpe, estou com dificuldades técnicas no momento. Você pode tentar novamente ou entrar em contato com nosso suporte humano. Como posso ajudá-lo de outra forma?",
+                text: "Desculpe, estou com dificuldades técnicas no momento. Você pode tentar novamente ou entrar em contato com nosso suporte em decoleinet@gmail.com. Como posso ajudá-lo de outra forma?",
                 isBot: true,
                 timestamp: new Date()
             };
@@ -56,26 +66,6 @@ export default function ChatBot() {
             setMessages(prev => [...prev, botResponse]);
         } finally {
             setIsTyping(false);
-        }
-    };
-
-    const getBotResponse = (message) => {
-        const lowerMessage = message.toLowerCase();
-        
-        if (lowerMessage.includes('preço') || lowerMessage.includes('valor') || lowerMessage.includes('custo')) {
-            return "Os preços dos nossos pacotes variam de acordo com o destino e época do ano. Você pode usar os filtros na página inicial para encontrar pacotes dentro do seu orçamento. Posso te ajudar a encontrar algo específico?";
-        } else if (lowerMessage.includes('reserva') || lowerMessage.includes('reservar')) {
-            return "Para fazer uma reserva, você precisa estar logado na plataforma. Escolha o pacote desejado, clique em 'Reservar' e siga os passos do processo de pagamento. Precisa de ajuda com alguma etapa específica?";
-        } else if (lowerMessage.includes('destino') || lowerMessage.includes('viagem') || lowerMessage.includes('lugar')) {
-            return "Temos pacotes para diversos destinos incríveis! Você pode usar a barra de pesquisa para encontrar um destino específico ou navegar pelos nossos pacotes em destaque. Tem algum lugar em mente?";
-        } else if (lowerMessage.includes('cancelar') || lowerMessage.includes('cancelamento')) {
-            return "Para cancelamentos, você pode acessar 'Minha Conta' e gerenciar suas reservas, ou entrar em contato com nosso suporte através da página de Suporte. Posso te ajudar a navegar até lá?";
-        } else if (lowerMessage.includes('pagamento') || lowerMessage.includes('pagar')) {
-            return "Aceitamos diversas formas de pagamento, incluindo cartão de crédito, débito e PIX. O processo de pagamento é seguro e você receberá a confirmação por email. Tem alguma dúvida específica sobre pagamento?";
-        } else if (lowerMessage.includes('oi') || lowerMessage.includes('olá') || lowerMessage.includes('ola')) {
-            return "Olá! Bem-vindo à Decolei.net! 🌎 Estou aqui para te ajudar a encontrar a viagem dos seus sonhos. O que você gostaria de saber?";
-        } else {
-            return "Entendi! Posso te ajudar com informações sobre nossos pacotes, reservas, preços, destinos e muito mais. Se preferir, você também pode navegar pelo site ou entrar em contato com nosso suporte humano. O que você gostaria de saber?";
         }
     };
 
@@ -113,7 +103,7 @@ export default function ChatBot() {
                     <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center">
                         <Bot size={20} className="mr-2" />
                         <div>
-                            <h3 className="font-semibold">Assistente IA</h3>
+                            <h3 className="font-semibold">Celio - Assistente IA</h3>
                             <p className="text-xs text-blue-100">Decolei.net</p>
                         </div>
                     </div>
