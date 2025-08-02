@@ -38,22 +38,32 @@ const reservaService = {
   },
 
   /**
-   * Atualiza o status de uma reserva.
-   * PUT /api/Reserva/{id}
+   * Atualiza a lista de viajantes de uma reserva e recalcula seu valor total.
+   * @param {number} reservaId - O ID da reserva a ser atualizada.
+   * @param {Array<object>} viajantes - A lista de acompanhantes [{ nome, documento }].
+   * @returns {Promise<object>} A reserva atualizada retornada pela API.
    */
-  atualizarStatusReserva: async (id, novoStatus) => {
-    const response = await api.put(`/Reserva/${id}`, { status: novoStatus });
+  atualizarViajantes: async (reservaId, viajantes) => {
+    // A API espera um array de ViajanteDto no corpo da requisição.
+    // O nome do endpoint deve bater exatamente com o que foi definido no backend.
+    const response = await api.put(`/Reserva/${reservaId}/viajantes`, viajantes);
     return response.data;
   },
 
   /**
-   * [ADMIN/ATENDENTE] Lista as reservas de um cliente específico pelo ID do usuário.
-   * GET /api/Reserva/usuario/{usuarioId}
+   * Atualiza o status de uma reserva.
+   * PUT /api/Reserva/{id}
    */
+  atualizarStatusReserva: async (id, novoStatus) => {
+    // A API espera um objeto no formato do UpdateReservaDto: { status: "..." }
+    const response = await api.put(`/Reserva/${id}`, { status: novoStatus });
+    return response.data; // Geralmente retorna NoContent (204), então a resposta pode ser vazia.
+  },
+
   listarReservasPorUsuario: async (usuarioId) => {
     const response = await api.get(`/Reserva/usuario/${usuarioId}`);
     return response.data;
-  }
+  },
 };
 
 export default reservaService;

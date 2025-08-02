@@ -4,9 +4,10 @@ import { Search } from 'lucide-react';
 import pacoteService from '../../services/pacoteServices.js';
 import avaliacaoService from '../../services/avaliacoesServices.js';
 import Card from '../../components/Card';
-import Pagination from '../../components/Pagination'; 
+import Pagination from '../../components/Pagination';
 
 const PACOTES_POR_PAGINA = 24;
+const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
 
 export default function Home() {
     // --- ESTADOS DE DADOS E CARREGAMENTO ---
@@ -24,17 +25,19 @@ export default function Home() {
     });
     const [filtrosAplicados, setFiltrosAplicados] = useState({});
 
+    // Renomeamos o estado para maior clareza. Agora guarda pacotes inteiros.
+    const [historicoVisualizacao, setHistoricoVisualizacao] = useState([]);
+
     // --- ESTADOS DA PAGINAÇÃO ---
     const [paginaAtual, setPaginaAtual] = useState(1);
     const totalPaginas = Math.ceil(todosOsPacotes.length / PACOTES_POR_PAGINA);
 
-    // ✅ Lógica para buscar os dados da API quando os filtros são aplicados
+    // Lógica para buscar os dados da API 
     useEffect(() => {
         const fetchDados = async () => {
             setIsLoading(true);
             setErro('');
             try {
-                // Remove chaves vazias do objeto de filtros antes de enviar para a API
                 const filtrosValidos = Object.entries(filtrosAplicados).reduce((acc, [key, value]) => {
                     if (value) acc[key] = value;
                     return acc;
@@ -59,7 +62,7 @@ export default function Home() {
                     })
                 );
                 setTodosOsPacotes(pacotesCompletos);
-                setPaginaAtual(1); // Reseta para a primeira página após uma nova busca
+                setPaginaAtual(1);
 
             } catch (error) {
                 console.error("Erro ao carregar pacotes:", error);
@@ -70,16 +73,22 @@ export default function Home() {
         };
 
         fetchDados();
-    }, [filtrosAplicados]); // Re-executa a busca sempre que os filtros aplicados mudarem
+    }, [filtrosAplicados]);
 
-    // 'useMemo' para calcular apenas os pacotes da página atual, otimizando a performance
+    // Lógica para carregar o histórico de PACOTES VISTOS do localStorage.
+    useEffect(() => {
+        const storedHistory = localStorage.getItem(PACOTES_VISTOS_KEY);
+        if (storedHistory) {
+            setHistoricoVisualizacao(JSON.parse(storedHistory));
+        }
+    }, []); // Executa apenas uma vez quando o componente é montado.
+
     const pacotesDaPaginaAtual = useMemo(() => {
         const primeiroIndice = (paginaAtual - 1) * PACOTES_POR_PAGINA;
         const ultimoIndice = primeiroIndice + PACOTES_POR_PAGINA;
         return todosOsPacotes.slice(primeiroIndice, ultimoIndice);
     }, [paginaAtual, todosOsPacotes]);
 
-    // --- HANDLERS PARA INTERAÇÃO ---
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
@@ -91,63 +100,89 @@ export default function Home() {
     };
 
     return (
-        <>
-            {/* Seção de Busca e Filtros */}
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-gray-800 mb-6">Para onde gostaria de ir?</h1>
-
-                <form onSubmit={handleApplyFilters} className="space-y-4">
-                    {/* Barra de Pesquisa Principal */}
-                    <div className="max-w-xl mx-auto flex items-center bg-blue-800 p-2 rounded-lg shadow-lg">
-                        <input
-                            name="destino"
-                            type="text"
-                            value={filtros.destino}
-                            onChange={handleInputChange}
-                            placeholder="Busque por destino..."
-                            className="flex-grow w-full bg-transparent border-none text-lg font-bold text-white placeholder-blue-300 focus:outline-none focus:ring-0"
-                        />
-                        <button type="submit" className="bg-white text-blue-800 rounded-md p-3 shadow-md transform hover:scale-105 transition-transform">
-                            <Search size={24} />
-                        </button>
-                    </div>
-
-                    {/* Filtros Avançados */}
-                    <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                        <input type="number" name="precoMin" value={filtros.precoMin} onChange={handleInputChange} placeholder="Preço Mín." className="p-2 border rounded"/>
-                        <input type="number" name="precoMax" value={filtros.precoMax} onChange={handleInputChange} placeholder="Preço Máx." className="p-2 border rounded"/>
-                        <input type="date" name="dataInicio" value={filtros.dataInicio} onChange={handleInputChange} className="p-2 border rounded"/>
-                        <input type="date" name="dataFim" value={filtros.dataFim} onChange={handleInputChange} className="p-2 border rounded"/>
-                    </div>
-                </form>
+        <div className="min-h-screen bg-blue-50 font-sans">
+            <div className="container mx-auto px-4 py-6 text-center">
+                <div className="bg-blue-800 p-10 rounded-b-3xl mb-8 shadow-xl">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
+                        Para onde você deseja ir?
+                    </h1>
+                    <p className="text-base text-blue-200 mb-6 max-w-xl mx-auto">
+                        Busque por pacotes, destinos e datas para encontrar a viagem perfeita para você.
+                    </p>
+                    <form onSubmit={handleApplyFilters} className="space-y-4 max-w-3xl mx-auto">
+                        <div className="flex items-center bg-white p-2 rounded-xl shadow-lg border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-300">
+                            <input name="destino" type="text" value={filtros.destino} onChange={handleInputChange} placeholder="Busque por destino, hotel ou cidade..." className="flex-grow w-full bg-transparent border-none text-gray-800 placeholder-gray-400 focus:outline-none text-base px-2"/>
+                            <button type="submit" className="bg-blue-600 text-white rounded-lg p-2 shadow-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-300">
+                                <Search size={20} />
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <input id="precoMin" type="number" name="precoMin" value={filtros.precoMin} onChange={handleInputChange} placeholder="Preço Mín." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            <input id="precoMax" type="number" name="precoMax" value={filtros.precoMax} onChange={handleInputChange} placeholder="Preço Máx." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            <div className="flex flex-col">
+                                <label htmlFor="dataInicio" className="text-xs font-medium text-white mb-1 self-start">Data de Início</label>
+                                <input id="dataInicio" type="date" name="dataInicio" value={filtros.dataInicio} onChange={handleInputChange} className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            </div>
+                            <div className="flex flex-col">
+                                <label htmlFor="dataFim" className="text-xs font-medium text-white mb-1 self-start">Data de Fim</label>
+                                <input id="dataFim" type="date" name="dataFim" value={filtros.dataFim} onChange={handleInputChange} className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            {/* Seção dos Cards */}
-            <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Destinos Populares</h2>
-                {isLoading ? (
-                    <div className="text-center p-10 font-bold">Buscando melhores destinos...</div>
-                ) : erro ? (
-                    <p className="text-center text-red-500 py-10">{erro}</p>
-                ) : pacotesDaPaginaAtual.length > 0 ? (
-                    <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {pacotesDaPaginaAtual.map((pacote) => (
-                                <Link key={pacote.id} to={`/pacotes/${pacote.id}`} className="block h-full">
+            
+            {/* O container principal para as seções de conteúdo */}
+            <div className="container max-w-6xl mx-auto px-4 py-6">
+                {/* VISTOS RECENTEMENTE */}
+                {/* Esta seção só aparece se houver histórico */}
+                {historicoVisualizacao.length > 0 && (
+                    <div className="mb-8"> {/* Div que dá um espaço abaixo da seção */}
+                        <h2 className="text-2xl font-bold text-gray-800 max-w-6xl mx-auto mb-4">Vistos recentemente</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+                            {historicoVisualizacao.map((pacote) => (
+                                <Link key={`hist-${pacote.id}`} to={`/pacotes/${pacote.id}`} className="block h-full">
                                     <Card pacote={pacote} />
                                 </Link>
                             ))}
                         </div>
-                        <Pagination
-                            paginaAtual={paginaAtual}
-                            totalPaginas={totalPaginas}
-                            onPageChange={setPaginaAtual}
-                        />
-                    </>
-                ) : (
-                    <p className="text-center text-gray-500 py-10">Nenhum pacote encontrado com os filtros selecionados. Tente ajustar sua busca!</p>
+                    </div>
                 )}
+
+                {/* Esta é a seção principal que mostra os resultados da busca */}
+                <div >
+                    <h2 className="text-2xl font-bold text-gray-800 max-w-6xl mx-auto mb-4">Destinos em destaque</h2>
+                    
+                    {/* Lógica condicional para exibir loading, erro, ou os resultados */}
+                    {isLoading ? (
+                        <div className="text-center p-8 text-gray-500 font-bold text-sm">Buscando os melhores destinos para você...</div>
+                    ) : erro ? (
+                        <p className="text-center text-red-500 py-8 text-sm">{erro}</p>
+                    ) : pacotesDaPaginaAtual.length > 0 ? (
+                        <>
+                            {/* A grade de cards com os pacotes */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+                                {pacotesDaPaginaAtual.map((pacote) => (
+                                    <Link key={pacote.id} to={`/pacotes/${pacote.id}`} className="block h-full">
+                                        <Card pacote={pacote} />
+                                    </Link>
+                                ))}
+                            </div>
+                            
+                            {/* A paginação, que só aparece se houver pacotes */}
+                            <div className="mt-6 max-w-6xl mx-auto">
+                                <Pagination
+                                    paginaAtual={paginaAtual}
+                                    totalPaginas={totalPaginas}
+                                    onPageChange={setPaginaAtual}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <p className="text-center text-gray-500 py-8 text-sm">Nenhum pacote encontrado com os filtros selecionados. Tente ajustar sua busca!</p>
+                    )}
+                </div>
             </div>
-        </>
+        </div>
     );
 }

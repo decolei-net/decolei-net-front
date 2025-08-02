@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import ClienteLayout from '../layouts/ClienteLayout.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
-import AtendenteLayout from '../layouts/AtendenteLayout.jsx'; // ✅ layout leve do atendente
+import AtendenteLayout from '../layouts/AtendenteLayout.jsx';
 
 // Protetores de Rota e Componente de Entrada
 import PrivateRoute from '../components/PrivateRoute.jsx';
@@ -19,7 +19,7 @@ import ResetPassword from '../Pages/ResetPassword/ResetPassword.jsx';
 
 // Dashboards
 import AdminDashboard from '../pages/Dashboards/AdminDashboard.jsx';
-import ClienteDashboard from '../pages/Dashboards/ClienteDashboard.jsx';
+import ClienteDashboard from '../Pages/Dashboards/ClienteDashboard.jsx';
 import AtendenteDashboard from '../pages/Dashboards/AtendenteDashboard.jsx';
 
 // Cliente
@@ -27,11 +27,13 @@ import Home from '../Pages/Home/Home.jsx';
 import Suporte from '../pages/Suporte/Suporte.jsx';
 import PacoteDetalhes from '../Pages/PacoteDetalhes/PacoteDetalhes.jsx';
 import Pagamento from '../Pages/Pagamento/Pagamento.jsx';
+import Reserva from '../pages/Reserva/Reserva.jsx';
 
 // Atendente
 import BuscarCliente from '../Pages/Atendente/BuscarCliente.jsx';
 import ReservasRecentes from '../Pages/Atendente/ReservasRecentes.jsx';
 import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
+import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 export default function AppRoutes() {
   return (
@@ -75,7 +77,7 @@ export default function AppRoutes() {
         {/* O <Navigate> foi removido para evitar o loop. */}
       </Route>
 
-      {/* ✅ Rotas Privadas - Atendente com layout mínimo */}
+      {/* Rotas Privadas - Atendente */}
       <Route
         path="/dashboard-atendente"
         element={
@@ -87,13 +89,14 @@ export default function AppRoutes() {
         <Route index element={<AtendenteDashboard />} />
         <Route path="buscar-cliente" element={<BuscarCliente />} />
         <Route path="reservas-recentes" element={<ReservasRecentes />} />
-        <Route path="detalhes-cliente/:id" element={<DetalhesClientes />} />
+        <Route path="detalhes-reserva/:id" element={<DetalhesReservaGestao />} />
+        <Route path="detalhes-clientes/:id" element={<DetalhesClientes />} />
       </Route>
 
       {/* Rotas Privadas - Cliente */}
       <Route
         element={
-          <PrivateRoute roles={['CLIENTE', 'ADMIN']}>
+          <PrivateRoute roles={['CLIENTE', 'ADMIN', 'ATENDENTE']}>
             <ClienteLayout />
           </PrivateRoute>
         }
@@ -103,6 +106,7 @@ export default function AppRoutes() {
         <Route path="/dashboard-cliente" element={<Navigate to="/home" replace />} />
         <Route path="/minha-conta" element={<ClienteDashboard />} />
         <Route path="/pacotes/:id" element={<PacoteDetalhes />} />
+        <Route path="/reservar/:pacoteId" element={<Reserva />} />
         <Route path="/pagamento/:reservaId" element={<Pagamento />} />
       </Route>
 

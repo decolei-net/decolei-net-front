@@ -26,9 +26,6 @@ const ModalDetalhesReservas = ({ reserva, onClose }) => {
     navigate(`/pagamento/${reserva.id}`);
   };
 
-  // --- INÍCIO DAS NOVAS ALTERAÇÕES ---
-
-  // 1. Mapeamento de status para textos e cores mais claros
   const statusReservaMap = {
     PENDENTE: { text: 'Pendente', className: 'bg-yellow-100 text-yellow-800' },
     CONFIRMADO: { text: 'Confirmada', className: 'bg-blue-100 text-blue-800' },
@@ -51,8 +48,6 @@ const ModalDetalhesReservas = ({ reserva, onClose }) => {
     text: 'Indisponível',
     className: 'text-gray-500',
   };
-
-  // --- FIM DAS NOVAS ALTERAÇÕES ---
 
   return (
     <div
