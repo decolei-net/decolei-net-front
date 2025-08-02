@@ -58,4 +58,14 @@ O frontend do Decolei.net é construído sobre uma pilha de tecnologias modernas
 
 * **ESLint & Prettier:**
     * **O que é:** Ferramentas de análise estática e formatação de código. O ESLint ajuda a encontrar erros e problemas de estilo, enquanto o Prettier formata o código de forma consistente.
-    * **Por que foi escolhido:** Essenciais para manter a qualidade, a legibilidade e a
+    * **Por que foi escolhido:** Essenciais para manter a qualidade, a legibilidade e a consistência do código ao longo do desenvolvimento.
+
+### Inteligência Artificial e ChatBot
+
+* **Google Gemini API:**
+    * **O que é:** API de inteligência artificial do Google que oferece capacidades avançadas de processamento de linguagem natural através do modelo Gemini.
+    * **Por que foi escolhido:** Funciona como alternativa ao OpenAI, garantindo redundância no serviço de IA e permitindo escolher o melhor modelo para diferentes tipos de consultas.
+
+* **Fetch API:**
+    * **O que é:** API nativa do JavaScript para realizar requisições HTTP de forma moderna e baseada em Promises.
+    * **Por que foi escolhido:** Utilizada especificamente para comunicação com as APIs de IA, oferecendo uma abordagem mais leve que o Axios para essas requisições específicas.
