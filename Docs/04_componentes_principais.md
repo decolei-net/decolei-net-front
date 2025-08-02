@@ -26,6 +26,7 @@ Estes são blocos de construção genéricos e especializados que compõem as p�
 * `StarRating.jsx`: Componente visual para exibir ou permitir a seleção de notas de 1 a 5, utilizado nas avaliações.
 * `Pagination.jsx`: Componente de paginação para navegar entre grandes listas de dados.
 * `FiltroStatusReserva.jsx`: Componente de filtro para a lista de reservas, permitindo filtrar por status.
+* `ChatBot.jsx`: Componente de chat inteligente com IA que oferece suporte automatizado aos usuários. Apresenta um botão flutuante na interface e uma caixa de diálogo interativa para conversas em tempo real.
 
 ### 3. Componentes de Roteamento (`/routes`)
 

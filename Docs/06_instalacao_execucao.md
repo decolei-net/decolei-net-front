@@ -30,13 +30,15 @@ Certifique-se de que as seguintes ferramentas estejam instaladas em sua máquina
         ```
     * **Observação:** É uma boa prática executar este comando sempre que você fizer um `git pull` para garantir que todas as novas dependências estejam instaladas.
 
-3.  **Configurar a URL da API do Backend:**
-    * Crie um arquivo `.env` na raiz do projeto (na mesma pasta do `package.json`).
-    * Adicione a URL do backend, substituindo `[PORTA_DA_API]` pela porta real em que seu backend está rodando:
-        ```
-        VITE_API_URL=https://localhost:[PORTA_DA_API]/api
-        ```
-    * **Atenção:** Certifique-se de que o backend esteja em execução para que o frontend possa se comunicar com ele.
+3.  **Configurar a Chave de API no aiService.js:**
+    * A integração com a Inteligência Artificial foi centralizada no arquivo aiService.js. Para ativar o ChatBot, você precisa inserir sua chave de API diretamente neste arquivo..
+    * Abra o arquivo: src/services/aiService.js (ou onde quer que ele esteja no seu projeto).
+    * Insira sua chave de API: Localize a linha this.apiKey dentro do constructor e substitua o valor existente pela sua chave do Google Gemini.
+
+    * **Observações importantes:**
+        * Para obter as chaves de API:
+            * **Google Gemini:** Acesse [aistudio](https://aistudio.google.com/app/apikey) e gere uma chave de API
+        * O provedor de IA já está definido como gemini no código, então apenas a chave do Gemini é necessária.
 
 4.  **Executar o Projeto:**
     * Use o comando para iniciar o servidor de desenvolvimento do Vite:

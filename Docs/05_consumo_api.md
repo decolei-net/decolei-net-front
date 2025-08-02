@@ -38,6 +38,14 @@ A pasta `src/services` centraliza todas as interações com a API, isolando a l�
 * `avaliacoesService.js`: Gerencia as requisições para registrar e moderar avaliações.
 * `usuarioService.js`: Lida com a busca e o gerenciamento de dados de usuários.
 * `imagemService.js`: Gerencia o upload e a manipulação de imagens.
+* `aiService.js`: Gerencia a comunicação com APIs de inteligência artificial (OpenAI GPT e Google Gemini) para o sistema de ChatBot, incluindo sistema de fallback para respostas inteligentes quando as APIs externas não estão disponíveis.
+
+### 4. Integração com APIs de Inteligência Artificial
+
+O sistema inclui um serviço especializado para comunicação com APIs de IA que alimenta o ChatBot da aplicação:
+
+* **Motor de IA::** Google Gemini, implementado através do `aiService.js`.
+* **Contexto Especializado:** As consultas são enviadas com contexto específico sobre a agência de viagens, permitindo respostas mais precisas e relevantes.
 
 Essa abordagem garante que a lógica de comunicação com a API seja consistente, reutilizável e fácil de manter.
 
