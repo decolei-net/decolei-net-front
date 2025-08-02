@@ -36,20 +36,21 @@ export default function Card({ pacote }) {
                 onError={(e) => { e.currentTarget.src = placeholderImg; }}
                 className="w-full h-40 object-cover"
             />
-            <div className="p-4 flex-1 flex flex-col justify-between">
+            <div className="p-3 flex-1 flex flex-col justify-between">
                 <div>
-                    <h3 className="text-md font-bold text-gray-800 truncate">{pacote.titulo}</h3>
-                    <div className="flex items-center mt-2">
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">{pacote.titulo}</h3>
+                    <p className="text-xs text-gray-500">{pacote.destino}</p>
+                    <div className="flex items-center mt-1">
                         <StarRating rating={pacote.mediaAvaliacoes} />
                         {temAvaliacoes && (
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-gray-500 ml-1">
                                 ({pacote.totalAvaliacoes})
                             </span>
                         )}
                     </div>
                 </div>
-                <div className="mt-4">
-                    <p className="text-xl font-extrabold text-gray-900">
+                <div className="mt-2">
+                    <p className="text-lg font-extrabold text-gray-900">
                         R$ {pacote.valor?.toFixed(2).replace('.', ',')}
                     </p>
                     <p className="text-xs text-gray-500 -mt-1">por pessoa</p>
