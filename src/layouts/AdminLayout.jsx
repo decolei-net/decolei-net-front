@@ -3,17 +3,17 @@ import AdminSidebar from '../components/AdminSideBar';
 
 export default function AdminLayout() {
   return (
-    <div className="flex h-screen bg-gray-100">
+    // O layout principal agora se adapta. 'lg:flex-row' para desktop, 'flex-col' (padrão) para mobile.
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
       
-      {/* 1. A nova sidebar, simples e funcional */}
+      {/* O AdminSidebar agora é inteligente e se adapta sozinho */}
       <AdminSidebar />
-
-      {/* 2. A área de conteúdo principal, que ocupa o resto da tela */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        
-        {/* 3. O Outlet, que renderiza a página correta (Dashboard, Pacotes, etc.) */}
-        <Outlet />
-        
+      
+      {/* O conteúdo principal com scroll independente */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

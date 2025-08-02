@@ -14,7 +14,7 @@ export default function AdminPacotes() {
     const [dataInicio, setDataInicio] = useState('');
     const [dataFim, setDataFim] = useState('');
     const [valor, setValor] = useState('');
-
+    const [quantidadeVagas, setQuantidadeVagas] = useState('');
     // Estado para as imagens e vídeos
     const [imagens, setImagens] = useState([]);
     const [videoUrl, setVideoUrl] = useState('');
@@ -49,7 +49,7 @@ export default function AdminPacotes() {
         setLoading(true);
         setError('');
 
-        const pacoteData = { titulo, destino, descricao, dataInicio, dataFim, valor: parseFloat(valor) };
+        const pacoteData = { titulo, destino, descricao, dataInicio, dataFim, valor: parseFloat(valor), quantidadeVagas: parseInt(quantidadeVagas, 10) };
 
         try {
             // 1. Cria o pacote primeiro para obter um ID
@@ -87,14 +87,14 @@ export default function AdminPacotes() {
     return (
         <div className="p-2 sm:p-4">
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Adicionar Novo Pacote</h1>
-            
+
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
+
                     {/* Coluna da Esquerda: Imagens e Vídeos */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-semibold text-gray-700">Imagens e Vídeos</h2>
-                        
+
                         {/* Área de Upload */}
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-gray-50">
                             <label htmlFor="file-upload" className="cursor-pointer">
@@ -137,22 +137,22 @@ export default function AdminPacotes() {
                     {/* Coluna da Direita: Detalhes do Pacote */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-semibold text-gray-700">Detalhes do Pacote</h2>
-                        
+
                         <div>
                             <label htmlFor="titulo" className="block text-sm font-medium text-gray-700">Título do Pacote</label>
                             <input type="text" id="titulo" value={titulo} onChange={e => setTitulo(e.target.value)} required className="mt-1 w-full p-2 border rounded-md" />
                         </div>
-                        
+
                         <div>
                             <label htmlFor="destino" className="block text-sm font-medium text-gray-700">Destino (Ex: Paris, França)</label>
                             <input type="text" id="destino" value={destino} onChange={e => setDestino(e.target.value)} required className="mt-1 w-full p-2 border rounded-md" />
                         </div>
-                        
+
                         <div>
                             <label htmlFor="descricao" className="block text-sm font-medium text-gray-700">Descrição Completa</label>
                             <textarea id="descricao" value={descricao} onChange={e => setDescricao(e.target.value)} required rows="4" className="mt-1 w-full p-2 border rounded-md"></textarea>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="dataInicio" className="block text-sm font-medium text-gray-700">Data de Início</label>
@@ -163,10 +163,24 @@ export default function AdminPacotes() {
                                 <input type="date" id="dataFim" value={dataFim} onChange={e => setDataFim(e.target.value)} required className="mt-1 w-full p-2 border rounded-md" />
                             </div>
                         </div>
-
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="valor" className="block text-sm font-medium text-gray-700">Valor por pessoa (R$)</label>
                             <input type="number" id="valor" value={valor} onChange={e => setValor(e.target.value)} required min="0" step="0.01" className="mt-1 w-full p-2 border rounded-md" />
+                        </div>
+                        <div>
+                            <label htmlFor="quantidadeVagas" className="block text-sm font-medium text-gray-700">Vagas Totais</label>
+                            <input
+                                type="number"
+                                id="quantidadeVagas"
+                                value={quantidadeVagas}
+                                onChange={e => setQuantidadeVagas(e.target.value)}
+                                required
+                                min="1"
+                                className="mt-1 w-full p-2 border rounded-md"
+                                placeholder="Ex: 50"
+                            />
+                        </div>
                         </div>
                     </div>
                 </div>

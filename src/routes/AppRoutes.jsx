@@ -36,7 +36,7 @@ import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
 import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 // Admin
-import AdminPacotes from '../Pages/Admin/AdminPacotes.jsx';
+import AdminPacotes from '../Pages/AdminPacote/AdminPacotes.jsx';
 
 
 export default function AppRoutes() {
@@ -59,26 +59,27 @@ export default function AppRoutes() {
       </Route>
 
       {/* Rotas Privadas - Admin */}
+       {/* Rotas Privadas - Admin (VERSÃO CORRIGIDA) */}
       <Route
         path="/dashboard-admin"
         element={
           <PrivateRoute roles={['ADMIN']}>
-            <AdminLayout>
-              <AdminDashboard />
-            </AdminLayout>
+            {/* O elemento da rota pai agora renderiza APENAS o layout. */}
+            {/* O <Outlet /> dentro do AdminLayout fará o resto. */}
+            <AdminLayout />
           </PrivateRoute>
         }
       >
+        {/* A rota "index" é a página padrão para /dashboard-admin */}
         <Route index element={<AdminDashboard />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="pacotes" element={<AdminPacotes />} />
-        {/* Rotas futuras para cada item da sidebar (não precisam de alteração) */}
-        {/* <Route path="pacotes" element={<GerenciarPacotes />} /> */}
-        {/* <Route path="reservas" element={<GerenciarReservas />} /> */}
-        {/* <Route path="usuarios" element={<GerenciarUsuarios />} /> */}
-        {/* <Route path="avaliacoes" element={<GerenciarAvaliacoes />} /> */}
 
-        {/* O <Navigate> foi removido para evitar o loop. */}
+        {/* Rotas filhas para cada item da sidebar */}
+        <Route path="pacotes" element={<AdminPacotes />} />
+        
+        {/* Adicione placeholders para as outras rotas para evitar erros */}
+        {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}
+        {/* <Route path="usuarios" element={<div>Página de Usuários</div>} /> */}
+        {/* <Route path="avaliacoes" element={<div>Página de Avaliações</div>} /> */}
       </Route>
 
       {/* Rotas Privadas - Atendente */}
