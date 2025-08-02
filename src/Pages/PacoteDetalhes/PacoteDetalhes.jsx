@@ -4,9 +4,9 @@ import pacoteService from '../../services/pacoteServices';
 import reservaService from '../../services/reservaService';
 import StarRating from '../../components/StarRating';
 import { API_BASE_URL } from '../../services/api';
-
-// Ícones para as setas e para o thumbnail de vídeo
 import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
+
+const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
 
 const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Mídia+Indisponível';
 
@@ -47,8 +47,33 @@ const PacoteDetalhes = () => {
           const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
           mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
         }
-        setPacote({ ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes });
+
+        // objeto completo do pacote
+        const pacoteCompleto = { ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes };
+        setPacote(pacoteCompleto);
         setIndiceAtual(0);
+        
+        // Início da Lógica para Salvar no Histórico de Visualização
+        try {
+          // 1. Pega o histórico atual do localStorage ou cria um array vazio.
+          const historicoAtual = JSON.parse(localStorage.getItem(PACOTES_VISTOS_KEY)) || [];
+          
+          // 2. Remove o pacote atual do histórico (caso o usuário esteja visitando a página de novo).
+          const historicoFiltrado = historicoAtual.filter(p => p.id !== pacoteCompleto.id);
+
+          // 3. Adiciona o pacote recém-visto no início da lista.
+          const novoHistorico = [pacoteCompleto, ...historicoFiltrado];
+
+          // 4. Limita o histórico a um número razoável (ex: 5 pacotes).
+          const historicoLimitado = novoHistorico.slice(0, 5);
+
+          // 5. Salva o histórico atualizado de volta no localStorage.
+          localStorage.setItem(PACOTES_VISTOS_KEY, JSON.stringify(historicoLimitado));
+
+        } catch (storageError) {
+          console.warn("Não foi possível salvar o histórico de visualização:", storageError);
+        }
+
       } catch (err) {
         console.error("Erro ao buscar detalhes do pacote:", err);
         setError("Não foi possível carregar os detalhes do pacote.");
@@ -60,25 +85,17 @@ const PacoteDetalhes = () => {
   }, [id]);
 
   useEffect(() => {
-    // Pega a mídia que está sendo exibida no momento
     const midiaAtual = pacote?.imagens?.[indiceAtual];
-
-    // A condição agora é:
-    // 1. Tem que ter mais de uma mídia.
-    // 2. A mídia atual NÃO PODE ser um vídeo.
     if (pacote?.imagens?.length > 1 && midiaAtual && !midiaAtual.isVideo) {
       const timerId = setInterval(proximaMidia, 5000);
-      // Limpa o timer se o componente for desmontado ou se o slide mudar
       return () => clearInterval(timerId);
     }
-    // O timer agora depende do indiceAtual. Toda vez que o slide muda,
-    // este código roda de novo e decide se o timer deve ou não ser ativado.
   }, [pacote, proximaMidia, indiceAtual]);
 
   const handleReservarAgora = async () => {
     setIsReservando(true);
     try {
-      const novaReserva = await reservaService.criarReserva({ pacoteViagemId: pacote.id });
+      await reservaService.criarReserva({ pacoteViagemId: pacote.id });
       navigate(`/reservar/${pacote.id}`);
     } catch (err) {
       alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
