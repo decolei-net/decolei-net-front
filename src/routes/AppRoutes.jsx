@@ -36,8 +36,9 @@ import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
 import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 // Admin
-import AdminPacotes from '../Pages/AdminPacote/AdminPacotes.jsx';
-
+import GerenciarPacotes from '../Pages/AdminPacote/GerenciarPacotes.jsx'; // Nome do arquivo corrigido aqui
+import AdicionarPacote from '../Pages/AdminPacote/AdicionarPacote.jsx';
+import EditarPacote from '../Pages/AdminPacote/EditarPacote.jsx';
 
 export default function AppRoutes() {
   return (
@@ -74,7 +75,9 @@ export default function AppRoutes() {
         <Route index element={<AdminDashboard />} />
 
         {/* Rotas filhas para cada item da sidebar */}
-        <Route path="pacotes" element={<AdminPacotes />} />
+        <Route path="pacotes" element={<GerenciarPacotes />} />
+        <Route path="pacotes/novo" element={<AdicionarPacote />} />
+        <Route path="pacotes/editar/:id" element={<EditarPacote />} />
         
         {/* Adicione placeholders para as outras rotas para evitar erros */}
         {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}

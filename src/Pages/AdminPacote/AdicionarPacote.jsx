@@ -4,7 +4,7 @@ import { UploadCloud, X } from 'lucide-react';
 import pacoteService from '../../services/pacoteServices';
 import imagemService from '../../services/imagemService'; // Verifique se o nome do serviço é este
 
-export default function AdminPacotes() {
+export default function AdicionarPacote() {
     const navigate = useNavigate();
 
     // Estados para os campos do formulário
