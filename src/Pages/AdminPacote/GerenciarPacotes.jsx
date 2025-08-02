@@ -7,22 +7,43 @@ export default function GerenciarPacotes() {
     const [pacotes, setPacotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [filtros, setFiltros] = useState({
+        destino: '',
+        precoMin: '',
+        precoMax: '',
+        dataInicio: '',
+        dataFim: '',
+    });
     const navigate = useNavigate();
 
+    const fetchPacotes = async (currentFiltros) => {
+        try {
+            setLoading(true);
+            const data = await pacoteService.getPacotes(currentFiltros);
+            setPacotes(data);
+        } catch (err) {
+            setError('Não foi possível carregar os pacotes.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchPacotes = async () => {
-            try {
-                setLoading(true);
-                const data = await pacoteService.getPacotes();
-                setPacotes(data);
-            } catch (err) {
-                setError('Não foi possível carregar os pacotes.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPacotes();
+        fetchPacotes(filtros);
     }, []);
+
+    const handleFiltroChange = (e) => {
+        const { name, value } = e.target;
+        setFiltros(prevFiltros => ({
+            ...prevFiltros,
+            [name]: value
+        }));
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        fetchPacotes(filtros);
+    };
 
     // Função para verificar se o pacote pode ser excluído
     const isDeletable = (pacote) => {
@@ -71,6 +92,59 @@ export default function GerenciarPacotes() {
                     Adicionar Novo Pacote
                 </button>
             </div>
+            
+            <div className="bg-white rounded-lg shadow p-4 mb-6">
+                <form onSubmit={handleSearchSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                        <input
+                            type="text"
+                            name="destino"
+                            placeholder="Destino"
+                            value={filtros.destino}
+                            onChange={handleFiltroChange}
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                            type="number"
+                            name="precoMin"
+                            placeholder="Preço Mínimo"
+                            value={filtros.precoMin}
+                            onChange={handleFiltroChange}
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                            type="number"
+                            name="precoMax"
+                            placeholder="Preço Máximo"
+                            value={filtros.precoMax}
+                            onChange={handleFiltroChange}
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                            type="date"
+                            name="dataInicio"
+                            value={filtros.dataInicio}
+                            onChange={handleFiltroChange}
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                            type="date"
+                            name="dataFim"
+                            value={filtros.dataFim}
+                            onChange={handleFiltroChange}
+                            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div className="flex justify-end">
+                        <button 
+                            type="submit" 
+                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+                        >
+                            Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
 
             <div className="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -98,7 +172,6 @@ export default function GerenciarPacotes() {
                                         </button>
                                         <button 
                                             onClick={() => handleDelete(pacote)} 
-                                            // Estilo condicional para o botão
                                             className={`p-1 ${deletable ? 'text-red-600 hover:text-red-900' : 'text-gray-400 cursor-not-allowed'}`}
                                             disabled={!deletable}
                                             title={!deletable ? "Pacote com reservas ativas" : "Excluir pacote"}
@@ -111,7 +184,7 @@ export default function GerenciarPacotes() {
                         })}
                     </tbody>
                 </table>
-                 {pacotes.length === 0 && <p className="text-center py-4 text-gray-500">Nenhum pacote cadastrado.</p>}
+                {pacotes.length === 0 && <p className="text-center py-4 text-gray-500">Nenhum pacote cadastrado.</p>}
             </div>
         </div>
     );

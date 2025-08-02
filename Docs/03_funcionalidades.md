@@ -37,7 +37,7 @@ A aplicação frontend do Decolei.net é a interface principal que implementa a 
 * **ChatBot com Inteligência Artificial:** Assistente virtual integrado que oferece suporte automatizado aos usuários, com conhecimento específico sobre os processos da Decolei.net e capacidade de integração com APIs de IA como Google Gemini.
 
 ### 7. Sistema de Inteligência Artificial e Suporte Automatizado
-* **ChatBot Flutuante:** Interface de chat acessível na maioria das páginas através de um botão flutuante no canto inferior direito. O ChatBot é automaticamente ocultado nas páginas de autenticação (login, cadastro e reset de senha) para não interferir no processo de autenticação.
+* **ChatBot Flutuante:** Interface de chat acessível em todas as páginas através de um botão flutuante no canto inferior direito.
 * **Respostas Contextuais:** Sistema inteligente que fornece respostas baseadas na documentação oficial da empresa e nos processos específicos da Decolei.net.
 * **Integração Multi-API:** Suporte para  API de IA (Google Gemini).
 * **Base de Conhecimento Específica:** Treinamento específico com informações sobre:

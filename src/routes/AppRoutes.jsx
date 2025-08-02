@@ -36,9 +36,11 @@ import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
 import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
 // Admin
-import GerenciarPacotes from '../Pages/AdminPacote/GerenciarPacotes.jsx'; // Nome do arquivo corrigido aqui
+import GerenciarPacotes from '../Pages/AdminPacote/GerenciarPacotes.jsx'; 
 import AdicionarPacote from '../Pages/AdminPacote/AdicionarPacote.jsx';
 import EditarPacote from '../Pages/AdminPacote/EditarPacote.jsx';
+import GerenciarUsuarios from '../Pages/AdminUsuario/GerenciarUsuarios.jsx'
+import EditarUsuario from '../Pages/AdminUsuario/EditarUsuario.jsx';
 
 export default function AppRoutes() {
   return (
@@ -78,7 +80,9 @@ export default function AppRoutes() {
         <Route path="pacotes" element={<GerenciarPacotes />} />
         <Route path="pacotes/novo" element={<AdicionarPacote />} />
         <Route path="pacotes/editar/:id" element={<EditarPacote />} />
-        
+        <Route path="usuarios" element={<GerenciarUsuarios />} />
+        <Route path="usuarios/editar/:id" element={<EditarUsuario />} />
+
         {/* Adicione placeholders para as outras rotas para evitar erros */}
         {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}
         {/* <Route path="usuarios" element={<div>Página de Usuários</div>} /> */}
