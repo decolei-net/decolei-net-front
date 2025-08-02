@@ -35,6 +35,10 @@ import ReservasRecentes from '../Pages/Atendente/ReservasRecentes.jsx';
 import DetalhesClientes from '../Pages/Atendente/DetalhesClientes.jsx';
 import DetalhesReservaGestao from '../Pages/Atendente/DetalhesReservaGestao.jsx';
 
+// Admin
+import AdminPacotes from '../Pages/Admin/AdminPacotes.jsx';
+
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -67,7 +71,7 @@ export default function AppRoutes() {
       >
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
-
+        <Route path="pacotes" element={<AdminPacotes />} />
         {/* Rotas futuras para cada item da sidebar (não precisam de alteração) */}
         {/* <Route path="pacotes" element={<GerenciarPacotes />} /> */}
         {/* <Route path="reservas" element={<GerenciarReservas />} /> */}
