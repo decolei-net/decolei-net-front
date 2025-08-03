@@ -41,6 +41,7 @@ import AdicionarPacote from '../Pages/AdminPacote/AdicionarPacote.jsx';
 import EditarPacote from '../Pages/AdminPacote/EditarPacote.jsx';
 import GerenciarUsuarios from '../Pages/AdminUsuario/GerenciarUsuarios.jsx'
 import EditarUsuario from '../Pages/AdminUsuario/EditarUsuario.jsx';
+import AdminReservaList from '../Pages/AdminReservaList/AdminReservaList.jsx'
 
 export default function AppRoutes() {
   return (
@@ -82,7 +83,7 @@ export default function AppRoutes() {
         <Route path="pacotes/editar/:id" element={<EditarPacote />} />
         <Route path="usuarios" element={<GerenciarUsuarios />} />
         <Route path="usuarios/editar/:id" element={<EditarUsuario />} />
-
+        <Route path="reservas" element={<AdminReservaList />} />
         {/* Adicione placeholders para as outras rotas para evitar erros */}
         {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}
         {/* <Route path="usuarios" element={<div>Página de Usuários</div>} /> */}
