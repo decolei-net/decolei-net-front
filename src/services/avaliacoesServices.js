@@ -30,6 +30,15 @@ const avaliacaoService = {
   },
 
   /**
+   * [ADMIN] Busca todas as avaliações que já foram APROVADAS.
+   * Corresponde a: GET /avaliacoes/aprovadas
+   */
+  getAvaliacoesAprovadas: async () => {
+    const response = await api.get('/avaliacoes/aprovadas');
+    return response.data;
+  },
+
+  /**
    * [ADMIN] Busca todas as avaliações que estão pendentes de moderação.
    * (RECOMENDADO: Este endpoint deve exigir autenticação de Admin no backend).
    * Corresponde a: GET /avaliacoes/pendentes
