@@ -14,10 +14,25 @@ export default function AdminReservaList() {
         return new Date(dateString).toLocaleDateString('pt-BR', options);
     };
 
+    // Função para definir a cor do badge com base no status
+    const getStatusColor = (status) => {
+        switch (status.toUpperCase()) {
+            case 'CONFIRMADA':
+                return 'bg-green-100 text-green-800';
+            case 'PENDENTE':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'CANCELADA':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     useEffect(() => {
         const fetchReservas = async () => {
             try {
                 setIsLoading(true);
+                // Chama o serviço sem nenhum parâmetro de filtro
                 const data = await reservaService.getTodasReservas();
                 setReservas(data);
             } catch (err) {
@@ -29,7 +44,7 @@ export default function AdminReservaList() {
         };
 
         fetchReservas();
-    }, []);
+    }, []); // O array de dependências está vazio, então a busca só ocorre uma vez.
 
     if (isLoading) {
         return <div className="text-center p-8">Carregando reservas...</div>;
@@ -86,13 +101,12 @@ export default function AdminReservaList() {
                                         {formatDate(reserva.data)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(reserva.status)}`}>
                                             {reserva.status}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        {/* Futuramente, link para ver detalhes da reserva */}
-                                        <Link to={`/detalhes-reserva/${reserva.id}`} className="text-indigo-600 hover:text-indigo-900">
+                                        <Link to={`/dashboard-admin/reservas/${reserva.id}`} className="text-indigo-600 hover:text-indigo-900">
                                             Detalhes
                                         </Link>
                                     </td>

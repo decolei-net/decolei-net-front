@@ -1,9 +1,10 @@
+// src/pages/Atendente/ReservasRecentes.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TabelaReservasBusca from '../../components/TabelaReservasBusca';
 import FiltroStatusReserva from '../../components/FiltroStatusReserva';
 import reservaService from '../../services/reservaService';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline'; // ✅ Importe o ícone de download
 
 const ReservasRecentes = () => {
   const [filtro, setFiltro] = useState('');
@@ -38,14 +39,42 @@ const ReservasRecentes = () => {
     return buscaTexto && statusValido;
   });
 
+  // ✅ Nova função para exportar o relatório de reservas
+  const handleExportarReservas = async () => {
+    try {
+      const response = await reservaService.exportarReservasPdf();
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `relatorio_reservas_${new Date().toISOString().slice(0, 10)}.pdf`; // Nome do arquivo com a data atual
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao exportar reservas:', error);
+      alert('Falha ao exportar o relatório. Verifique o console.');
+    }
+  };
+
   return (
-    // ✅ Layout geral da página com fundo cinza claro
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Cabeçalho da página */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-[rgb(0,84,161)]">Reservas Recentes</h2>
-          <p className="text-gray-500 mt-1">Filtre e gerencie as reservas dos clientes.</p>
+        {/* ✅ Cabeçalho da página com o botão de exportar */}
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-[rgb(0,84,161)]">Reservas Recentes</h2>
+            <p className="text-gray-500 mt-1">Filtre e gerencie as reservas dos clientes.</p>
+          </div>
+          {/* ✅ Botão de exportar */}
+          <button
+            onClick={handleExportarReservas}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <CloudArrowDownIcon className="h-5 w-5 mr-2" />
+            Exportar PDF
+          </button>
         </div>
 
         {/* Container de Filtros e Resultados */}

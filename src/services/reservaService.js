@@ -5,7 +5,7 @@ const reservaService = {
    * [ADMIN/ATENDENTE] Busca TODAS as reservas cadastradas no sistema.
    * GET /api/Reserva
    */
-  getTodasReservas: async () => {
+   getTodasReservas: async () => {
     const response = await api.get('/Reserva');
     return response.data;
   },
@@ -63,6 +63,22 @@ const reservaService = {
   listarReservasPorUsuario: async (usuarioId) => {
     const response = await api.get(`/Reserva/usuario/${usuarioId}`);
     return response.data;
+  },
+
+  /**
+   * [ADMIN/ATENDENTE] Exporta todas as reservas em um arquivo PDF.
+   * GET /api/relatorios/reservas/pdf
+   */
+  exportarReservasPdf: async () => {
+    try {
+      const response = await api.get('/relatorios/reservas/pdf', {
+        responseType: 'blob', // Importante para que o Axios trate a resposta como um arquivo binário
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao exportar reservas:', error);
+      throw error;
+    }
   },
 };
 
