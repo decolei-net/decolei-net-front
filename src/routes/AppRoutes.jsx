@@ -41,6 +41,7 @@ import AdicionarPacote from '../Pages/AdminPacote/AdicionarPacote.jsx';
 import EditarPacote from '../Pages/AdminPacote/EditarPacote.jsx';
 import GerenciarUsuarios from '../Pages/AdminUsuario/GerenciarUsuarios.jsx'
 import EditarUsuario from '../Pages/AdminUsuario/EditarUsuario.jsx';
+import GerenciarAvaliacoes from '../Pages/AdminAvaliacoes/GerenciarAvaliacoes.jsx'
 
 export default function AppRoutes() {
   return (
@@ -85,6 +86,7 @@ export default function AppRoutes() {
         <Route path="reservas" element={<ReservasRecentes />} />
         <Route path="reservas/detalhes/:id" element={<DetalhesReservaGestao />} />    
         <Route path="usuarios/detalhes/:id" element={<DetalhesClientes />} />
+        <Route path="avaliacoes" element={<GerenciarAvaliacoes />} />
    
         {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}
         {/* <Route path="usuarios" element={<div>Página de Usuários</div>} /> */}
