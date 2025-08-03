@@ -1,34 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { Edit, Trash2 } from 'lucide-react'; // Ícones para editar e deletar
 import usuarioService from '../../services/usuarioService';
 
 const GerenciarUsuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [termoDeBusca, setTermoDeBusca] = useState({ nome: '', email: '', documento: '' });
     const [error, setError] = useState(null);
+    const [termoDeBusca, setTermoDeBusca] = useState({
+        nome: '',
+        email: '',
+        documento: ''
+    });
+    // O ID do usuário logado é necessário para a regra de negócio
+    const usuarioLogadoId = "id-do-usuario-logado-aqui"; // Substitua pela lógica real de obter o ID do usuário logado
     const navigate = useNavigate();
 
-    // Pegando o ID do usuário logado do Redux, essencial para a regra de deleção
-    const usuarioLogadoId = useSelector((state) => state.auth.user?.id);
-
-    // Função assíncrona para buscar os usuários da API com filtros
+    // Função para buscar os usuários (implementação simulada)
     const buscarUsuarios = async () => {
         setLoading(true);
         setError(null);
         try {
-            const filtros = {
-                nome: termoDeBusca.nome,
-                email: termoDeBusca.email,
-                documento: termoDeBusca.documento
-            };
-            const data = await usuarioService.getUsuarios(filtros);
-            setUsuarios(data);
+            const dados = await usuarioService.getUsuarios(); // Chama o serviço para buscar os usuários
+            const usuariosFiltrados = dados.filter(user => {
+                const nomeMatch = user.nomeCompleto.toLowerCase().includes(termoDeBusca.nome.toLowerCase());
+                const emailMatch = user.email.toLowerCase().includes(termoDeBusca.email.toLowerCase());
+                const documentoMatch = user.documento ? user.documento.toLowerCase().includes(termoDeBusca.documento.toLowerCase()) : true;
+                return nomeMatch && emailMatch && documentoMatch;
+            });
+            setUsuarios(usuariosFiltrados);
         } catch (err) {
             console.error("Erro ao buscar usuários:", err);
-            setError(err.message || 'Erro ao carregar a lista de usuários.');
+            setError("Não foi possível carregar os usuários.");
         } finally {
             setLoading(false);
         }
@@ -36,56 +39,51 @@ const GerenciarUsuarios = () => {
 
     useEffect(() => {
         buscarUsuarios();
-    }, []);
+    }, []); // Executa a busca inicial
 
-    // Handler para atualizar o estado dos campos da barra de busca
     const handleSearchChange = (e) => {
         const { name, value } = e.target;
-        setTermoDeBusca(prevState => ({ ...prevState, [name]: value }));
+        setTermoDeBusca(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
     };
 
-    // Handler para o evento de submissão do formulário de busca
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         buscarUsuarios();
     };
 
-    const handleEditClick = (userId) => {
-        navigate(`/dashboard-admin/usuarios/editar/${userId}`);
+    const handleEditClick = (id) => {
+        navigate(`/dashboard-admin/usuarios/editar/${id}`);
+    };
+    
+    // ✅ Nova função para navegar para a tela de detalhes
+    const handleDetalhesClick = (id) => {
+        navigate(`/dashboard-admin/usuarios/detalhes/${id}`);
     };
 
-    // Função para deletar um usuário, seguindo a lógica do GerenciarPacotes
     const handleDelete = async (usuario) => {
-        // Regra de negócio: impede que o usuário logado se delete
-        // Usamos o ID do Redux para a verificação
-        if (usuario.id === usuarioLogadoId) {
-            alert('Você não pode excluir seu próprio usuário.');
-            return;
-        }
-
-        // TODO: (Futuro) Adicionar lógica de verificação se o usuário tem reservas ativas.
-        // Por enquanto, a deleção é permitida, a menos que o backend retorne um erro.
-
-        if (window.confirm(`Tem certeza que deseja excluir o usuário "${usuario.nomeCompleto}"? Esta ação é irreversível.`)) {
+        if (window.confirm(`Tem certeza que deseja excluir o usuário ${usuario.nomeCompleto}?`)) {
             try {
-                await usuarioService.deletarUsuario(usuario.id);
-
-                alert('Usuário excluído com sucesso!');
-                // Remove o usuário da lista local para atualizar a UI
+                await usuarioService.deleteUsuario(usuario.id); // Chama o serviço para deletar
                 setUsuarios(usuarios.filter(u => u.id !== usuario.id));
+                alert("Usuário excluído com sucesso!");
             } catch (err) {
-                console.error("Falha ao excluir o usuário:", err);
-                alert('Falha ao excluir o usuário.');
+                console.error("Erro ao deletar usuário:", err);
+                alert("Não foi possível excluir o usuário. Tente novamente.");
             }
         }
     };
 
-    if (loading) return <p className="text-center p-4 text-gray-500">Carregando usuários...</p>;
-    if (error) return <p className="text-center p-4 text-red-500">{error}</p>;
-
     return (
         <div className="p-2 sm:p-4 bg-gray-100 min-h-screen">
-            <form onSubmit={handleSearchSubmit} className="flex gap-4 mb-6 p-4 bg-white rounded-lg shadow">
+            {/* Adiciona o título da página */}
+            <div className="mb-6">
+                <h2 className="text-3xl font-bold text-gray-800 mb-6">Gerenciar Usuários</h2>
+            </div>
+            
+            <form onSubmit={handleSearchSubmit} className="flex flex-wrap md:flex-nowrap gap-4 mb-6 p-4 bg-white rounded-lg shadow">
                 <input
                     type="text"
                     name="nome"
@@ -142,18 +140,26 @@ const GerenciarUsuarios = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span
                                                 className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                  ${usuario.perfil === 'ADMIN' ? 'bg-red-100 text-red-800' :
-                                                      usuario.perfil === 'ATENDENTE' ? 'bg-blue-100 text-blue-800' :
-                                                      'bg-gray-100 text-gray-800'}`
-                                                }
+                                                    ${usuario.perfil === 'ADMIN' ? 'bg-red-100 text-red-800' :
+                                                        usuario.perfil === 'ATENDENTE' ? 'bg-blue-100 text-blue-800' :
+                                                        'bg-gray-100 text-gray-800'}`
+                                                    }
                                             >
                                                 {usuario.perfil}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            {/* ✅ Botão de detalhes com texto e estilo corrigidos */}
+                                            <button
+                                                onClick={() => handleDetalhesClick(usuario.id)}
+                                                className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                            >
+                                                Detalhes
+                                            </button>
                                             <button
                                                 onClick={() => handleEditClick(usuario.id)}
                                                 className="p-1 text-indigo-600 hover:text-indigo-900"
+                                                title="Editar Usuário"
                                             >
                                                 <Edit size={18} />
                                             </button>

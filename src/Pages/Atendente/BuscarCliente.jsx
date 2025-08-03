@@ -43,12 +43,12 @@ const BuscarCliente = () => {
   }, [busca, clientes]);
 
   return (
-    // ✅ Layout geral da página com fundo cinza claro
+    //  Layout geral da página com fundo cinza claro
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Cabeçalho da página */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-[rgb(0,84,161)]">Clientes</h2>
+          <h2 className="text-3xl font-bold text-gray-800">Clientes</h2>
           <p className="text-gray-500 mt-1">
             Busque ou navegue pela lista de clientes cadastrados.
           </p>

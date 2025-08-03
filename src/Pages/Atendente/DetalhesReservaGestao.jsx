@@ -100,17 +100,14 @@ const DetalhesReservaGestao = () => {
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <div className="mb-6">
-        <Link to="/dashboard-atendente/reservas-recentes" className="text-blue-600 hover:underline">
-          &larr; Voltar para Reservas Recentes
-        </Link>
-        <h2 className="text-3xl font-bold text-[rgb(0,84,161)] mt-2">
+        <h2 className="text-3xl font-bold text-gray-800">
           Gestão da Reserva #{reserva.id}
         </h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* ✅ 3. Passando os ícones para cada InfoCard */}
+          {/* Passando os ícones para cada InfoCard */}
           <InfoCard title="Detalhes Financeiros e do Pacote" icon={<CreditCardIcon />}>
             <DetailRow label="Destino" value={pacote?.destino} />
             <DetailRow

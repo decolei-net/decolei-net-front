@@ -50,7 +50,7 @@ const DetalhesClientes = () => {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
       {/* Título */}
-      <h2 className="text-3xl font-bold text-blue-800 flex items-center gap-2">
+      <h2 className="text-3xl font-bold text-gray-800">
         👤 Detalhes do Cliente
       </h2>
 
@@ -66,7 +66,7 @@ const DetalhesClientes = () => {
 
       {/* Histórico de Reservas */}
       <div>
-        <h3 className="text-2xl font-semibold text-blue-800 mb-4">
+        <h3 className="text-3xl font-bold text-gray-800">
           📑 Histórico de Reservas
         </h3>
         <div className="bg-white p-4 rounded-xl shadow border border-gray-200">

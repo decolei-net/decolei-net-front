@@ -83,7 +83,9 @@ export default function AppRoutes() {
         <Route path="usuarios" element={<GerenciarUsuarios />} />
         <Route path="usuarios/editar/:id" element={<EditarUsuario />} />
         <Route path="reservas" element={<ReservasRecentes />} />
-        <Route path="reservas/detalhes/:id" element={<DetalhesReservaGestao />} />       
+        <Route path="reservas/detalhes/:id" element={<DetalhesReservaGestao />} />    
+        <Route path="usuarios/detalhes/:id" element={<DetalhesClientes />} />
+   
         {/* <Route path="reservas" element={<div>Página de Reservas</div>} /> */}
         {/* <Route path="usuarios" element={<div>Página de Usuários</div>} /> */}
         {/* <Route path="avaliacoes" element={<div>Página de Avaliações</div>} /> */}

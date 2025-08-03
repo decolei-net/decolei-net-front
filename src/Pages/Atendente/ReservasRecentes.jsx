@@ -1,10 +1,10 @@
 // src/pages/Atendente/ReservasRecentes.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import TabelaReservasBusca from '../../components/TabelaReservasBusca';
 import FiltroStatusReserva from '../../components/FiltroStatusReserva';
 import reservaService from '../../services/reservaService';
-import { MagnifyingGlassIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline'; // ✅ Importe o ícone de download
+import { MagnifyingGlassIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline'; // Importa o ícone de download
 
 const ReservasRecentes = () => {
   const [filtro, setFiltro] = useState('');
@@ -12,6 +12,7 @@ const ReservasRecentes = () => {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const carregarReservas = async () => {
@@ -29,7 +30,12 @@ const ReservasRecentes = () => {
   }, []);
 
   const handleVerDetalhes = (reserva) => {
-    navigate(`/dashboard-atendente/detalhes-reserva/${reserva.id}`);
+ // Lógica para navegação dinâmica
+    const is_admin = location.pathname.startsWith('/dashboard-admin');
+    const path = is_admin
+    ? `/dashboard-admin/reservas/detalhes/${reserva.id}`
+    : `/dashboard-atendente/detalhes-reserva/${reserva.id}`;
+  navigate(path);
   };
 
   const reservasFiltradas = reservas.filter((reserva) => {
@@ -39,7 +45,7 @@ const ReservasRecentes = () => {
     return buscaTexto && statusValido;
   });
 
-  // ✅ Nova função para exportar o relatório de reservas
+  // Nova função para exportar o relatório de reservas
   const handleExportarReservas = async () => {
     try {
       const response = await reservaService.exportarReservasPdf();
@@ -61,13 +67,13 @@ const ReservasRecentes = () => {
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* ✅ Cabeçalho da página com o botão de exportar */}
+        {/*  Cabeçalho da página com o botão de exportar */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold text-[rgb(0,84,161)]">Reservas Recentes</h2>
+            <h2 className="text-3xl font-bold text-gray-800">Reservas Recentes</h2>
             <p className="text-gray-500 mt-1">Filtre e gerencie as reservas dos clientes.</p>
           </div>
-          {/* ✅ Botão de exportar */}
+          {/*  Botão de exportar */}
           <button
             onClick={handleExportarReservas}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
