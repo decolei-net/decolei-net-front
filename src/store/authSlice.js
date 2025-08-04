@@ -60,9 +60,23 @@ const authSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
+
+    // ACTION ADICIONADA PARA ATUALIZAR O PERFIL 
+    updateUser: (state, action) => {
+      const { user: updatedUser } = action.payload;
+      // Atualiza apenas as propriedades que podem ter mudado
+      if (updatedUser) {
+        state.user = {
+            ...state.user,
+            ...updatedUser
+        };
+        // Salva os dados atualizados no localStorage
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
+    },
   },
 });
 
 // Exportações
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, logout, updateUser } = authSlice.actions; // <--- AGORA EXPORTANDO A NOVA ACTION
 export default authSlice.reducer;
