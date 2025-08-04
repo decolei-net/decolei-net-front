@@ -1,40 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import reservaService from '../../services/reservaService';
 import avaliacoesService from '../../services/avaliacoesServices';
 import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx';
+import StarRating from '../../components/StarRating.jsx';
 
 // -- HELPER PARA FORMATAR DATA --
 const formatarData = (dataString) => {
   if (!dataString) return 'Data indisponível';
   try {
     const data = new Date(dataString);
-    data.setDate(data.getDate() + 1);
-    return new Intl.DateTimeFormat('pt-BR').format(data);
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
   } catch (error) {
     return 'Data inválida';
   }
-};
-
-// -- COMPONENTE DE ESTRELAS --
-const RatingStars = ({ nota }) => {
-  const totalStars = 5;
-  const stars = Array.from({ length: totalStars }, (_, i) => i < nota);
-  return (
-    <div className="flex items-center">
-      {stars.map((isFilled, index) => (
-        <svg
-          key={index}
-          className={`w-5 h-5 ${isFilled ? 'text-yellow-400' : 'text-gray-300'}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  );
 };
 
 export default function ClienteDashboard() {
@@ -46,6 +25,8 @@ export default function ClienteDashboard() {
   const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
   const [modalAberta, setModalAberta] = useState(false);
   const [reservaSelecionada, setReservaSelecionada] = useState(null);
+  const [reservasError, setReservasError] = useState(null);
+  const [avaliacoesError, setAvaliacoesError] = useState(null);
 
   const abrirModal = (reserva) => {
     setReservaSelecionada(reserva);
@@ -58,45 +39,79 @@ export default function ClienteDashboard() {
   };
 
   useEffect(() => {
+    let isSubscribed = true;
+
     const fetchReservas = async () => {
+      setLoadingReservas(true);
+      setReservasError(null);
       try {
-        setLoadingReservas(true);
         const dadosDaApi = await reservaService.getMinhasReservas();
-        setReservas(Array.isArray(dadosDaApi) ? dadosDaApi : []);
+        if (isSubscribed) {
+          setReservas(Array.isArray(dadosDaApi) ? dadosDaApi : []);
+        }
       } catch (error) {
-        console.error('Falha ao buscar reservas:', error);
-        setReservas([]);
+        if (isSubscribed) {
+          console.error('Falha ao buscar reservas:', error);
+          setReservasError('Não foi possível carregar suas reservas. Tente novamente mais tarde.');
+          setReservas([]);
+        }
       } finally {
-        setLoadingReservas(false);
+        if (isSubscribed) {
+          setLoadingReservas(false);
+        }
       }
     };
-    fetchReservas();
-  }, []);
+
+    if (activeTab === 'viagens') {
+      fetchReservas();
+    }
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [activeTab]);
 
   useEffect(() => {
+    let isSubscribed = true;
     const fetchAvaliacoes = async () => {
-      if (activeTab !== 'avaliacoes' || avaliacoes.length > 0) return;
-      try {
+      if (activeTab === 'avaliacoes') {
         setLoadingAvaliacoes(true);
-        const dadosDaApi = await avaliacoesService.getMinhasAvaliacoes();
-        setAvaliacoes(Array.isArray(dadosDaApi) ? dadosDaApi : []);
-      } catch (error) {
-        console.error('Falha ao buscar avaliações:', error);
-        setAvaliacoes([]);
-      } finally {
-        setLoadingAvaliacoes(false);
+        setAvaliacoesError(null);
+        try {
+          const dadosDaApi = await avaliacoesService.getMinhasAvaliacoes();
+          if (isSubscribed) {
+            setAvaliacoes(Array.isArray(dadosDaApi) ? dadosDaApi : []);
+          }
+        } catch (error) {
+          if (isSubscribed) {
+            console.error('Falha ao buscar avaliações:', error);
+            setAvaliacoesError('Não foi possível carregar suas avaliações. Tente novamente mais tarde.');
+            setAvaliacoes([]);
+          }
+        } finally {
+          if (isSubscribed) {
+            setLoadingAvaliacoes(false);
+          }
+        }
       }
     };
     fetchAvaliacoes();
-  }, [activeTab, avaliacoes.length]);
+    return () => {
+      isSubscribed = false;
+    };
+  }, [activeTab]);
 
-  const reservasPendentes = reservas.filter((r) => r?.status === 'PENDENTE');
-  const reservasConcluidas = reservas.filter(
-    (r) => r?.status === 'CONCLUIDA' || r?.status === 'CONFIRMADO',
+  const reservasPendentes = useMemo(
+    () => reservas.filter((r) => r?.status === 'PENDENTE'),
+    [reservas]
   );
 
-  // Verificação segura do nome do usuário
-  const primeiroNome = user?.nomeCompleto?.split(' ')[0] || user?.nome?.split(' ')[0] || 'Usuário';
+  const reservasConcluidas = useMemo(
+    () => reservas.filter((r) => r?.status === 'CONCLUIDA' || r?.status === 'CONFIRMADA'),
+    [reservas]
+  );
+
+  const primeiroNome = user?.nomeCompleto?.split(' ')[0] || 'Usuário';
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -111,13 +126,21 @@ export default function ClienteDashboard() {
         <nav className="-mb-px flex space-x-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('viagens')}
-            className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'viagens' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+            className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'viagens'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           >
             Minhas Viagens
           </button>
           <button
             onClick={() => setActiveTab('avaliacoes')}
-            className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'avaliacoes' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+            className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'avaliacoes'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           >
             Minhas Avaliações
           </button>
@@ -127,70 +150,45 @@ export default function ClienteDashboard() {
       {activeTab === 'viagens' && (
         <div>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Reservas Pendentes</h2>
-          {loadingReservas ? (
-            <p>Carregando...</p>
-          ) : reservasPendentes.length > 0 ? (
-            reservasPendentes.map((reserva) => (
-              <div
-                key={reserva.id}
-                className="bg-white rounded-xl shadow-md p-5 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center w-full">
-                  <div className="w-16 h-16 rounded-lg bg-gray-200 mr-4 flex-shrink-0"></div>
-                  <div>
-                    <h3 className="font-bold text-lg">
-                      Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Data da Reserva: {formatarData(reserva?.data)}
-                    </p>
-                    <span className="mt-2 inline-block px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full">
-                      Pendente
-                    </span>
+          {loadingReservas && <p>Carregando reservas...</p>}
+          {reservasError && <p className="text-red-500 p-4 bg-red-50 rounded-lg">{reservasError}</p>}
+          {!loadingReservas && !reservasError && (
+            reservasPendentes.length > 0 ? (
+              reservasPendentes.map((reserva) => (
+                <div key={reserva.id} className="bg-white rounded-xl shadow-md p-5 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex-1 min-w-0 pr-4">
+                    <h3 className="font-bold text-lg truncate">Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}</h3>
+                    <p className="text-sm text-gray-500">Data da Reserva: {formatarData(reserva?.data)}</p>
+                    <span className="mt-2 inline-block px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full">Pendente</span>
                   </div>
+                  <button onClick={() => abrirModal(reserva)} className="mt-4 sm:mt-0 px-5 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold flex-shrink-0">Ver Detalhes</button>
                 </div>
-                <button
-                  onClick={() => abrirModal(reserva)}
-                  className="mt-4 sm:mt-0 w-full sm:w-auto px-5 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold flex-shrink-0"
-                >
-                  Ver Detalhes
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">Nenhuma reserva pendente encontrada.</p>
+              ))
+            ) : (
+              <p className="text-gray-500">Nenhuma reserva pendente encontrada.</p>
+            )
           )}
 
-          <h2 className="text-xl font-semibold text-gray-700 mt-8 mb-4">Reservas Concluídas</h2>
-          {loadingReservas ? (
-            <p>Carregando...</p>
-          ) : reservasConcluidas.length > 0 ? (
-            reservasConcluidas.map((reserva) => (
-              <div
-                key={reserva.id}
-                className="bg-white rounded-xl shadow-md p-5 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center w-full">
-                  <div className="w-16 h-16 rounded-lg bg-gray-200 mr-4 flex-shrink-0"></div>
-                  <div>
-                    <h3 className="font-bold text-lg">
-                      Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Data da Reserva: {formatarData(reserva?.data)}
-                    </p>
-                    <span className="mt-2 inline-block px-3 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">
-                      Concluída
+          <h2 className="text-xl font-semibold text-gray-700 mt-8 mb-4">Reservas Anteriores</h2>
+          {loadingReservas && <p>Carregando reservas...</p>}
+          {reservasError && <p className="text-red-500 p-4 bg-red-50 rounded-lg">{reservasError}</p>}
+          {!loadingReservas && !reservasError && (
+            reservasConcluidas.length > 0 ? (
+              reservasConcluidas.map((reserva) => (
+                <div key={reserva.id} className="bg-white rounded-xl shadow-md p-5 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex-1 min-w-0 pr-4">
+                    <h3 className="font-bold text-lg truncate">Viagem para {reserva?.pacoteViagem?.destino || 'Destino não informado'}</h3>
+                    <p className="text-sm text-gray-500">Data da Reserva: {formatarData(reserva?.data)}</p>
+                    <span className={`mt-2 inline-block px-3 py-1 text-xs font-semibold ${reserva.status === 'CONFIRMADA' ? 'text-blue-800 bg-blue-200' : 'text-green-800 bg-green-200'} rounded-full`}>
+                      {reserva.status === 'CONFIRMADA' ? 'Confirmada' : 'Concluída'}
                     </span>
                   </div>
+                  <button onClick={() => abrirModal(reserva)} className="mt-4 sm:mt-0 px-5 py-2 rounded-lg text-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-50 font-semibold flex-shrink-0">Ver Detalhes</button>
                 </div>
-                <button className="mt-4 sm:mt-0 w-full sm:w-auto px-5 py-2 rounded-lg text-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-50 font-semibold flex-shrink-0">
-                  Avaliar Viagem
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">Nenhuma reserva concluída encontrada.</p>
+              ))
+            ) : (
+              <p className="text-gray-500">Nenhuma reserva anterior encontrada.</p>
+            )
           )}
         </div>
       )}
@@ -198,32 +196,30 @@ export default function ClienteDashboard() {
       {activeTab === 'avaliacoes' && (
         <div>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Minhas Avaliações Publicadas</h2>
-          {loadingAvaliacoes ? (
-            <p>Carregando avaliações...</p>
-          ) : avaliacoes.length > 0 ? (
-            <div className="space-y-4">
-              {avaliacoes.map((avaliacao) => (
-                <div key={avaliacao.id} className="bg-white rounded-xl shadow-md p-5">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm text-gray-500">Avaliação para:</p>
-                      <h3 className="font-bold text-lg text-gray-800">
-                        {avaliacao?.pacote?.destino || 'Destino não informado'}
-                      </h3>
+          {loadingAvaliacoes && <p>Carregando avaliações...</p>}
+          {avaliacoesError && <p className="text-red-500 p-4 bg-red-50 rounded-lg">{avaliacoesError}</p>}
+          {!loadingAvaliacoes && !avaliacoesError && (
+            avaliacoes.length > 0 ? (
+              <div className="space-y-4">
+                {avaliacoes.map((avaliacao) => (
+                  <div key={avaliacao.id} className="bg-white rounded-xl shadow-md p-5">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-gray-500">Avaliação para:</p>
+                        <h3 className="font-bold text-lg text-gray-800 truncate">{avaliacao?.pacote?.destino || 'Destino não informado'}</h3>
+                      </div>
+                      <div className="text-right">
+                        <StarRating rating={avaliacao.nota} />
+                        <p className="text-xs text-gray-400 mt-1">em {formatarData(avaliacao.dataCriacao)}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <RatingStars nota={avaliacao.nota} />
-                      <p className="text-xs text-gray-400 mt-1">
-                        em {formatarData(avaliacao.dataCriacao)}
-                      </p>
-                    </div>
+                    <p className="mt-4 text-gray-600 italic">"{avaliacao.comentario}"</p>
                   </div>
-                  <p className="mt-4 text-gray-600 italic">"{avaliacao.comentario}"</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">Você ainda não fez nenhuma avaliação.</p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">Você ainda não fez nenhuma avaliação.</p>
+            )
           )}
         </div>
       )}
