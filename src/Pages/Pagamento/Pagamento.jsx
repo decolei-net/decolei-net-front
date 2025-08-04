@@ -1,10 +1,24 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { CreditCard, Landmark, QrCode } from 'lucide-react';
 import pagamentoService from '../../services/pagamentoService';
 import reservaService from '../../services/reservaService';
 import PixPayment from '../../components/PixPayment';
+
+const formatarCpf = (value) => {
+  const valorNumerico = value.replace(/\D/g, '').slice(0, 11);
+  return valorNumerico
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+};
+
+const formatarNumeroCartao = (value) => {
+  const valorNumerico = value.replace(/\D/g, '').slice(0, 16);
+  return valorNumerico.replace(/(\d{4})(?=\d)/g, '$1 ');
+};
+
 
 export default function Pagamento() {
     const { reservaId } = useParams();
@@ -20,7 +34,7 @@ export default function Pagamento() {
     const [cpf, setCpf] = useState('');
     const [numeroCartao, setNumeroCartao] = useState('');
     const [parcelas, setParcelas] = useState(1);
-
+    const [cvv, setCvv] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
@@ -44,16 +58,21 @@ export default function Pagamento() {
         setIsProcessing(true);
         setError('');
         const dadosPagamento = {
-            reservaId: Number(reservaId),
-            nomeCompleto, cpf, email: user.email, metodo,
-            valor: reserva.valorTotal,
-            numeroCartao: metodo === 'Credito' ? numeroCartao : '',
-            parcelas: metodo === 'Credito' ? parcelas : 1,
+            ReservaId: Number(reservaId),
+            NomeCompleto: nomeCompleto,
+            Cpf: cpf.replace(/\D/g, ''),
+            Email: user.email,
+            Metodo: metodo, // 'Credito', 'Debito', 'Boleto', 'Pix'
+            Valor: reserva.valorTotal,
+            NumeroCartao: (metodo === 'Credito' || metodo === 'Debito') ? numeroCartao.replace(/\D/g, '') : '',
+            Parcelas: metodo === 'Credito' ? parcelas : 1,
         };
+
+        console.log("Enviando para a API:", dadosPagamento);
         try {
             await pagamentoService.criarPagamento(dadosPagamento);
-            alert("Pagamento realizado com sucesso! Seu comprovante será enviado por email.");
-            navigate('/home');
+            alert("Pagamento realizado com sucesso!");
+            navigate('/minha-conta');
         } catch (err) {
             setError(err.response?.data?.erro || "Não foi possível processar o pagamento.");
         } finally {
@@ -76,7 +95,6 @@ export default function Pagamento() {
 
             {reserva && (
                 <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg">
-                    {/* INFORMAÇÕES DA RESERVA (INTEGRADAS) */}
                     <div className="border-b pb-6 mb-6">
                         <div className='flex justify-between items-center mb-2'>
                             <h2 className="text-2xl font-bold text-blue-600">{reserva.pacoteViagem.titulo}</h2>
@@ -98,34 +116,93 @@ export default function Pagamento() {
                     <fieldset disabled={reserva.status !== 'PENDENTE'}>
                         <h3 className="text-xl font-bold mb-4">Escolha o Método de Pagamento</h3>
                         <div className="space-y-4 mb-8">
-                            {['Credito', 'Boleto', 'Pix'].map(m => (
+                            {['Credito', 'Debito', 'Boleto', 'Pix'].map(m => (
                                 <div key={m} onClick={() => setMetodo(m)} className={`flex items-center p-4 border rounded-lg cursor-pointer transition ${metodo === m ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-500' : 'hover:bg-gray-50'}`}>
-                                    {m === 'Credito' && <CreditCard className="mr-4 text-blue-600"/>}
+                                    {(m === 'Credito' || m === 'Debito') && <CreditCard className="mr-4 text-blue-600"/>}
                                     {m === 'Boleto' && <Landmark className="mr-4 text-blue-600"/>}
                                     {m === 'Pix' && <QrCode className="mr-4 text-blue-600"/>}
-                                    <span className="font-semibold">{m === 'Credito' ? 'Cartão de Crédito' : m}</span>
+                                    <span className="font-semibold">{m === 'Credito' ? 'Cartão de Crédito' : (m === 'Debito' ? 'Cartão de Débito' : m)}</span>
                                 </div>
                             ))}
                         </div>
 
-                        {metodo === 'Pix' && <PixPayment onConfirm={handleFinalizarCompra} isProcessing={isProcessing}/>}
-
-                        {(metodo === 'Credito' || metodo === 'Boleto') && (
+                        {metodo === 'Pix' && (
                             <form onSubmit={handleSubmitForm} className="animate-fade-in">
                                 <h3 className="text-xl font-bold mb-4">Informações do Pagador</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    <input value={nomeCompleto} onChange={e => setNomeCompleto(e.target.value)} required placeholder="Nome Completo (como no cartão)" className="p-3 border rounded-md"/>
-                                    <input value={cpf} onChange={e => setCpf(e.target.value)} required placeholder="CPF do titular" className="p-3 border rounded-md"/>
+                                    <input
+                                      value={nomeCompleto}
+                                      onChange={e => setNomeCompleto(e.target.value)}
+                                      required
+                                      placeholder="Nome Completo"
+                                      className="p-3 border rounded-md"
+                                    />
+                                    <input
+                                      value={cpf}
+                                      onChange={e => setCpf(formatarCpf(e.target.value))}
+                                      required
+                                      placeholder="CPF do titular"
+                                      className="p-3 border rounded-md"
+                                      maxLength="14"
+                                    />
+                                </div>
+                                <PixPayment onConfirm={handleFinalizarCompra} isProcessing={isProcessing}/>
+                            </form>
+                        )}
+
+                        {(metodo === 'Credito' || metodo === 'Debito' || metodo === 'Boleto') && (
+                            <form onSubmit={handleSubmitForm} className="animate-fade-in">
+                                <h3 className="text-xl font-bold mb-4">Informações do Pagador</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <input
+                                      value={nomeCompleto}
+                                      onChange={e => setNomeCompleto(e.target.value)}
+                                      required
+                                      placeholder="Nome Completo"
+                                      className="p-3 border rounded-md"
+                                    />
+                                    <input
+                                      value={cpf}
+                                      onChange={e => setCpf(formatarCpf(e.target.value))}
+                                      required
+                                      placeholder="CPF do titular"
+                                      className="p-3 border rounded-md"
+                                      maxLength="14"
+                                    />
                                 </div>
 
-                                {metodo === 'Credito' && (
-                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                        <input value={numeroCartao} onChange={e => setNumeroCartao(e.target.value)} required placeholder="Número do Cartão" className="md:col-span-2 p-3 border rounded-md"/>
-                                        <select value={parcelas} onChange={e => setParcelas(Number(e.target.value))} className="p-3 border rounded-md bg-white">
-                                            {[...Array(12).keys()].map(p => <option key={p+1} value={p+1}>{p+1}x de R$ {(reserva.valorTotal / (p+1)).toFixed(2).replace('.', ',')}</option>)}
-                                        </select>
+                                {(metodo === 'Credito' || metodo === 'Debito') && (
+                                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
+                                        <input
+                                          value={numeroCartao}
+                                          onChange={e => setNumeroCartao(formatarNumeroCartao(e.target.value))}
+                                          required
+                                          placeholder="Número do Cartão"
+                                          className="sm:col-span-4 p-3 border rounded-md"
+                                          maxLength="19"
+                                        />
+
+                                        <input
+                                            value={cvv}
+                                            onChange={e => setCvv(formatarCvv(e.target.value))}
+                                            required
+                                            placeholder="CVV"
+                                            className="sm:col-span-1 p-3 border rounded-md"
+                                            maxLength="4"
+                                        />
+
+                                        {metodo === 'Credito' && (
+                                            <select
+                                              value={parcelas}
+                                              onChange={e => setParcelas(Number(e.target.value))}
+                                              className="sm:col-span-3 p-3 border rounded-md bg-white"
+                                            >
+                                                {[...Array(12).keys()].map(p => <option key={p+1} value={p+1}>{p+1}x de R$ {(reserva.valorTotal / (p+1)).toFixed(2).replace('.', ',')}</option>)}
+                                            </select>
+                                        )}
                                    </div>
                                 )}
+
                                 <button type="submit" disabled={isProcessing} className="w-full bg-green-600 text-white font-bold py-3 rounded-lg text-lg hover:bg-green-700 transition disabled:bg-green-300">{isProcessing ? 'Processando...' : botaoPagarTexto}</button>
                             </form>
                         )}
