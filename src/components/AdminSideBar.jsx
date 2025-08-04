@@ -11,20 +11,23 @@ import {
     Users, 
     Star,
     LogOut,
+    Home, // Ícone de Home adicionado
     Menu, // Ícone de Hamburguer
-    X     // Ícone de Fechar
+    X     // Ícone de Fechar
 } from 'lucide-react';
 
 // Itens do menu com caminhos e a correção para o "Painel"
 const adminMenuItems = [
+    // Botão de Home adicionado aqui
+    { label: 'Home', icon: <Home size={20} />, path: '/home', end: true },
     // A propriedade "end" aqui resolve o bug do link sempre ativo.
-    { label: 'Painel',      icon: <LayoutDashboard size={20} />, path: '/dashboard-admin', end: true },
+    { label: 'Painel',      icon: <LayoutDashboard size={20} />, path: '/dashboard-admin', end: true },
     // Corrigindo o caminho do painel que tinha um 'a' a mais
-    { label: 'Pacotes',     icon: <Package size={20} />,         path: '/dashboard-admin/pacotes' }, 
+    { label: 'Pacotes',     icon: <Package size={20} />,         path: '/dashboard-admin/pacotes' }, 
     // Corrigindo caminhos para o padrão que definimos
-    { label: 'Reservas',    icon: <CalendarCheck size={20} />,   path: '/dashboard-admin/reservas' }, 
-    { label: 'Usuários',    icon: <Users size={20} />,           path: '/dashboard-admin/usuarios' }, 
-    { label: 'Avaliações',  icon: <Star size={20} />,            path: '/dashboard-admin/avaliacoes' }
+    { label: 'Reservas',    icon: <CalendarCheck size={20} />,   path: '/dashboard-admin/reservas' }, 
+    { label: 'Usuários',    icon: <Users size={20} />,           path: '/dashboard-admin/usuarios' }, 
+    { label: 'Avaliações',  icon: <Star size={20} />,            path: '/dashboard-admin/avaliacoes' }
 ];
 
 export default function AdminSidebar() {
@@ -100,10 +103,10 @@ export default function AdminSidebar() {
                             {adminMenuItems.map((item) => (
                                 <li key={item.path}>
                                     <NavLink 
-                                      to={item.path} 
-                                      className={mobileNavLinkStyle} 
-                                      end={item.end} 
-                                      onClick={() => setMobileMenuOpen(false)} // Fecha o menu ao clicar
+                                        to={item.path} 
+                                        className={mobileNavLinkStyle} 
+                                        end={item.end} 
+                                        onClick={() => setMobileMenuOpen(false)} // Fecha o menu ao clicar
                                     >
                                         {item.label}
                                     </NavLink>
