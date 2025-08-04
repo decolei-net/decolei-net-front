@@ -50,11 +50,11 @@ export default function Card({ pacote }) {
                     </div>
                 </div>
                 <div className="mt-2">
-                    <p className="text-lg font-extrabold text-gray-900">
-                        R$ {pacote.valor?.toFixed(2).replace('.', ',')}
-                    </p>
-                    <p className="text-xs text-gray-500 -mt-1">por pessoa</p>
-                </div>
+    <p className="text-lg font-extrabold text-gray-900">
+        R$ {pacote.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+    </p>
+    <p className="text-xs text-gray-500 -mt-1">por pessoa</p>
+</div>
             </div>
         </div>
     );
