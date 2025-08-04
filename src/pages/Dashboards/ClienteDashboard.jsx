@@ -5,6 +5,24 @@ import avaliacoesService from '../../services/avaliacoesServices';
 import usuarioService from '../../services/usuarioService';
 import { updateUser } from '../../store/authSlice';
 
+import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx';
+import { Star } from 'lucide-react';
+
+// --- COMPONENTE INTERNO PARA AVALIAÇÃO EM ESTRELAS ---
+const StarRating = ({ rating, size = 20 }) => {
+    return (
+        <div className="flex items-center space-x-1">
+            {[...Array(5)].map((_, i) => (
+                <Star
+                    key={i}
+                    size={size}
+                    className={i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                />
+            ))}
+        </div>
+    );
+};
+
 // --- COMPONENTE INTERNO PARA O FORMULÁRIO DE AVALIAÇÃO ---
 const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
     const [nota, setNota] = useState(0);
@@ -30,8 +48,6 @@ const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
                 nota: nota,
                 comentario: comentario,
             });
-            // NOTA: Em um aplicativo real, evite usar `alert`. Prefira modais ou notificações.
-            // Substituído alert por um console.log para evitar problemas em ambientes sandboxed.
             console.log('Avaliação enviada com sucesso! Ela ficará pendente até ser aprovada por um administrador.');
             onAvaliacaoSubmit();
         } catch (err) {
@@ -76,7 +92,7 @@ const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
 };
 
 
-// --- COMPONENTE PRINCIPAL (COM AS MUDANÇAS DO FORMULÁRIO DE PERFIL) ---
+// --- COMPONENTE PRINCIPAL ---
 export default function ClienteDashboard() {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
@@ -93,7 +109,6 @@ export default function ClienteDashboard() {
     // Estados para a aba de perfil
     const [nome, setNome] = useState(user?.nomeCompleto || '');
     const [email, setEmail] = useState(user?.email || '');
-    // Inicialização do estado de telefone. A propriedade é "telefone" no objeto de usuário no Redux.
     const [telefone, setTelefone] = useState(user?.telefone || ''); 
     const [perfilError, setPerfilError] = useState(null);
     const [perfilSuccess, setPerfilSuccess] = useState(null);
@@ -163,10 +178,8 @@ export default function ClienteDashboard() {
                 email: email,
             };
             
-            // CORREÇÃO: O nome da função está correto aqui. O erro provavelmente é de carregamento do módulo.
             const response = await usuarioService.atualizarMeuPerfil(dadosAtualizados);
             
-            // Dispatch para a action updateUser para atualizar o estado do Redux
             dispatch(updateUser({ user: response.usuarioAtualizado }));
 
             setPerfilSuccess('Seu perfil foi atualizado com sucesso!');
@@ -203,12 +216,11 @@ export default function ClienteDashboard() {
                     >
                         Minhas Avaliações
                     </button>
-                    {/* A nova aba "Meu Perfil" */}
                     <button 
                         onClick={() => setActiveTab('perfil')} 
                         className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'perfil' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                     >
-                        Meus Dados
+                        Meu Perfil
                     </button>
                 </nav>
             </div>
@@ -317,7 +329,7 @@ export default function ClienteDashboard() {
                             </div>
                             
                             <div className="mb-6">
-                                <p className="text-sm text-gray-500">Se precisar alterar seu documento (CPF), por favor, entre em contato com o suporte.</p>
+                                <p className="text-sm text-gray-500">Se precisar alterar seu documento (CPF), por favor, entre em contato com o <a href="/suporte" className="font-semibold text-indigo-600 hover:underline"> suporte</a>.</p>
                             </div>
                             
                             <button
@@ -332,16 +344,11 @@ export default function ClienteDashboard() {
                 </div>
             )}
 
-            <div className="mt-12 p-4 bg-gray-100 rounded-lg text-center">
-                <p className="text-sm text-gray-600">Precisa alterar seus dados? <a href="/suporte" className="font-semibold text-indigo-600 hover:underline">Fale com o suporte</a>.</p>
-            </div>
-
             {modalAberta && <ModalDetalhesReservas reserva={reservaSelecionada} onClose={fecharModal} />}
         </div>
     );
 }
 
-// CORREÇÃO: Função auxiliar para formatar a data que estava faltando.
 const formatarData = (dataString) => {
     if (!dataString) return 'Data indisponível';
     try {
