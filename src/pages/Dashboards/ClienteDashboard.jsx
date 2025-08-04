@@ -38,18 +38,54 @@ export default function ClienteDashboard() {
   const [senhaSuccess, setSenhaSuccess] = useState(null);
 
   // Estados para a aba de perfil
-    const [nome, setNome] = useState('');
-    const [email, setEmail] = useState('');
-    const [telefone, setTelefone] = useState('');
-    const [documento, setDocumento] = useState('');
-    const [perfilError, setPerfilError] = useState(null);
-    const [perfilSuccess, setPerfilSuccess] = useState(null);
-    const [isPerfilSubmitting, setIsPerfilSubmitting] = useState(false);
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [documento, setDocumento] = useState('');
+  const [perfilError, setPerfilError] = useState(null);
+  const [perfilSuccess, setPerfilSuccess] = useState(null);
+  const [isPerfilSubmitting, setIsPerfilSubmitting] = useState(false);
 
   // Estados para mostrar/ocultar senhas
   const [showSenhaAtual, setShowSenhaAtual] = useState(false);
   const [showNovaSenha, setShowNovaSenha] = useState(false);
   const [showConfirmarNovaSenha, setShowConfirmarNovaSenha] = useState(false);
+
+  const formatarCpf = (value) => {
+  if (!value) return '';
+  const valorNumerico = value.replace(/\D/g, '').slice(0, 11);
+  return valorNumerico
+    .replace(/(\d{2})(\d)/, '$1 $2') // Espaço para RG, opcional
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  };
+
+  const formatarTelefone = (value) => {
+    if (!value) return '';
+    const valorNumerico = value.replace(/\D/g, '').slice(0, 11);
+    return valorNumerico
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2');
+  };
+
+  const FeedbackMessage = ({ message, type = 'status' }) => {
+    if (!message) return null;
+
+    const isError = type === 'error';
+    const role = isError ? 'alert' : 'status';
+    const className = `p-3 mb-4 text-sm rounded-lg ${
+      isError
+        ? 'text-red-700 bg-red-100'
+        : 'text-green-700 bg-green-100'
+    }`;
+
+    return (
+      <div className={className} role={role}>
+        {message}
+      </div>
+    );
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -110,28 +146,28 @@ export default function ClienteDashboard() {
   };
 
   // Efeito que preenche os campos do perfil com base nos dados do usuário no Redux
-    useEffect(() => {
-        if (user && activeTab === 'perfil') {
-            setNome(user.nomeCompleto || '');
-            setEmail(user.email || '');
-            setTelefone(user.telefone || '');
-            setDocumento(user.documento || '');
-        }
-    }, [user, activeTab]);
+  useEffect(() => {
+      if (user && activeTab === 'perfil') {
+          setNome(user.nomeCompleto || '');
+          setEmail(user.email || '');
+          setTelefone(user.telefone || '');
+          setDocumento(user.documento || '');
+      }
+  }, [user, activeTab]);
 
-    // Efeito que limpa as mensagens ao mudar de aba e tenta carregar dados completos se disponível
-    useEffect(() => {
-        if (activeTab === 'perfil') {
-            // Limpa as mensagens de sucesso/erro ao mudar de aba para evitar que elas persistam
-            setPerfilError(null);
-            setPerfilSuccess(null);
-            setSenhaError(null);
-            setSenhaSuccess(null);
+  // Efeito que limpa as mensagens ao mudar de aba e tenta carregar dados completos se disponível
+  useEffect(() => {
+      if (activeTab === 'perfil') {
+          // Limpa as mensagens de sucesso/erro ao mudar de aba para evitar que elas persistam
+          setPerfilError(null);
+          setPerfilSuccess(null);
+          setSenhaError(null);
+          setSenhaSuccess(null);
 
-            // Tenta buscar dados completos silenciosamente (sem mostrar erro se falhar)
-            tentarCarregarDadosCompletos();
-        }
-    }, [activeTab]);
+          // Tenta buscar dados completos silenciosamente (sem mostrar erro se falhar)
+          tentarCarregarDadosCompletos();
+      }
+  }, [activeTab]);
 
   // Função para tentar carregar dados completos do perfil (silenciosa)
   const tentarCarregarDadosCompletos = async () => {
@@ -152,83 +188,83 @@ export default function ClienteDashboard() {
   };
 
   // Função para lidar com a submissão do formulário de perfil
-    const handlePerfilSubmit = async (e) => {
-        e.preventDefault();
-        setIsPerfilSubmitting(true);
-        setPerfilError(null);
-        setPerfilSuccess(null);
-        setSenhaError(null);
-        setSenhaSuccess(null);
+  const handlePerfilSubmit = async (e) => {
+      e.preventDefault();
+      setIsPerfilSubmitting(true);
+      setPerfilError(null);
+      setPerfilSuccess(null);
+      setSenhaError(null);
+      setSenhaSuccess(null);
 
-        try {
-            // Tenta atualizar o perfil primeiro
-            const dadosAtualizados = {
-                nomeCompleto: nome,
-                telefone: telefone,
-                email: email,
-                documento: user?.documento // Mantém o documento inalterado
-            };
+      try {
+          // Tenta atualizar o perfil primeiro
+          const dadosAtualizados = {
+              nomeCompleto: nome,
+              telefone: telefone,
+              email: email,
+              documento: user?.documento // Mantém o documento inalterado
+          };
 
-            await usuarioService.atualizarMeuPerfil(dadosAtualizados);
+          await usuarioService.atualizarMeuPerfil(dadosAtualizados);
 
-            let mensagem = "Seu perfil foi atualizado com sucesso!";
+          let mensagem = "Seu perfil foi atualizado com sucesso!";
 
-            // Em seguida, verifica se a senha precisa ser alterada
-            if (senhaAtual || novaSenha || confirmarNovaSenha) {
-                if (!senhaAtual) {
-                    setSenhaError('Por favor, insira a senha atual para alterá-la.');
-                    return;
-                }
-                if (novaSenha !== confirmarNovaSenha) {
-                    setSenhaError('A nova senha e a confirmação não coincidem.');
-                    return;
-                }
-                if (!novaSenha) {
-                    setSenhaError('A nova senha não pode estar vazia.');
-                    return;
-                }
+          // Em seguida, verifica se a senha precisa ser alterada
+          if (senhaAtual || novaSenha || confirmarNovaSenha) {
+              if (!senhaAtual) {
+                  setSenhaError('Por favor, insira a senha atual para alterá-la.');
+                  return;
+              }
+              if (novaSenha !== confirmarNovaSenha) {
+                  setSenhaError('A nova senha e a confirmação não coincidem.');
+                  return;
+              }
+              if (!novaSenha) {
+                  setSenhaError('A nova senha não pode estar vazia.');
+                  return;
+              }
 
-                const dadosSenha = {
-                    SenhaAtual: senhaAtual,
-                    NovaSenha: novaSenha,
-                    ConfirmarNovaSenha: confirmarNovaSenha
-                };
+              const dadosSenha = {
+                  SenhaAtual: senhaAtual,
+                  NovaSenha: novaSenha,
+                  ConfirmarNovaSenha: confirmarNovaSenha
+              };
 
-                await usuarioService.alterarSenha(dadosSenha);
-                mensagem += " Sua senha também foi atualizada com sucesso!";
+              await usuarioService.alterarSenha(dadosSenha);
+              mensagem += " Sua senha também foi atualizada com sucesso!";
 
-                // Limpa os campos de senha após o sucesso
-                setSenhaAtual('');
-                setNovaSenha('');
-                setConfirmarNovaSenha('');
-            }
+              // Limpa os campos de senha após o sucesso
+              setSenhaAtual('');
+              setNovaSenha('');
+              setConfirmarNovaSenha('');
+          }
 
-            setPerfilSuccess(mensagem);
-            dispatch(updateUser({ user: { ...user, ...dadosAtualizados } }));
+          setPerfilSuccess(mensagem);
+          dispatch(updateUser({ user: { ...user, ...dadosAtualizados } }));
 
-        } catch (err) {
-            const apiError = err.response?.data?.erro || err.response?.data?.message || err.response?.data?.title || "Ocorreu um erro ao atualizar seu perfil.";
-            const apiErrors = err.response?.data?.detalhes || err.response?.data?.errors;
+      } catch (err) {
+          const apiError = err.response?.data?.erro || err.response?.data?.message || err.response?.data?.title || "Ocorreu um erro ao atualizar seu perfil.";
+          const apiErrors = err.response?.data?.detalhes || err.response?.data?.errors;
 
-            // Verifica se o erro está relacionado à senha
-            if (apiError.includes("senha") || apiErrors?.PasswordMismatch || err.config?.url?.includes('alterar-senha') || err.response?.data?.title?.includes('validation errors')) {
-                // Se há erros específicos de validação de senha, use-os
-                if (apiErrors?.SenhaAtual || apiErrors?.NovaSenha || apiErrors?.ConfirmarNovaSenha) {
-                    const errosSenha = [];
-                    if (apiErrors.SenhaAtual) errosSenha.push(...apiErrors.SenhaAtual);
-                    if (apiErrors.NovaSenha) errosSenha.push(...apiErrors.NovaSenha);
-                    if (apiErrors.ConfirmarNovaSenha) errosSenha.push(...apiErrors.ConfirmarNovaSenha);
-                    setSenhaError(errosSenha.join(' '));
-                } else {
-                    setSenhaError(apiError);
-                }
-            } else {
-                setPerfilError(apiError);
-            }
-        } finally {
-            setIsPerfilSubmitting(false);
-        }
-    };
+          // Verifica se o erro está relacionado à senha
+          if (apiError.includes("senha") || apiErrors?.PasswordMismatch || err.config?.url?.includes('alterar-senha') || err.response?.data?.title?.includes('validation errors')) {
+              // Se há erros específicos de validação de senha, use-os
+              if (apiErrors?.SenhaAtual || apiErrors?.NovaSenha || apiErrors?.ConfirmarNovaSenha) {
+                  const errosSenha = [];
+                  if (apiErrors.SenhaAtual) errosSenha.push(...apiErrors.SenhaAtual);
+                  if (apiErrors.NovaSenha) errosSenha.push(...apiErrors.NovaSenha);
+                  if (apiErrors.ConfirmarNovaSenha) errosSenha.push(...apiErrors.ConfirmarNovaSenha);
+                  setSenhaError(errosSenha.join(' '));
+              } else {
+                  setSenhaError(apiError);
+              }
+          } else {
+              setPerfilError(apiError);
+          }
+      } finally {
+          setIsPerfilSubmitting(false);
+      }
+  };
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -365,11 +401,12 @@ export default function ClienteDashboard() {
           <div className="mt-6 space-y-8">
             {/* Formulário de Perfil */}
             <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Meu Perfil</h2>
-              {(perfilSuccess || senhaSuccess) && <p className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{perfilSuccess || senhaSuccess}</p>}
-              {(perfilError || senhaError) && <p className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{perfilError || senhaError}</p>}
+              <FeedbackMessage message={perfilSuccess || senhaSuccess} type="status" />
+              <FeedbackMessage message={perfilError || senhaError} type="error" />
 
               <form onSubmit={handlePerfilSubmit}>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Meu Perfil</h2>
+
                 <div className="mb-4">
                   <label htmlFor="nome" className="block text-sm font-medium text-gray-700">Nome Completo</label>
                   <input
@@ -379,6 +416,7 @@ export default function ClienteDashboard() {
                     onChange={(e) => setNome(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <div className="mb-4">
@@ -386,13 +424,13 @@ export default function ClienteDashboard() {
                   <input
                     type="text"
                     id="documento"
-                    // ✅ Aplica a formatação de CPF para exibição
-                    value={formatarCpf(documento || user?.documento || '')}
-                    placeholder={!user?.documento ? 'Documento será carregado' : ''}
+                    value={documento || user?.documento || ''}
+                    placeholder={!user?.documento ? 'Documento será carregado quando disponível' : ''}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
                     disabled
+                    aria-describedby="documento-desc"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Este campo não pode ser alterado. Entre em contato com o suporte se precisar de ajuda.</p>
+                  <p id="documento-desc" className="mt-1 text-xs text-gray-500">Este campo não pode ser alterado. Entre em contato com o suporte se precisar de ajuda.</p>
                 </div>
                 <div className="mb-4">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -403,6 +441,7 @@ export default function ClienteDashboard() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <div className="mb-4">
@@ -411,17 +450,14 @@ export default function ClienteDashboard() {
                     type="tel"
                     id="telefone"
                     value={telefone}
-                    // ✅ Aplica a máscara de telefone ao digitar
-                    onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
-                    placeholder="(XX) XXXXX-XXXX"
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="Adicione seu telefone"
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    maxLength="15" // Limita o tamanho ao formato (XX) XXXXX-XXXX
                   />
                 </div>
 
-                {/* Campos de alteração de senha */}
-                <div className="mt-8 border-t pt-4">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Alterar Senha</h3>
+                <fieldset className="mt-8 border-t pt-4">
+                  <legend className="text-xl font-semibold text-gray-800 mb-4">Alterar Senha</legend>
                   <div className="mb-4 relative">
                     <label htmlFor="senhaAtual" className="block text-sm font-medium text-gray-700">Senha Atual</label>
                     <input
@@ -431,12 +467,13 @@ export default function ClienteDashboard() {
                       onChange={(e) => setSenhaAtual(e.target.value)}
                       placeholder="Digite sua senha atual para alterar"
                       className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      autoComplete="current-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowSenhaAtual(!showSenhaAtual)}
                       className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
-                      aria-label="Mostrar ou esconder a senha atual"
+                      aria-label={showSenhaAtual ? "Esconder a senha atual" : "Mostrar a senha atual"}
                     >
                       {showSenhaAtual ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -450,12 +487,13 @@ export default function ClienteDashboard() {
                       onChange={(e) => setNovaSenha(e.target.value)}
                       placeholder="Digite a nova senha"
                       className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      autoComplete="new-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNovaSenha(!showNovaSenha)}
                       className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
-                      aria-label="Mostrar ou esconder a nova senha"
+                      aria-label={showNovaSenha ? "Esconder a nova senha" : "Mostrar a nova senha"}
                     >
                       {showNovaSenha ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -468,17 +506,18 @@ export default function ClienteDashboard() {
                       value={confirmarNovaSenha}
                       onChange={(e) => setConfirmarNovaSenha(e.target.value)}
                       className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      autoComplete="new-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmarNovaSenha(!showConfirmarNovaSenha)}
                       className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
-                      aria-label="Mostrar ou esconder a confirmação da nova senha"
+                      aria-label={showConfirmarNovaSenha ? "Esconder a confirmação da nova senha" : "Mostrar a confirmação da nova senha"}
                     >
                       {showConfirmarNovaSenha ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
-                </div>
+                </fieldset>
 
                 <button
                   type="submit"
