@@ -8,6 +8,12 @@ import { ChevronLeft, ChevronRight, PlayCircle, MapPin } from 'lucide-react';
 const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
 const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Mídia+Indisponível';
 
+const VisuallyHidden = ({ children }) => (
+  <span className="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0" style={{ clip: 'rect(0, 0, 0, 0)' }}>
+    {children}
+  </span>
+);
+
 const PacoteDetalhes = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,7 +22,6 @@ const PacoteDetalhes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [indiceAtual, setIndiceAtual] = useState(0);
-  const [timerAtivo, setTimerAtivo] = useState(true);
 
   const proximaMidia = useCallback(() => {
     if (pacote && pacote.imagens && pacote.imagens.length > 1) {
@@ -38,39 +43,23 @@ const PacoteDetalhes = () => {
         setError(null);
         const dadosDoPacote = await pacoteService.getPacotePorId(Number(id));
         const totalAvaliacoes = dadosDoPacote.avaliacoes?.length || 0;
-
         let mediaAvaliacoes = 0;
         if (totalAvaliacoes > 0) {
           const somaDasNotas = dadosDoPacote.avaliacoes.reduce((soma, avaliacao) => soma + avaliacao.nota, 0);
           mediaAvaliacoes = parseFloat((somaDasNotas / totalAvaliacoes).toFixed(1));
         }
-
-        // objeto completo do pacote
         const pacoteCompleto = { ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes };
         setPacote(pacoteCompleto);
         setIndiceAtual(0);
-
-        // Início da Lógica para Salvar no Histórico de Visualização
         try {
-          // 1. Pega o histórico atual do localStorage ou cria um array vazio.
           const historicoAtual = JSON.parse(localStorage.getItem(PACOTES_VISTOS_KEY)) || [];
-
-          // 2. Remove o pacote atual do histórico (caso o usuário esteja visitando a página de novo).
           const historicoFiltrado = historicoAtual.filter(p => p.id !== pacoteCompleto.id);
-
-          // 3. Adiciona o pacote recém-visto no início da lista.
           const novoHistorico = [pacoteCompleto, ...historicoFiltrado];
-
-          // 4. Limita o histórico a um número razoável (ex: 5 pacotes).
           const historicoLimitado = novoHistorico.slice(0, 5);
-
-          // 5. Salva o histórico atualizado de volta no localStorage.
           localStorage.setItem(PACOTES_VISTOS_KEY, JSON.stringify(historicoLimitado));
-
         } catch (storageError) {
           console.warn("Não foi possível salvar o histórico de visualização:", storageError);
         }
-
       } catch (err) {
         console.error("Erro ao buscar detalhes do pacote:", err);
         setError("Não foi possível carregar os detalhes do pacote.");
@@ -93,9 +82,16 @@ const PacoteDetalhes = () => {
     navigate(`/reservar/${pacote.id}`);
   };
 
+  const handleThumbnailKeyDown = (event, index) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setIndiceAtual(index);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100" role="status">
         <p className="text-lg font-semibold text-gray-700">Carregando detalhes do pacote...</p>
       </div>
     );
@@ -103,7 +99,7 @@ const PacoteDetalhes = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md">
+      <div className="flex items-center justify-center min-h-screen bg-red-100 text-red-800 p-4 rounded-md" role="alert">
         <p className="text-lg font-semibold">{error}</p>
       </div>
     );
@@ -111,7 +107,7 @@ const PacoteDetalhes = () => {
 
   if (!pacote) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md">
+      <div className="flex items-center justify-center min-h-screen bg-yellow-100 text-yellow-800 p-4 rounded-md" role="status">
         <p className="text-lg font-semibold">Pacote não encontrado.</p>
       </div>
     );
@@ -124,8 +120,13 @@ const PacoteDetalhes = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
       <main className="container mx-auto p-4 md:p-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8">
+        <VisuallyHidden>
+          <h1 aria-live="polite">Página de detalhes do pacote: {pacote.titulo}</h1>
+        </VisuallyHidden>
+
+        <section className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col lg:flex-row gap-8" aria-labelledby="detalhes-pacote-heading">
           <div className="flex-1 lg:w-2/3">
+            <h2 id="detalhes-pacote-heading" className="sr-only">Galeria de Mídia e Informações do Pacote</h2>
             <div className="w-full h-64 md:h-96 bg-gray-900 rounded-lg shadow-md overflow-hidden relative group">
               {listaMidia.length > 1 && (
                 <>
@@ -137,7 +138,7 @@ const PacoteDetalhes = () => {
                 <iframe
                   className="w-full h-full"
                   src={midiaAtual.url}
-                  title="Player de vídeo do pacote"
+                  title={`Vídeo sobre ${pacote.titulo}`}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -145,13 +146,13 @@ const PacoteDetalhes = () => {
               ) : (
                 <img
                   src={midiaAtual ? `${API_BASE_URL}/${midiaAtual.url}` : placeholderImg}
-                  alt={pacote.titulo || 'Mídia do Pacote'}
+                  alt={`Mídia principal do pacote ${pacote.titulo}, imagem ${indiceAtual + 1} de ${listaMidia.length}`}
                   className="w-full h-full object-cover"
                 />
               )}
             </div>
             {listaMidia.length > 1 && (
-              <div className="flex gap-1 mt-2 overflow-x-auto pb-2">
+              <div role="toolbar" aria-label="Controles da galeria de mídia" className="flex gap-1 mt-2 overflow-x-auto pb-2">
                 {listaMidia.map((midia, index) => {
                   let thumbnailUrl = placeholderImg;
                   if (midia.isVideo) {
@@ -161,10 +162,18 @@ const PacoteDetalhes = () => {
                     thumbnailUrl = `${API_BASE_URL}/${midia.url}`;
                   }
                   return (
-                    <div key={index} onClick={() => setIndiceAtual(index)} className={`relative flex flex-shrink-0 ml-2 mt-2 w-20 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`}>
-                      <img src={thumbnailUrl} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
+                    <div
+                      key={index}
+                      onClick={() => setIndiceAtual(index)}
+                      onKeyDown={(e) => handleThumbnailKeyDown(e, index)}
+                      role="button"
+                      tabIndex="0"
+                      aria-label={`Mostrar mídia ${index + 1}`}
+                      className={`relative flex flex-shrink-0 ml-2 mt-2 w-20 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`}
+                    >
+                      <img src={thumbnailUrl} alt={`Miniatura ${index + 1} de ${listaMidia.length}`} className="w-full h-full object-cover rounded-lg" />
                       {midia.isVideo && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg" aria-hidden="true">
                           <PlayCircle size={32} className="text-white" />
                         </div>
                       )}
@@ -174,18 +183,18 @@ const PacoteDetalhes = () => {
               </div>
             )}
           </div>
-          <div className="flex-1 lg:w-1/3 flex flex-col">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo}</h1>
+          <aside className="flex-1 lg:w-1/3 flex flex-col" aria-labelledby="informacoes-reserva-heading">
+            <h1 id="informacoes-reserva-heading" className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{pacote.titulo}</h1>
             <p className="text-lg text-gray-500 mb-4">{pacote.destino}</p>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-4" aria-label={`Avaliação média de ${pacote.mediaAvaliacoes} de 5 estrelas`}>
               <StarRating rating={pacote.mediaAvaliacoes} />
-              <span className="text-gray-600 text-sm">({pacote.totalAvaliacoes} {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})</span>
+              <span className="text-gray-600 text-sm" aria-hidden="true">({pacote.totalAvaliacoes} {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})</span>
             </div>
             <p className="text-gray-700 leading-relaxed mb-6">{pacote.descricao}</p>
             <div className="mb-6 text-gray-700">
-              <p className="font-semibold text-lg mb-2">Período da Viagem:</p>
-              <p>De: <span className="font-medium">{new Date(pacote.dataInicio).toLocaleDateString('pt-BR')}</span></p>
-              <p>Até: <span className="font-medium">{new Date(pacote.dataFim).toLocaleDateString('pt-BR')}</span></p>
+              <h2 className="font-semibold text-lg mb-2">Período da Viagem:</h2>
+              <p>De: <time dateTime={pacote.dataInicio}>{new Date(pacote.dataInicio).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</time></p>
+              <p>Até: <time dateTime={pacote.dataFim}>{new Date(pacote.dataFim).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</time></p>
               <p className="mt-2">Vagas disponíveis: <span className="font-bold">{pacote.vagasDisponiveis}</span></p>
             </div>
             <div className="mt-auto border-t pt-6">
@@ -198,35 +207,37 @@ const PacoteDetalhes = () => {
                 Reservar
               </button>
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">O que os viajantes dizem</h2>
+          </aside>
+        </section>
+
+        <section className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8" aria-labelledby="avaliacoes-heading">
+          <h2 id="avaliacoes-heading" className="text-2xl font-bold text-gray-900 mb-6">O que os viajantes dizem</h2>
           {pacote.totalAvaliacoes > 0 ? (
             pacote.avaliacoes.map((avaliacao) => (
-              <div key={avaliacao.id} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
+              <article key={avaliacao.id} className="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0" aria-label={`Avaliação de ${avaliacao.usuarioNome || 'Viajante'}`}>
                 <div className="flex items-center mb-2">
                   <span className="font-semibold text-gray-800">{avaliacao.usuarioNome || 'Viajante'}</span>
                 </div>
-                <div className='flex items-center gap-2 mb-2'>
+                <div className='flex items-center gap-2 mb-2' aria-label={`Nota: ${avaliacao.nota} de 5 estrelas`}>
                   <StarRating rating={avaliacao.nota} />
-                  <span className='text-xs text-gray-400'>{new Date(avaliacao.data).toLocaleDateString('pt-BR')}</span>
+                  <span className='text-xs text-gray-400' aria-hidden="true">{new Date(avaliacao.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
                 </div>
                 <p className="text-gray-700 italic">"{avaliacao.comentario || 'Sem comentário.'}"</p>
-              </div>
+              </article>
             ))
           ) : (
             <p className="text-gray-600">Este pacote ainda não recebeu avaliações. Seja o primeiro a viajar e contar sua experiência!</p>
           )}
-        </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
+        </section>
+
+        <section className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8" aria-labelledby="localizacao-heading">
           <div className="flex items-center mb-6">
-            <MapPin className="text-blue-600 mr-3" size={28} />
-            <h2 className="text-2xl font-bold text-gray-900">Localização</h2>
+            <MapPin className="text-blue-600 mr-3" size={28} aria-hidden="true" />
+            <h2 id="localizacao-heading" className="text-2xl font-bold text-gray-900">Localização</h2>
           </div>
           <div className="w-full h-80 rounded-lg overflow-hidden border">
             <iframe
-              title={`Mapa de ${pacote.destino}`}
+              title={`Mapa de localização para ${pacote.destino}`}
               src={mapSrc}
               width="100%"
               height="100%"
@@ -236,7 +247,7 @@ const PacoteDetalhes = () => {
               referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );
