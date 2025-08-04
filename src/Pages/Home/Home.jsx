@@ -79,7 +79,15 @@ export default function Home() {
     useEffect(() => {
         const storedHistory = localStorage.getItem(PACOTES_VISTOS_KEY);
         if (storedHistory) {
-            setHistoricoVisualizacao(JSON.parse(storedHistory));
+            try {
+                const historicoCompleto = JSON.parse(storedHistory);
+                // Pega apenas os 3 primeiros itens do array antes de salvar no estado.
+                const historicoLimitado = historicoCompleto.slice(0, 3);
+                setHistoricoVisualizacao(historicoLimitado);
+            } catch (e) {
+                console.error("Erro ao analisar o histórico de visualização:", e);
+                setHistoricoVisualizacao([]);
+            }
         }
     }, []); // Executa apenas uma vez quando o componente é montado.
 
