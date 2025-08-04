@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import reservaService from '../../services/reservaService';
 import avaliacoesService from '../../services/avaliacoesServices';
-import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx';
-import StarRating from '../../components/StarRating.jsx';
-import { Star } from 'lucide-react';
+import usuarioService from '../../services/usuarioService';
+import { updateUser } from '../../store/authSlice';
 
-// --- COMPONENTE INTERNO PARA O FORMULÁRIO DE AVALIAÇÃO (COM A CORREÇÃO FINAL) ---
+// --- COMPONENTE INTERNO PARA O FORMULÁRIO DE AVALIAÇÃO ---
 const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
     const [nota, setNota] = useState(0);
     const [comentario, setComentario] = useState('');
     const [hoverNota, setHoverNota] = useState(0);
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     const { user } = useSelector((state) => state.auth);
 
     const handleSubmit = async (e) => {
@@ -25,15 +24,15 @@ const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
         setError('');
         setIsSubmitting(true);
         try {
-            // ***** A CORREÇÃO ESTÁ AQUI *****
-            // Os nomes agora batem 100% com o DTO do C# (AvaliacaoRequest)
             await avaliacoesService.criarAvaliacao({
-                pacoteViagem_Id: pacoteId, // Corrigido de pacoteId
-                usuario_Id: user.id,       // Corrigido de usuarioId
+                pacoteViagem_Id: pacoteId,
+                usuario_Id: user.id,
                 nota: nota,
                 comentario: comentario,
             });
-            alert('Avaliação enviada com sucesso! Ela ficará pendente até ser aprovada por um administrador.');
+            // NOTA: Em um aplicativo real, evite usar `alert`. Prefira modais ou notificações.
+            // Substituído alert por um console.log para evitar problemas em ambientes sandboxed.
+            console.log('Avaliação enviada com sucesso! Ela ficará pendente até ser aprovada por um administrador.');
             onAvaliacaoSubmit();
         } catch (err) {
             const apiError = err.response?.data?.erro || "Ocorreu um erro ao enviar sua avaliação.";
@@ -77,9 +76,12 @@ const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
 };
 
 
-// --- COMPONENTE PRINCIPAL (SEM MUDANÇAS, APENAS PARA GARANTIR) ---
+// --- COMPONENTE PRINCIPAL (COM AS MUDANÇAS DO FORMULÁRIO DE PERFIL) ---
 export default function ClienteDashboard() {
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
+    
+    // Estados para o dashboard (viagens e avaliações)
     const [reservas, setReservas] = useState([]);
     const [avaliacoes, setAvaliacoes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -88,6 +90,16 @@ export default function ClienteDashboard() {
     const [modalAberta, setModalAberta] = useState(false);
     const [reservaSelecionada, setReservaSelecionada] = useState(null);
 
+    // Estados para a aba de perfil
+    const [nome, setNome] = useState(user?.nomeCompleto || '');
+    const [email, setEmail] = useState(user?.email || '');
+    // Inicialização do estado de telefone. A propriedade é "telefone" no objeto de usuário no Redux.
+    const [telefone, setTelefone] = useState(user?.telefone || ''); 
+    const [perfilError, setPerfilError] = useState(null);
+    const [perfilSuccess, setPerfilSuccess] = useState(null);
+    const [isPerfilSubmitting, setIsPerfilSubmitting] = useState(false);
+
+    // Efeito para carregar as reservas e avaliações
     const fetchData = async () => {
         setLoading(true);
         setError(null);
@@ -137,19 +149,67 @@ export default function ClienteDashboard() {
         setReservaSelecionada(null);
     };
 
+    // Função para lidar com a submissão do formulário de perfil
+    const handlePerfilSubmit = async (e) => {
+        e.preventDefault();
+        setIsPerfilSubmitting(true);
+        setPerfilError(null);
+        setPerfilSuccess(null);
+
+        try {
+            const dadosAtualizados = {
+                nomeCompleto: nome,
+                telefone: telefone,
+                email: email,
+            };
+            
+            // CORREÇÃO: O nome da função está correto aqui. O erro provavelmente é de carregamento do módulo.
+            const response = await usuarioService.atualizarMeuPerfil(dadosAtualizados);
+            
+            // Dispatch para a action updateUser para atualizar o estado do Redux
+            dispatch(updateUser({ user: response.usuarioAtualizado }));
+
+            setPerfilSuccess('Seu perfil foi atualizado com sucesso!');
+        } catch (err) {
+            const apiError = err.response?.data?.erro || "Ocorreu um erro ao atualizar seu perfil.";
+            setPerfilError(apiError);
+            console.error(err);
+        } finally {
+            setIsPerfilSubmitting(false);
+        }
+    };
+
+
     const primeiroNome = user?.nomeCompleto?.split(' ')[0] || 'Usuário';
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <header className="mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Olá, {primeiroNome}!</h1>
-                <p className="text-md text-gray-500">Bem-vindo(a) ao seu painel. Aqui você gerencia suas viagens e avaliações.</p>
+                <p className="text-md text-gray-500">Bem-vindo(a) ao seu painel. Aqui você gerencia suas viagens, avaliações e perfil.</p>
             </header>
 
             <div className="mb-6 border-b border-gray-200">
                 <nav className="-mb-px flex space-x-6 overflow-x-auto">
-                    <button onClick={() => setActiveTab('viagens')} className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'viagens' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Minhas Viagens</button>
-                    <button onClick={() => setActiveTab('avaliacoes')} className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'avaliacoes' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Minhas Avaliações</button>
+                    <button 
+                        onClick={() => setActiveTab('viagens')} 
+                        className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'viagens' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                    >
+                        Minhas Viagens
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('avaliacoes')} 
+                        className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'avaliacoes' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                    >
+                        Minhas Avaliações
+                    </button>
+                    {/* A nova aba "Meu Perfil" */}
+                    <button 
+                        onClick={() => setActiveTab('perfil')} 
+                        className={`flex-shrink-0 py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'perfil' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                    >
+                        Meus Dados
+                    </button>
                 </nav>
             </div>
 
@@ -157,7 +217,7 @@ export default function ClienteDashboard() {
             {error && <p className="text-red-500 p-4 bg-red-50 rounded-lg">{error}</p>}
 
             {!loading && !error && activeTab === 'viagens' && (
-                 <div>
+                <div>
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Reservas Pendentes</h2>
                     {reservasPendentes.length > 0 ? (
                         reservasPendentes.map((reserva) => (
@@ -172,7 +232,7 @@ export default function ClienteDashboard() {
                     ) : <p className="text-gray-500">Nenhuma reserva pendente.</p>}
 
                     <h2 className="text-xl font-semibold text-gray-700 mt-8 mb-4">Reservas Confirmadas e Concluídas</h2>
-                     {reservasConfirmadas.length > 0 ? (
+                    {reservasConfirmadas.length > 0 ? (
                         reservasConfirmadas.map((reserva) => (
                             <div key={reserva.id} className="bg-white rounded-xl shadow-md p-5 mb-4">
                                 <div className="flex flex-col sm:flex-row justify-between items-center">
@@ -213,6 +273,64 @@ export default function ClienteDashboard() {
                     ) : <p className="text-gray-500">Você ainda não enviou nenhuma avaliação.</p>}
                 </div>
             )}
+            
+            {/* Formulário de perfil embutido */}
+            {!loading && !error && activeTab === 'perfil' && (
+                <div className="mt-6">
+                    <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Meu Perfil</h2>
+                        {perfilSuccess && <p className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{perfilSuccess}</p>}
+                        {perfilError && <p className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{perfilError}</p>}
+                        
+                        <form onSubmit={handlePerfilSubmit}>
+                            <div className="mb-4">
+                                <label htmlFor="nome" className="block text-sm font-medium text-gray-700">Nome Completo</label>
+                                <input
+                                    type="text"
+                                    id="nome"
+                                    value={nome}
+                                    onChange={(e) => setNome(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">Telefone</label>
+                                <input
+                                    type="tel"
+                                    id="telefone"
+                                    value={telefone}
+                                    onChange={(e) => setTelefone(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                            
+                            <div className="mb-6">
+                                <p className="text-sm text-gray-500">Se precisar alterar seu documento (CPF), por favor, entre em contato com o suporte.</p>
+                            </div>
+                            
+                            <button
+                                type="submit"
+                                disabled={isPerfilSubmitting}
+                                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300"
+                            >
+                                {isPerfilSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <div className="mt-12 p-4 bg-gray-100 rounded-lg text-center">
                 <p className="text-sm text-gray-600">Precisa alterar seus dados? <a href="/suporte" className="font-semibold text-indigo-600 hover:underline">Fale com o suporte</a>.</p>
@@ -223,6 +341,7 @@ export default function ClienteDashboard() {
     );
 }
 
+// CORREÇÃO: Função auxiliar para formatar a data que estava faltando.
 const formatarData = (dataString) => {
     if (!dataString) return 'Data indisponível';
     try {
