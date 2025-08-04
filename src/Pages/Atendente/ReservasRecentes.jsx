@@ -67,7 +67,7 @@ const ReservasRecentes = () => {
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-blue-900">📅 Reservas Recentes</h2>
+            <h2 className="text-3xl font-bold text-blue-900">Reservas Recentes</h2>
             <p className="text-gray-500 mt-1">Filtre e gerencie as reservas dos clientes.</p>
           </div>
           <button

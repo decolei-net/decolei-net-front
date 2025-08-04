@@ -86,7 +86,7 @@ export default function AdicionarPacote() {
 
     return (
         <div className="p-2 sm:p-4">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Adicionar Novo Pacote</h1>
+            <h1 className="text-3xl font-bold text-blue-900">Adicionar Novo Pacote</h1>
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -94,7 +94,7 @@ export default function EditarPacote() {
 
     return (
         <div className="p-2 sm:p-4">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Editar Pacote</h1>
+            <h1 className="text-3xl font-bold text-blue-900">Editar Pacote</h1>
             {error && <p className="text-red-500 text-center mb-4">{error}</p>}
             
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">

@@ -48,7 +48,7 @@ const BuscarCliente = () => {
       <div className="max-w-7xl mx-auto">
         {/* Cabeçalho da página */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Clientes</h2>
+          <h2 className="text-3xl font-bold text-blue-900">Clientes</h2>
           <p className="text-gray-500 mt-1">
             Busque ou navegue pela lista de clientes cadastrados.
           </p>

@@ -83,7 +83,7 @@ export default function GerenciarPacotes() {
     return (
         <div className="p-2 sm:p-4">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Gerenciar Pacotes</h1>
+                <h1 className="text-3xl font-bold text-blue-900">Gerenciar Pacotes</h1>
                 <button 
                     onClick={() => navigate('/dashboard-admin/pacotes/novo')}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"

@@ -94,7 +94,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Painel de Controle</h1>
+      <h1 className="text-3xl font-bold text-blue-900">Painel de Controle</h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Vendas (Último Mês)" value={stats.vendas} />

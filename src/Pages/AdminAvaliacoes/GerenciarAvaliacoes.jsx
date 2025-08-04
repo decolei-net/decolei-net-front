@@ -89,7 +89,7 @@ export default function GerenciarAvaliacoes() {
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Gerenciar Avaliações</h1>
+            <h1 className="text-3xl font-bold text-blue-900">Gerenciar Avaliações</h1>
 
             {/* Seção de Avaliações Pendentes */}
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">

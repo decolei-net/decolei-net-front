@@ -84,7 +84,7 @@ export default function EditarUsuario() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Editar Usuário</h1>
+      <h1 className="text-3xl font-bold text-blue-900">Editar Usuário</h1>
       <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
         <form onSubmit={handleSubmit} className="space-y-4">
           

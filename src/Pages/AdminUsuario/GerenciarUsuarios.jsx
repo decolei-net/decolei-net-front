@@ -80,7 +80,7 @@ const GerenciarUsuarios = () => {
         <div className="p-2 sm:p-4 bg-gray-100 min-h-screen">
             {/* Adiciona o título da página */}
             <div className="mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Gerenciar Usuários</h2>
+                <h2 className="text-3xl font-bold text-blue-900">Gerenciar Usuários</h2>
             </div>
             
             <form onSubmit={handleSearchSubmit} className="flex flex-wrap md:flex-nowrap gap-4 mb-6 p-4 bg-white rounded-lg shadow">
@@ -149,7 +149,7 @@ const GerenciarUsuarios = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                            {/* ✅ Botão de detalhes com texto e estilo corrigidos */}
+                                            {/* Botão de detalhes com texto e estilo corrigidos */}
                                             <button
                                                 onClick={() => handleDetalhesClick(usuario.id)}
                                                 className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
