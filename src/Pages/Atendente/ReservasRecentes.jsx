@@ -4,6 +4,8 @@ import TabelaReservasBusca from '../../components/TabelaReservasBusca';
 import FiltroStatusReserva from '../../components/FiltroStatusReserva';
 import reservaService from '../../services/reservaService';
 import { MagnifyingGlassIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 const ReservasRecentes = () => {
   const [filtro, setFiltro] = useState('');
@@ -67,7 +69,10 @@ const ReservasRecentes = () => {
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-blue-900">Reservas Recentes</h2>
+            <h2 className="text-3xl font-bold text-blue-900 flex items-center gap-2">
+            <CalendarDaysIcon className="h-6 w-6 text-blue-900" />
+             Reservas Recentes
+          </h2>
             <p className="text-gray-500 mt-1">Filtre e gerencie as reservas dos clientes.</p>
           </div>
           <button

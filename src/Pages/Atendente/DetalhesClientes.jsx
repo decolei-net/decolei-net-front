@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import usuarioService from '../../services/usuarioService';
 import reservaService from '../../services/reservaService';
 import TabelaHistoricoReservas from '../../components/TabelaHistoricoReservas';
+import { UserCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const DetalhesClientes = () => {
   const { id } = useParams();
@@ -52,7 +53,8 @@ const DetalhesClientes = () => {
       {/* Título */}
       <div>
         <h2 className="text-2xl sm:text-3xl font-bold text-blue-800 flex items-center gap-2">
-          <span>👤</span> Detalhes do Cliente
+          <UserCircleIcon className="h-6 w-6 text-blue-800" />
+          Detalhes do Cliente
         </h2>
         <p className="text-gray-500 text-sm sm:text-base">
           Informações pessoais e histórico de reservas
@@ -72,7 +74,8 @@ const DetalhesClientes = () => {
       {/* Histórico de Reservas */}
       <div>
         <h3 className="text-2xl sm:text-3xl font-bold text-blue-800 flex items-center gap-2 mb-2">
-          <span>📑</span> Histórico de Reservas
+          <DocumentTextIcon className="h-6 w-6 text-blue-800" />
+          Histórico de Reservas
         </h3>
 
         {/* Tabela responsiva */}
