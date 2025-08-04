@@ -6,7 +6,7 @@ import usuarioService from '../../services/usuarioService';
 import { updateUser } from '../../store/authSlice';
 
 import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx';
-import { Star } from 'lucide-react';
+import { Star, Eye, EyeOff } from 'lucide-react';
 
 // --- COMPONENTE INTERNO PARA AVALIAÇÃO EM ESTRELAS ---
 const StarRating = ({ rating, size = 20 }) => {
@@ -48,7 +48,6 @@ const AvaliacaoForm = ({ pacoteId, onAvaliacaoSubmit }) => {
                 nota: nota,
                 comentario: comentario,
             });
-            console.log('Avaliação enviada com sucesso! Ela ficará pendente até ser aprovada por um administrador.');
             onAvaliacaoSubmit();
         } catch (err) {
             const apiError = err.response?.data?.erro || "Ocorreu um erro ao enviar sua avaliação.";
@@ -107,12 +106,26 @@ export default function ClienteDashboard() {
     const [reservaSelecionada, setReservaSelecionada] = useState(null);
 
     // Estados para a aba de perfil
-    const [nome, setNome] = useState(user?.nomeCompleto || '');
-    const [email, setEmail] = useState(user?.email || '');
-    const [telefone, setTelefone] = useState(user?.telefone || ''); 
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [telefone, setTelefone] = useState(''); 
+    const [documento, setDocumento] = useState('');
     const [perfilError, setPerfilError] = useState(null);
     const [perfilSuccess, setPerfilSuccess] = useState(null);
     const [isPerfilSubmitting, setIsPerfilSubmitting] = useState(false);
+
+    // Novos estados para a mudança de senha
+    const [senhaAtual, setSenhaAtual] = useState('');
+    const [novaSenha, setNovaSenha] = useState('');
+    const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
+    const [senhaError, setSenhaError] = useState(null);
+    const [senhaSuccess, setSenhaSuccess] = useState(null);
+
+    // Estados para mostrar/ocultar senhas
+    const [showSenhaAtual, setShowSenhaAtual] = useState(false);
+    const [showNovaSenha, setShowNovaSenha] = useState(false);
+    const [showConfirmarNovaSenha, setShowConfirmarNovaSenha] = useState(false);
+
 
     // Efeito para carregar as reservas e avaliações
     const fetchData = async () => {
@@ -136,6 +149,49 @@ export default function ClienteDashboard() {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Efeito que preenche os campos do perfil com base nos dados do usuário no Redux
+    useEffect(() => {
+        if (user && activeTab === 'perfil') {
+            setNome(user.nomeCompleto || '');
+            setEmail(user.email || '');
+            setTelefone(user.telefone || '');
+            setDocumento(user.documento || '');
+        }
+    }, [user, activeTab]);
+
+    // Efeito que limpa as mensagens ao mudar de aba e tenta carregar dados completos se disponível
+    useEffect(() => {
+        if (activeTab === 'perfil') {
+            // Limpa as mensagens de sucesso/erro ao mudar de aba para evitar que elas persistam
+            setPerfilError(null);
+            setPerfilSuccess(null);
+            setSenhaError(null);
+            setSenhaSuccess(null);
+            
+            // Tenta buscar dados completos silenciosamente (sem mostrar erro se falhar)
+            tentarCarregarDadosCompletos();
+        }
+    }, [activeTab]);
+
+    // Função para tentar carregar dados completos do perfil (silenciosa)
+    const tentarCarregarDadosCompletos = async () => {
+        try {
+            const dadosCompletos = await usuarioService.getMeuPerfil();
+            
+            // Preenche os campos com os dados da API
+            setNome(dadosCompletos.nomeCompleto || user?.nomeCompleto || '');
+            setEmail(dadosCompletos.email || user?.email || '');
+            setTelefone(dadosCompletos.telefone || '');
+            setDocumento(dadosCompletos.documento || '');
+            
+            // Atualiza o Redux com os dados completos
+            dispatch(updateUser({ user: { ...user, ...dadosCompletos } }));
+        } catch (error) {
+            // Falha silenciosa - continua com os dados disponíveis no Redux
+        }
+    };
+
 
     const viagensParaAvaliar = useMemo(() => {
         const pacotesAvaliadosIds = new Set(avaliacoes.map(a => a.pacote.id));
@@ -170,28 +226,79 @@ export default function ClienteDashboard() {
         setIsPerfilSubmitting(true);
         setPerfilError(null);
         setPerfilSuccess(null);
-
+        setSenhaError(null); 
+        setSenhaSuccess(null);
+    
         try {
+            // Tenta atualizar o perfil primeiro
             const dadosAtualizados = {
                 nomeCompleto: nome,
                 telefone: telefone,
                 email: email,
+                documento: user?.documento // Mantém o documento inalterado
             };
+    
+            await usuarioService.atualizarMeuPerfil(dadosAtualizados);
+    
+            let mensagem = "Seu perfil foi atualizado com sucesso!";
             
-            const response = await usuarioService.atualizarMeuPerfil(dadosAtualizados);
+            // Em seguida, verifica se a senha precisa ser alterada
+            if (senhaAtual || novaSenha || confirmarNovaSenha) {
+                if (!senhaAtual) {
+                    setSenhaError('Por favor, insira a senha atual para alterá-la.');
+                    return;
+                }
+                if (novaSenha !== confirmarNovaSenha) {
+                    setSenhaError('A nova senha e a confirmação não coincidem.');
+                    return;
+                }
+                if (!novaSenha) {
+                    setSenhaError('A nova senha não pode estar vazia.');
+                    return;
+                }
+                
+                const dadosSenha = { 
+                    SenhaAtual: senhaAtual, 
+                    NovaSenha: novaSenha,
+                    ConfirmarNovaSenha: confirmarNovaSenha
+                };
+                
+                await usuarioService.alterarSenha(dadosSenha);
+                mensagem += " Sua senha também foi atualizada com sucesso!";
+                
+                // Limpa os campos de senha após o sucesso
+                setSenhaAtual('');
+                setNovaSenha('');
+                setConfirmarNovaSenha('');
+            }
             
-            dispatch(updateUser({ user: response.usuarioAtualizado }));
-
-            setPerfilSuccess('Seu perfil foi atualizado com sucesso!');
+            setPerfilSuccess(mensagem);
+            dispatch(updateUser({ user: { ...user, ...dadosAtualizados } }));
+            
         } catch (err) {
-            const apiError = err.response?.data?.erro || "Ocorreu um erro ao atualizar seu perfil.";
-            setPerfilError(apiError);
-            console.error(err);
+            const apiError = err.response?.data?.erro || err.response?.data?.message || err.response?.data?.title || "Ocorreu um erro ao atualizar seu perfil.";
+            const apiErrors = err.response?.data?.detalhes || err.response?.data?.errors;
+            
+            // Verifica se o erro está relacionado à senha
+            if (apiError.includes("senha") || apiErrors?.PasswordMismatch || err.config?.url?.includes('alterar-senha') || err.response?.data?.title?.includes('validation errors')) {
+                // Se há erros específicos de validação de senha, use-os
+                if (apiErrors?.SenhaAtual || apiErrors?.NovaSenha || apiErrors?.ConfirmarNovaSenha) {
+                    const errosSenha = [];
+                    if (apiErrors.SenhaAtual) errosSenha.push(...apiErrors.SenhaAtual);
+                    if (apiErrors.NovaSenha) errosSenha.push(...apiErrors.NovaSenha);
+                    if (apiErrors.ConfirmarNovaSenha) errosSenha.push(...apiErrors.ConfirmarNovaSenha);
+                    setSenhaError(errosSenha.join(' '));
+                } else {
+                    setSenhaError(apiError);
+                }
+            } else {
+                setPerfilError(apiError);
+            }
         } finally {
             setIsPerfilSubmitting(false);
         }
     };
-
+    
 
     const primeiroNome = user?.nomeCompleto?.split(' ')[0] || 'Usuário';
 
@@ -286,13 +393,14 @@ export default function ClienteDashboard() {
                 </div>
             )}
             
-            {/* Formulário de perfil embutido */}
+            {/* Formulário de perfil e de mudança de senha */}
             {!loading && !error && activeTab === 'perfil' && (
-                <div className="mt-6">
+                <div className="mt-6 space-y-8">
+                    {/* Formulário de Perfil */}
                     <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">Meu Perfil</h2>
-                        {perfilSuccess && <p className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{perfilSuccess}</p>}
-                        {perfilError && <p className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{perfilError}</p>}
+                        {(perfilSuccess || senhaSuccess) && <p className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{perfilSuccess || senhaSuccess}</p>}
+                        {(perfilError || senhaError) && <p className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{perfilError || senhaError}</p>}
                         
                         <form onSubmit={handlePerfilSubmit}>
                             <div className="mb-4">
@@ -305,6 +413,18 @@ export default function ClienteDashboard() {
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                     required
                                 />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="documento" className="block text-sm font-medium text-gray-700">Documento</label>
+                                <input
+                                    type="text"
+                                    id="documento"
+                                    value={documento || user?.documento || ''}
+                                    placeholder={!documento && !user?.documento ? 'Documento será carregado quando disponível' : ''}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
+                                    disabled
+                                />
+                                <p className="mt-1 text-xs text-gray-500">Este campo não pode ser alterado. Entre em contato com o suporte se precisar de ajuda.</p>
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -324,12 +444,70 @@ export default function ClienteDashboard() {
                                     id="telefone"
                                     value={telefone}
                                     onChange={(e) => setTelefone(e.target.value)}
+                                    placeholder="Adicione seu telefone"
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                             </div>
-                            
-                            <div className="mb-6">
-                                <p className="text-sm text-gray-500">Se precisar alterar seu documento (CPF), por favor, entre em contato com o <a href="/suporte" className="font-semibold text-indigo-600 hover:underline"> suporte</a>.</p>
+
+                            {/* Campos de alteração de senha */}
+                            <div className="mt-8 border-t pt-4">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Alterar Senha</h3>
+                                <div className="mb-4 relative">
+                                    <label htmlFor="senhaAtual" className="block text-sm font-medium text-gray-700">Senha Atual</label>
+                                    <input
+                                        type={showSenhaAtual ? 'text' : 'password'}
+                                        id="senhaAtual"
+                                        value={senhaAtual}
+                                        onChange={(e) => setSenhaAtual(e.target.value)}
+                                        placeholder="Digite sua senha atual para alterar"
+                                        className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSenhaAtual(!showSenhaAtual)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
+                                        aria-label="Mostrar ou esconder a senha atual"
+                                    >
+                                        {showSenhaAtual ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
+                                <div className="mb-4 relative">
+                                    <label htmlFor="novaSenha" className="block text-sm font-medium text-gray-700">Nova Senha</label>
+                                    <input
+                                        type={showNovaSenha ? 'text' : 'password'}
+                                        id="novaSenha"
+                                        value={novaSenha}
+                                        onChange={(e) => setNovaSenha(e.target.value)}
+                                        placeholder="Digite a nova senha"
+                                        className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNovaSenha(!showNovaSenha)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
+                                        aria-label="Mostrar ou esconder a nova senha"
+                                    >
+                                        {showNovaSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
+                                <div className="mb-4 relative">
+                                    <label htmlFor="confirmarNovaSenha" className="block text-sm font-medium text-gray-700">Confirmar Nova Senha</label>
+                                    <input
+                                        type={showConfirmarNovaSenha ? 'text' : 'password'}
+                                        id="confirmarNovaSenha"
+                                        value={confirmarNovaSenha}
+                                        onChange={(e) => setConfirmarNovaSenha(e.target.value)}
+                                        className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmarNovaSenha(!showConfirmarNovaSenha)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-gray-500 hover:text-gray-700"
+                                        aria-label="Mostrar ou esconder a confirmação da nova senha"
+                                    >
+                                        {showConfirmarNovaSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                             </div>
                             
                             <button
@@ -343,6 +521,10 @@ export default function ClienteDashboard() {
                     </div>
                 </div>
             )}
+
+            <div className="mt-12 p-4 bg-gray-100 rounded-lg text-center">
+                <p className="text-sm text-gray-600">Precisa alterar seus dados? <a href="/suporte" className="font-semibold text-indigo-600 hover:underline">Fale com o suporte</a>.</p>
+            </div>
 
             {modalAberta && <ModalDetalhesReservas reserva={reservaSelecionada} onClose={fecharModal} />}
         </div>

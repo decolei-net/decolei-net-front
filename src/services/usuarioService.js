@@ -54,6 +54,16 @@ const usuarioService = {
   },
 
   /**
+   * @description Envia uma requisição para alterar a senha do usuário logado.
+   * @param {object} dados - Os dados para a alteração de senha (e.g., { senhaAtual, novaSenha }).
+   * @returns {Promise<object>} Um objeto contendo a mensagem de sucesso.
+   */
+  alterarSenha: async (dados) => {
+    const response = await api.post('/Usuario/alterar-senha', dados);
+    return response.data;
+  },
+
+  /**
    * @description Busca os dados do perfil do usuário logado no backend.
    * O ID do usuário é obtido pelo token no backend.
    * @returns {Promise<object>} Um objeto contendo os dados completos do usuário.
