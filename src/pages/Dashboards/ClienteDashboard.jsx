@@ -3,11 +3,22 @@ import { useSelector } from 'react-redux';
 import reservaService from '../../services/reservaService';
 import avaliacoesService from '../../services/avaliacoesServices';
 import ModalDetalhesReservas from '../../components/ModalDetalhesReservas.jsx';
-import { Clock, PlaneTakeoff, ShieldCheck } from 'lucide-react';
+import StarRating from '../../components/StarRating.jsx';
 import AvaliacaoForm from '../../components/AvaliacaoForm.jsx';
 import { API_BASE_URL } from '../../services/api.js';
+import { MessageSquareText, CalendarDays, CheckCircle, Clock, PlaneTakeoff, ShieldCheck } from 'lucide-react';
 
 const placeholderImg = 'https://placehold.co/100x100/e2e8f0/94a3b8/png?text=Sem+Imagem';
+
+const formatarData = (dataString) => {
+  if (!dataString) return 'Data indisponível';
+  try {
+    const data = new Date(dataString);
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
+  } catch (error) {
+    return 'Data inválida';
+  }
+};
 
 export default function ClienteDashboard() {
   const { user } = useSelector((state) => state.auth);
@@ -27,8 +38,6 @@ export default function ClienteDashboard() {
         reservaService.getMinhasReservas(),
         avaliacoesService.getMinhasAvaliacoes()
       ]);
-      // ✅ Log para ver exatamente o que a API está retornando
-      console.log("Dados recebidos de getMinhasReservas:", dadosReservas);
       setReservas(Array.isArray(dadosReservas) ? dadosReservas : []);
       setAvaliacoes(Array.isArray(dadosAvaliacoes) ? dadosAvaliacoes : []);
     } catch (err) {
@@ -47,7 +56,6 @@ export default function ClienteDashboard() {
     const pacotesAvaliadosIds = new Set(avaliacoes.filter(a => a && a.pacote).map(a => a.pacote.id));
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-
     return reservas.filter(reserva => {
       if (!reserva || !reserva.pacoteViagem) return false;
       const dataFim = new Date(reserva.pacoteViagem.dataFim);
@@ -66,14 +74,9 @@ export default function ClienteDashboard() {
     setReservaSelecionada(reserva);
     setModalAberta(true);
   };
-  const fecharModal = () => {
-    setModalAberta(false);
-    setReservaSelecionada(null);
-  };
-
+  const fecharModal = () => setModalAberta(false);
   const primeiroNome = user?.nomeCompleto?.split(' ')[0] || 'Usuário';
 
-  // ✅ --- CORREÇÃO DEFINITIVA E ROBUSTA --- ✅
   const getThumbnailUrl = (reserva) => {
     const imagens = reserva?.pacoteViagem?.imagens;
     if (imagens && imagens.length > 0) {
@@ -176,6 +179,37 @@ export default function ClienteDashboard() {
             ) : <p className="text-gray-500">Nenhuma viagem concluída.</p>}
           </section>
         )}
+
+        {!loading && !error && activeTab === 'avaliacoes' && (
+          <section role="tabpanel" aria-labelledby="tab-avaliacoes">
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">Suas Avaliações</h2>
+            {avaliacoes.length > 0 ? (
+              avaliacoes.map((avaliacao) => (
+                <div key={avaliacao.id} className="bg-white rounded-xl shadow-md p-5 mb-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg">{avaliacao.pacote.destino}</h3>
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <CalendarDays size={14} className="mr-2" aria-hidden="true" />
+                        <span>Enviada em: {formatarData(avaliacao.dataCriacao)}</span>
+                      </div>
+                      <span className={`mt-2 inline-block px-3 py-1 text-xs font-semibold rounded-full ${avaliacao.status === 'PENDENTE' ? 'text-yellow-800 bg-yellow-200' : 'text-green-800 bg-green-200'}`}>
+                        {avaliacao.status}
+                      </span>
+                    </div>
+                    <StarRating rating={avaliacao.nota} />
+                  </div>
+                  <div className="flex items-start mt-4 text-gray-600">
+                    <MessageSquareText size={16} className="mr-2 mt-1 flex-shrink-0" aria-hidden="true" />
+                    <p className="italic">"{avaliacao.comentario}"</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">Você ainda não enviou nenhuma avaliação.</p>
+            )}
+          </section>
+        )}
       </main>
 
       <div className="mt-12 p-4 bg-gray-100 rounded-lg text-center">
@@ -186,13 +220,3 @@ export default function ClienteDashboard() {
     </div>
   );
 }
-
-const formatarData = (dataString) => {
-  if (!dataString) return 'Data indisponível';
-  try {
-    const data = new Date(dataString);
-    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
-  } catch (error) {
-    return 'Data inválida';
-  }
-};
