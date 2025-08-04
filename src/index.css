@@ -6,9 +6,9 @@
 @tailwind utilities;
 
 :focus-visible {
-  outline: 2px solid var(--accent-color);
+  outline: 3px solid #005fcc; /* Um azul vibrante e de alto contraste */
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 4px; /* Opcional: arredonda o contorno */
 }
 
 /* 2. Estilo base do body com a fonte padrão 'Poppins' */
