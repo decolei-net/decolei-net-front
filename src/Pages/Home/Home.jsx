@@ -32,7 +32,7 @@ export default function Home() {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const totalPaginas = Math.ceil(todosOsPacotes.length / PACOTES_POR_PAGINA);
 
-    // Lógica para buscar os dados da API 
+    // Lógica para buscar os dados da API
     useEffect(() => {
         const fetchDados = async () => {
             setIsLoading(true);
@@ -91,6 +91,9 @@ export default function Home() {
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
+        if ((name === 'precoMin' || name === 'precoMax') && parseFloat(value) < 0) {
+            return;
+        }
         setFiltros(prev => ({ ...prev, [name]: value }));
     };
 
@@ -102,7 +105,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-blue-50 font-sans">
             <div className="container mx-auto px-4 py-6 text-center">
-                <div className="bg-blue-800 p-10 rounded-b-3xl mb-8 shadow-xl">
+                <div className="bg-blue-800 p-10 rounded-3xl mb-8 shadow-xl">
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
                         Para onde você deseja ir?
                     </h1>
@@ -117,8 +120,14 @@ export default function Home() {
                             </button>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <input id="precoMin" type="number" name="precoMin" value={filtros.precoMin} onChange={handleInputChange} placeholder="Preço Mín." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
-                            <input id="precoMax" type="number" name="precoMax" value={filtros.precoMax} onChange={handleInputChange} placeholder="Preço Máx." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            <div className="flex flex-col">
+                              <label htmlFor="PreçoMín." className="text-xs font-medium text-white mb-1 self-start">Preço Mín.</label>
+                              <input id="PrecoMin" type="number" name="precoMin" value={filtros.precoMin} onChange={handleInputChange} placeholder="Preço Mín." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            </div>
+                            <div className="flex flex-col">
+                              <label htmlFor="precoMax" className="text-xs font-medium text-white mb-1 self-start">Preco Max</label>
+                              <input id="PrecoMax" type="number" name="precoMax" value={filtros.precoMax} onChange={handleInputChange} placeholder="Preço Máx." className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
+                            </div>
                             <div className="flex flex-col">
                                 <label htmlFor="dataInicio" className="text-xs font-medium text-white mb-1 self-start">Data de Início</label>
                                 <input id="dataInicio" type="date" name="dataInicio" value={filtros.dataInicio} onChange={handleInputChange} className="p-2 border rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-blue-500 transition-all" />
@@ -131,7 +140,7 @@ export default function Home() {
                     </form>
                 </div>
             </div>
-            
+
             {/* O container principal para as seções de conteúdo */}
             <div className="container max-w-6xl mx-auto px-4 py-6">
                 {/* VISTOS RECENTEMENTE */}
@@ -152,7 +161,7 @@ export default function Home() {
                 {/* Esta é a seção principal que mostra os resultados da busca */}
                 <div >
                     <h2 className="text-2xl font-bold text-gray-800 max-w-6xl mx-auto mb-4">Destinos em destaque</h2>
-                    
+
                     {/* Lógica condicional para exibir loading, erro, ou os resultados */}
                     {isLoading ? (
                         <div className="text-center p-8 text-gray-500 font-bold text-sm">Buscando os melhores destinos para você...</div>
@@ -168,7 +177,7 @@ export default function Home() {
                                     </Link>
                                 ))}
                             </div>
-                            
+
                             {/* A paginação, que só aparece se houver pacotes */}
                             <div className="mt-6 max-w-6xl mx-auto">
                                 <Pagination
