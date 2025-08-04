@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import pacoteService from '../../services/pacoteServices';
-import reservaService from '../../services/reservaService';
 import StarRating from '../../components/StarRating';
 import { API_BASE_URL } from '../../services/api';
 import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
@@ -17,7 +16,6 @@ const PacoteDetalhes = () => {
   const [pacote, setPacote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isReservando, setIsReservando] = useState(false);
   const [indiceAtual, setIndiceAtual] = useState(0);
   const [timerAtivo, setTimerAtivo] = useState(true);
 
@@ -52,12 +50,12 @@ const PacoteDetalhes = () => {
         const pacoteCompleto = { ...dadosDoPacote, mediaAvaliacoes, totalAvaliacoes };
         setPacote(pacoteCompleto);
         setIndiceAtual(0);
-        
+
         // Início da Lógica para Salvar no Histórico de Visualização
         try {
           // 1. Pega o histórico atual do localStorage ou cria um array vazio.
           const historicoAtual = JSON.parse(localStorage.getItem(PACOTES_VISTOS_KEY)) || [];
-          
+
           // 2. Remove o pacote atual do histórico (caso o usuário esteja visitando a página de novo).
           const historicoFiltrado = historicoAtual.filter(p => p.id !== pacoteCompleto.id);
 
@@ -92,16 +90,8 @@ const PacoteDetalhes = () => {
     }
   }, [pacote, proximaMidia, indiceAtual]);
 
-  const handleReservarAgora = async () => {
-    setIsReservando(true);
-    try {
-      await reservaService.criarReserva({ pacoteViagemId: pacote.id });
-      navigate(`/reservar/${pacote.id}`);
-    } catch (err) {
-      alert(err.response?.data?.erro || "Não foi possível iniciar o processo de reserva.");
-    } finally {
-      setIsReservando(false);
-    }
+  const handleReservarAgora = () => {
+    navigate(`/reservar/${pacote.id}`);
   };
 
   if (loading) {
@@ -161,7 +151,7 @@ const PacoteDetalhes = () => {
               )}
             </div>
             {listaMidia.length > 1 && (
-              <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
+              <div className="flex gap-1 mt-2 overflow-x-auto pb-2">
                 {listaMidia.map((midia, index) => {
                   let thumbnailUrl = placeholderImg;
                   if (midia.isVideo) {
@@ -171,7 +161,7 @@ const PacoteDetalhes = () => {
                     thumbnailUrl = `${API_BASE_URL}/${midia.url}`;
                   }
                   return (
-                    <div key={index} onClick={() => setIndiceAtual(index)} className={`relative flex-shrink-0 w-24 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`}>
+                    <div key={index} onClick={() => setIndiceAtual(index)} className={`relative flex flex-shrink-0 ml-2 mt-2 w-20 h-20 bg-gray-200 rounded-lg object-cover cursor-pointer transition-all duration-200 ${indiceAtual === index ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:opacity-80'}`}>
                       <img src={thumbnailUrl} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
                       {midia.isVideo && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
@@ -201,7 +191,12 @@ const PacoteDetalhes = () => {
             <div className="mt-auto border-t pt-6">
               <p className="text-gray-600 text-sm mb-2">Valor por pessoa</p>
               <p className="text-4xl font-bold text-blue-600 mb-4">R$ {typeof pacote.valor === 'number' ? pacote.valor.toFixed(2).replace('.', ',') : '0,00'}<span className="text-lg text-gray-600 font-normal">/ pessoa</span></p>
-              <button onClick={handleReservarAgora} disabled={isReservando} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out disabled:bg-blue-300 disabled:cursor-not-allowed">{isReservando ? 'Processando...' : 'Reservar e Pagar'}</button>
+              <button
+                onClick={handleReservarAgora}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
+              >
+                Reservar
+              </button>
             </div>
           </div>
         </div>
