@@ -3,10 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import pacoteService from '../../services/pacoteServices';
 import StarRating from '../../components/StarRating';
 import { API_BASE_URL } from '../../services/api';
-import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlayCircle, MapPin } from 'lucide-react';
 
 const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
-
 const placeholderImg = 'https://placehold.co/800x600/374151/FFFFFF/png?text=Mídia+Indisponível';
 
 const PacoteDetalhes = () => {
@@ -120,6 +119,7 @@ const PacoteDetalhes = () => {
 
   const listaMidia = pacote.imagens || [];
   const midiaAtual = listaMidia.length > 0 ? listaMidia[indiceAtual] : null;
+  const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(pacote.destino)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
@@ -218,6 +218,24 @@ const PacoteDetalhes = () => {
           ) : (
             <p className="text-gray-600">Este pacote ainda não recebeu avaliações. Seja o primeiro a viajar e contar sua experiência!</p>
           )}
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
+          <div className="flex items-center mb-6">
+            <MapPin className="text-blue-600 mr-3" size={28} />
+            <h2 className="text-2xl font-bold text-gray-900">Localização</h2>
+          </div>
+          <div className="w-full h-80 rounded-lg overflow-hidden border">
+            <iframe
+              title={`Mapa de ${pacote.destino}`}
+              src={mapSrc}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
         </div>
       </main>
     </div>
