@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Funções de formatação (sem alterações)
 const formatarData = (dataString) => {
   if (!dataString) return 'Data indisponível';
   const data = new Date(dataString);
@@ -28,15 +27,15 @@ const ModalDetalhesReservas = ({ reserva, onClose }) => {
 
   const statusReservaMap = {
     PENDENTE: { text: 'Pendente', className: 'bg-yellow-100 text-yellow-800' },
-    CONFIRMADO: { text: 'Confirmada', className: 'bg-blue-100 text-blue-800' },
+    CONFIRMADA: { text: 'Confirmada', className: 'bg-blue-100 text-blue-800' },
     CONCLUIDA: { text: 'Concluída', className: 'bg-green-100 text-green-800' },
     CANCELADO: { text: 'Cancelada', className: 'bg-red-100 text-red-800' },
   };
 
   const statusPagamentoMap = {
     PENDENTE: { text: 'Aguardando Pagamento', className: 'text-yellow-600' },
-    CONFIRMADO: { text: 'Pagamento Aprovado', className: 'text-green-600' },
-    CONCLUIDA: { text: 'Pagamento Aprovado', className: 'text-green-600' },
+    APROVADO: { text: 'Pagamento Aprovado', className: 'text-green-600' },
+    RECUSADO: { text: 'Pagamento Recusado', className: 'text-red-600' },
     CANCELADO: { text: 'Cancelado', className: 'text-red-600' },
   };
 
@@ -44,8 +43,9 @@ const ModalDetalhesReservas = ({ reserva, onClose }) => {
     text: reserva.status,
     className: 'bg-gray-100 text-gray-800',
   };
-  const pagamentoStatusInfo = statusPagamentoMap[reserva.status] || {
-    text: 'Indisponível',
+
+  const pagamentoStatusInfo = statusPagamentoMap[reserva.reserva_StatusPagamento] || {
+    text: reserva.reserva_StatusPagamento || 'Indisponível',
     className: 'text-gray-500',
   };
 
@@ -62,7 +62,6 @@ const ModalDetalhesReservas = ({ reserva, onClose }) => {
         <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Detalhes da Reserva</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            {/* Ícone de fechar */}
           </button>
         </div>
 
