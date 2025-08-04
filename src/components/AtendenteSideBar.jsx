@@ -47,36 +47,37 @@ export default function AtendenteSideBar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden sm:flex flex-col bg-white w-64 h-screen p-6 border-r border-gray-100 shadow-sm">
+      <aside className="hidden sm:flex flex-col bg-[#0c1429] w-64 h-screen p-6 shadow-md text-white">
         <img
           src={logoDecolei}
           alt="Decolei Logo"
-          className="h-8 object-contain mb-6" // Espaço entre logo e menu
+          className="h-8 object-contain mb-6"
         />
+        <p className="text-sm text-white italic mb-6">Perfil: Atendente</p>
 
-        <nav className="flex flex-col gap-3">
+        <nav className="flex flex-col gap-1">
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-3 px-4 py-2 rounded-lg transition',
+                  'flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium border-b border-[#1a2238]',
                   isActive
-                    ? 'bg-blue-100 text-blue-700 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white'
                 )
               }
             >
               {item.icon}
-              {item.label}
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
         <button
           onClick={handleLogout}
-          className="mt-auto flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+          className="mt-auto flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-900 hover:text-white rounded-md transition"
         >
           <ArrowLeftOnRectangleIcon className="h-5 w-5" />
           <span>Sair</span>
@@ -91,10 +92,11 @@ export default function AtendenteSideBar() {
           className="fixed inset-0 bg-black bg-opacity-70 z-50 sm:hidden"
           onClick={toggleMenu}
         >
-          <div className="bg-white w-64 p-6 h-full shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#0c1429] w-64 p-6 h-full shadow-lg text-white" onClick={(e) => e.stopPropagation()}>
             <img src={logoDecolei} alt="Decolei Logo" className="h-8 object-contain mb-6" />
+            <p className="text-sm text-white italic mb-6">Perfil: Atendente</p>
 
-            <nav className="flex flex-col gap-4">
+            <nav className="flex flex-col gap-1">
               {menuItems.map((item) => (
                 <NavLink
                   key={item.path}
@@ -102,15 +104,15 @@ export default function AtendenteSideBar() {
                   onClick={toggleMenu}
                   className={({ isActive }) =>
                     clsx(
-                      'flex items-center gap-3 px-4 py-2 rounded-lg transition',
+                      'flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium border-b border-[#1a2238]',
                       isActive
-                        ? 'bg-blue-100 text-blue-700 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-400 hover:text-white'
                     )
                   }
                 >
                   {item.icon}
-                  {item.label}
+                  <span>{item.label}</span>
                 </NavLink>
               ))}
             </nav>
@@ -120,7 +122,7 @@ export default function AtendenteSideBar() {
                 toggleMenu();
                 handleLogout();
               }}
-              className="mt-10 flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+              className="mt-10 flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-900 hover:text-white rounded-md transition"
             >
               <ArrowLeftOnRectangleIcon className="h-5 w-5" />
               <span>Sair</span>
