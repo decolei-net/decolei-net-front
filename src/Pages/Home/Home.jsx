@@ -6,7 +6,7 @@ import avaliacaoService from '../../services/avaliacoesServices.js';
 import Card from '../../components/Card';
 import Pagination from '../../components/Pagination';
 
-const PACOTES_POR_PAGINA = 24;
+const PACOTES_POR_PAGINA = 12;
 const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
 
 export default function Home() {
