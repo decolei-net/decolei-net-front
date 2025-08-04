@@ -1,5 +1,6 @@
-/* 1. Um único import para todas as fontes do Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@400;600;700&display=swap');
+/* src/index.css */
+/* 1. Trocamos a importação para buscar a fonte 'Nunito Sans' */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,15 +12,15 @@
   border-radius: 2px;
 }
 
-/* 2. Estilo base do body com a fonte padrão 'Poppins' */
+/* 2. Aplicamos a nova fonte 'Nunito Sans' como padrão para todo o corpo do site */
 body {
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
-  background-color: #fafafa; /* Corrigido: adicionado '#' */
+  background-color: #fafafa;
   color: #111111;
 }
 
@@ -28,15 +29,14 @@ body.dark-mode {
   color: #ffffff;
 }
 
-/* 3. Fonte 'Roboto' para os cabeçalhos */
-
+/* 3. Garantimos que os títulos também usem a mesma fonte para consistência */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -44,7 +44,7 @@ h6 {
 h1 {
   font-size: 2.5rem;
   line-height: 1.2;
-  font-weight: 700;
+  font-weight: 800; /* Usando um peso mais forte que importamos */
 }
 
 h2 {
@@ -56,7 +56,7 @@ h2 {
 h3 {
   font-size: 1.75rem;
   line-height: 1.25;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 h4 {
@@ -77,7 +77,6 @@ h6 {
   font-weight: 600;
 }
 
-/* Estilos de texto base */
 p,
 li {
   font-size: 1rem;
@@ -93,19 +92,19 @@ li.dark-mode {
 }
 
 strong {
-  font-weight: 600;
+  font-weight: 700; /* Aumentamos o peso para melhor contraste */
 }
 
 a {
   word-break: break-word;
   color: rgb(0, 84, 161);
   text-decoration: none;
-  border-bottom: 1px solid rgb(0, 84, 161);
   transition: color 0.2s;
 }
 
 a:hover {
   color: rgb(0, 50, 100);
+  text-decoration: underline;
 }
 
 .referencia {
@@ -114,8 +113,6 @@ a:hover {
   font-weight: 400;
   letter-spacing: 0.15px;
 }
-
-/* 5. Media queries com sintaxe CSS padrão */
 
 @media (max-width: 768px) {
   h1 {
