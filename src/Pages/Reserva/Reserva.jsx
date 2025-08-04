@@ -5,6 +5,25 @@ import { UserPlus, Trash2 } from 'lucide-react';
 import pacoteService from '../../services/pacoteServices';
 import reservaService from '../../services/reservaService';
 
+/**
+ * Formata um valor de CPF (xxx.xxx.xxx-xx)
+ * @param {string} value O valor a ser formatado
+ * @returns {string} O valor formatado
+ */
+const formatarCpf = (value) => {
+  // Remove tudo que não for dígito
+  const valorNumerico = value.replace(/\D/g, '');
+
+  // Limita a 11 dígitos
+  const valorLimitado = valorNumerico.slice(0, 11);
+
+  // Aplica a máscara
+  return valorLimitado
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+};
+
 export default function Reserva() {
     const { pacoteId } = useParams();
     const navigate = useNavigate();
@@ -52,17 +71,31 @@ export default function Reserva() {
 
     // Função para atualizar os dados de um acompanhante
     const handleViajanteChange = (index, event) => {
+        const { name, value } = event.target;
         const novosViajantes = [...viajantes];
-        novosViajantes[index][event.target.name] = event.target.value;
+
+        // Se o campo alterado for 'documento', aplica a máscara de CPF
+        if (name === 'documento') {
+            novosViajantes[index][name] = formatarCpf(value);
+        } else {
+            // Para outros campos (como 'nome'), mantém o comportamento original
+            novosViajantes[index][name] = value;
+        }
+
         setViajantes(novosViajantes);
     };
 
-    // Função principal para criar a reserva no backend
     const handleConfirmarReserva = async () => {
         setIsProcessing(true);
         setError('');
 
-        const viajantesValidos = viajantes.filter(v => v.nome.trim() !== '' && v.documento.trim() !== '');
+        // Remove a formatação dos documentos antes de enviar para o backend
+        const viajantesValidos = viajantes
+            .filter(v => v.nome.trim() !== '' && v.documento.trim() !== '')
+            .map(v => ({
+                ...v,
+                documento: v.documento.replace(/\D/g, '') // Envia apenas os números
+            }));
 
         try {
             const dadosParaCriarReserva = {
@@ -70,10 +103,7 @@ export default function Reserva() {
                 viajantes: viajantesValidos,
             };
             const novaReserva = await reservaService.criarReserva(dadosParaCriarReserva);
-
-            // Apenas atualiza o estado; o useEffect cuidará da navegação
             setReservaCriada(novaReserva);
-
         } catch (err) {
             setError(err.response?.data?.erro || "Não foi possível criar a reserva. Verifique as vagas disponíveis.");
             setIsProcessing(false);
@@ -111,7 +141,15 @@ export default function Reserva() {
                     <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-center border-t pt-4">
                         <input name="nome" type="text" value={viajante.nome} onChange={(e) => handleViajanteChange(index, e)} placeholder={`Nome completo do Acompanhante ${index + 1}`} className="p-3 border rounded-md w-full"/>
                         <div className="flex items-center gap-2">
-                            <input name="documento" type="text" value={viajante.documento} onChange={(e) => handleViajanteChange(index, e)} placeholder="Documento (CPF ou RG)" className="p-3 border rounded-md w-full"/>
+                            <input
+                                name="documento"
+                                type="text"
+                                value={viajante.documento}
+                                onChange={(e) => handleViajanteChange(index, e)}
+                                placeholder="CPF"
+                                className="p-3 border rounded-md w-full"
+                                maxLength="14"
+                            />
                             <button type="button" onClick={() => handleRemoveViajante(index)} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={20}/></button>
                         </div>
                     </div>
