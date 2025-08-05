@@ -1,12 +1,10 @@
-// Serviço para integração com APIs de IA
-
 // Configurações das APIs
 const AI_CONFIGS = {
     gemini: {
         apiUrl: 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
         model: 'gemini-1.5-flash'
     },
-    // Adicione outras APIs aqui
+    // outras APIs aqui
 };
 
 class AIService {
@@ -131,74 +129,6 @@ Célio (Assistente Decolei.net):`;
         }
 
         return data.candidates[0]?.content?.parts[0]?.text || this.getFallbackResponse(userMessage);
-    }
-
-    // Sistema de fallback inteligente quando APIs não estão disponíveis
-    getFallbackResponse(userMessage) {
-        const lowerMessage = userMessage.toLowerCase();
-        
-        // Cumprimentos e apresentação
-        if (lowerMessage.includes('oi') || lowerMessage.includes('olá') || lowerMessage.includes('ola') || lowerMessage.includes('bom dia') || lowerMessage.includes('boa tarde') || lowerMessage.includes('boa noite')) {
-            return "Olá! Sou o Célio, assistente virtual da Decolei.net! 🌎 Uma homenagem ao nosso querido professor Célio de Souza da Impacta. Como posso te ajudar hoje?";
-        }
-        
-        // Quem é você / nome
-        if (lowerMessage.includes('quem é você') || lowerMessage.includes('qual seu nome') || lowerMessage.includes('como se chama') || lowerMessage.includes('celio') || lowerMessage.includes('célio')) {
-            return "Eu sou o Célio, o assistente virtual da Decolei.net! Meu nome é uma homenagem ao professor Célio de Souza da Impacta. Estou aqui para te ajudar com tudo sobre viagens e nossa plataforma!";
-        }
-        
-        // Por que esse nome / homenagem
-        if (lowerMessage.includes('por que célio') || lowerMessage.includes('por que celio') || lowerMessage.includes('porque esse nome') || lowerMessage.includes('homenagem') || lowerMessage.includes('professor célio') || lowerMessage.includes('professor celio')) {
-            return "Meu nome é uma homenagem ao professor Célio de Souza da Impacta! Ele é o professor responsável pela trilha do nosso grupo (Decola 6 - 2025). Os desenvolvedores escolheram esse nome para honrar sua dedicação e ensino. Uma forma carinhosa de reconhecer seu trabalho! 👨‍🏫✨";
-        }
-        
-        // Processo de reserva
-        if (lowerMessage.includes('reserva') || lowerMessage.includes('reservar') || lowerMessage.includes('como fazer reserva')) {
-            return "Para fazer uma reserva é bem simples! 1️⃣ Navegue pelos pacotes na página inicial 2️⃣ Clique no pacote que te interessar 3️⃣ Clique em 'Reservar e Pagar' 4️⃣ Adicione viajantes se quiser 5️⃣ Finalize o pagamento. Precisa de ajuda com algum passo específico?";
-        }
-        
-        // Preços e valores
-        if (lowerMessage.includes('preço') || lowerMessage.includes('valor') || lowerMessage.includes('custo') || lowerMessage.includes('quanto custa')) {
-            return "Os preços dos nossos pacotes variam conforme destino, época do ano e tipo de acomodação. Use os filtros na página inicial para encontrar pacotes dentro do seu orçamento. Posso te ajudar a encontrar algo específico?";
-        }
-        
-        // Pagamento
-        if (lowerMessage.includes('pagamento') || lowerMessage.includes('pagar') || lowerMessage.includes('formas de pagamento')) {
-            return "Aceitamos Cartão de Crédito, Débito, PIX (aprovação instantânea) e Boleto (confirmação em ~1 minuto). O processo é 100% seguro e você receberá confirmação por email. Alguma dúvida específica sobre pagamento?";
-        }
-        
-        // Viajantes / acompanhantes
-        if (lowerMessage.includes('viajante') || lowerMessage.includes('acompanhante') || lowerMessage.includes('adicionar pessoa')) {
-            return "Você pode adicionar acompanhantes durante o processo de reserva! Depois de clicar em 'Reservar', haverá uma tela para incluir os dados dos demais viajantes. O titular (você) já fica incluído automaticamente.";
-        }
-        
-        // Contato e suporte
-        if (lowerMessage.includes('contato') || lowerMessage.includes('suporte') || lowerMessage.includes('ajuda') || lowerMessage.includes('problema')) {
-            return "Para suporte humano: 📧 decoleinet@gmail.com ou acesse nossa Página de Suporte através do rodapé do site. Estou aqui para ajudar no que posso!";
-        }
-        
-        // Desenvolvedores / equipe
-        if (lowerMessage.includes('desenvolvedor') || lowerMessage.includes('quem fez') || lowerMessage.includes('equipe') || lowerMessage.includes('criador')) {
-            return "A Decolei.net foi desenvolvida por: Leonardo Amyntas, Eduardo da Silva, Arthur Henrique, Kamylla Reis e Leônidas Dantas - Turma Decola 6, Trilha Prof. Célio de Souza! Você pode ver os nomes completos no rodapé do site.";
-        }
-        
-        // Destinos
-        if (lowerMessage.includes('destino') || lowerMessage.includes('viagem') || lowerMessage.includes('lugar') || lowerMessage.includes('onde viajar')) {
-            return "Temos pacotes para destinos incríveis no Brasil e no mundo! Use a barra de pesquisa na página inicial para encontrar um destino específico ou navegue pelos nossos destaques. Tem algum lugar dos sonhos em mente? 🏖️🏔️";
-        }
-        
-        // Cancelamento
-        if (lowerMessage.includes('cancelar') || lowerMessage.includes('cancelamento') || lowerMessage.includes('desistir')) {
-            return "Para cancelamentos, acesse 'Minha Conta' no menu superior e gerencie suas reservas, ou entre em contato com nosso suporte em decoleinet@gmail.com. Posso te ajudar a navegar até sua conta?";
-        }
-        
-        // Avaliações
-        if (lowerMessage.includes('avaliação') || lowerMessage.includes('avaliar') || lowerMessage.includes('comentário') || lowerMessage.includes('nota')) {
-            return "Após sua viagem, você pode avaliar o pacote na sua área de usuário! Suas avaliações ajudam outros viajantes a escolherem os melhores destinos. Que legal contribuir com a comunidade! ⭐";
-        }
-        
-        // Resposta padrão
-        return "Posso te ajudar com informações sobre reservas, pagamentos, destinos, preços e muito mais! Para suporte especializado, entre em contato com nossa equipe em decoleinet@gmail.com. O que você gostaria de saber? 😊";
     }
 
     // Método para configurar o provedor de IA
