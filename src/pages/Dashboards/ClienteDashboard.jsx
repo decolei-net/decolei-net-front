@@ -7,6 +7,9 @@ import StarRating from '../../components/StarRating.jsx';
 import AvaliacaoForm from '../../components/AvaliacaoForm.jsx';
 import { API_BASE_URL } from '../../services/api.js';
 import { MessageSquareText, CalendarDays, Eye, EyeOff, Clock, PlaneTakeoff, ShieldCheck } from 'lucide-react';
+// Imports corrigidos e adicionados
+import usuarioService from '../../services/usuarioService';
+import { updateUser } from '../../store/authSlice.js';
 
 const placeholderImg = 'https://placehold.co/100x100/e2e8f0/94a3b8/png?text=Sem+Imagem';
 
@@ -22,6 +25,7 @@ const formatarData = (dataString) => {
 
 export default function ClienteDashboard() {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch(); // Adicionado para poder usar o dispatch
   const [reservas, setReservas] = useState([]);
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,13 +56,13 @@ export default function ClienteDashboard() {
   const [showConfirmarNovaSenha, setShowConfirmarNovaSenha] = useState(false);
 
   const formatarCpf = (value) => {
-  if (!value) return '';
-  const valorNumerico = value.replace(/\D/g, '').slice(0, 11);
-  return valorNumerico
-    .replace(/(\d{2})(\d)/, '$1 $2') // Espaço para RG, opcional
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    if (!value) return '';
+    const valorNumerico = value.replace(/\D/g, '').slice(0, 11);
+    // A formatação estava com um espaço no início que impedia o formato correto de CPF
+    return valorNumerico
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   };
 
   const formatarTelefone = (value) => {
@@ -184,6 +188,7 @@ export default function ClienteDashboard() {
           dispatch(updateUser({ user: { ...user, ...dadosCompletos } }));
       } catch (error) {
           // Falha silenciosa - continua com os dados disponíveis no Redux
+          console.error("Falha ao carregar dados completos do perfil:", error);
       }
   };
 
@@ -326,19 +331,19 @@ export default function ClienteDashboard() {
 
             <h2 className="text-xl font-semibold text-gray-700 mt-8 mb-4">Próximas Viagens</h2>
             {reservasConfirmadas.length > 0 ? (
-               reservasConfirmadas.map((reserva) => (
+                reservasConfirmadas.map((reserva) => (
                 <div key={reserva.id} className="bg-white rounded-xl shadow-md p-4 mb-4 flex items-center">
-                   <img src={getThumbnailUrl(reserva)} alt={`Imagem do destino ${reserva?.pacoteViagem?.destino}`} className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover mr-4 flex-shrink-0" />
-                   <div className="flex-1 min-w-0">
-                     <h3 className="font-bold text-lg truncate">Viagem para {reserva?.pacoteViagem?.destino}</h3>
-                     <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <PlaneTakeoff size={14} className="mr-2 text-blue-600" aria-hidden="true" />
-                        <span>Viagem Confirmada. Partida em {formatarData(reserva?.pacoteViagem?.dataInicio)}</span>
-                     </div>
-                   </div>
-                   <button onClick={() => abrirModal(reserva)} className="ml-4 px-4 py-2 rounded-lg text-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-50 font-semibold flex-shrink-0">Ver Detalhes</button>
-                 </div>
-               ))
+                    <img src={getThumbnailUrl(reserva)} alt={`Imagem do destino ${reserva?.pacoteViagem?.destino}`} className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover mr-4 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg truncate">Viagem para {reserva?.pacoteViagem?.destino}</h3>
+                        <div className="flex items-center text-sm text-gray-500 mt-1">
+                          <PlaneTakeoff size={14} className="mr-2 text-blue-600" aria-hidden="true" />
+                          <span>Viagem Confirmada. Partida em {formatarData(reserva?.pacoteViagem?.dataInicio)}</span>
+                        </div>
+                    </div>
+                    <button onClick={() => abrirModal(reserva)} className="ml-4 px-4 py-2 rounded-lg text-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-50 font-semibold flex-shrink-0">Ver Detalhes</button>
+                </div>
+                ))
             ) : <p className="text-gray-500">Nenhuma próxima viagem confirmada.</p>}
 
             <h2 className="text-xl font-semibold text-gray-700 mt-8 mb-4">Viagens Anteriores</h2>
@@ -401,8 +406,15 @@ export default function ClienteDashboard() {
           <div className="mt-6 space-y-8">
             {/* Formulário de Perfil */}
             <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-              <FeedbackMessage message={perfilSuccess || senhaSuccess} type="status" />
-              <FeedbackMessage message={perfilError || senhaError} type="error" />
+              {/* Lógica corrigida para exibir apenas uma mensagem por vez */}
+              <div className="mb-4">
+                  {(perfilError || senhaError) && (
+                      <FeedbackMessage message={perfilError || senhaError} type="error" />
+                  )}
+                  {!(perfilError || senhaError) && (perfilSuccess || senhaSuccess) && (
+                      <FeedbackMessage message={perfilSuccess || senhaSuccess} type="status" />
+                  )}
+              </div>
 
               <form onSubmit={handlePerfilSubmit}>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Meu Perfil</h2>
@@ -424,7 +436,8 @@ export default function ClienteDashboard() {
                   <input
                     type="text"
                     id="documento"
-                    value={documento || user?.documento || ''}
+                    // Aplicação da função de formatação
+                    value={formatarCpf(documento || user?.documento || '')}
                     placeholder={!user?.documento ? 'Documento será carregado quando disponível' : ''}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
                     disabled
