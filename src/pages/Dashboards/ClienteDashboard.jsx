@@ -443,7 +443,7 @@ export default function ClienteDashboard() {
                     disabled
                     aria-describedby="documento-desc"
                   />
-                  <p id="documento-desc" className="mt-1 text-xs text-gray-500">Este campo não pode ser alterado. Entre em contato com o suporte se precisar de ajuda.</p>
+                  <p id="documento-desc" className="mt-1 text-xs text-gray-500">Este campo não pode ser alterado. Entre em contato com o <a href="/suporte" className="font-semibold text-indigo-600 hover:underline">suporte</a> se precisar de ajuda.</p>
                 </div>
                 <div className="mb-4">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -544,10 +544,6 @@ export default function ClienteDashboard() {
           </div>
         )}
       </main>
-
-      <div className="mt-12 p-4 bg-gray-100 rounded-lg text-center">
-        <p className="text-sm text-gray-600">Precisa alterar seus dados? <a href="/suporte" className="font-semibold text-indigo-600 hover:underline">Fale com o suporte</a>.</p>
-      </div>
 
       {modalAberta && <ModalDetalhesReservas reserva={reservaSelecionada} onClose={fecharModal} />}
     </div>
