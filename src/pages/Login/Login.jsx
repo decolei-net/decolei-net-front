@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 
 // Importando a sua imagem
 import logoImage from '../../assets/decolei.png'; // Ajuste o caminho se necessário
@@ -11,211 +11,285 @@ import authService from '../../services/authService';
 import { loginSuccess } from '../../store/authSlice.js';
 
 export default function Login() {
-    const [email, setEmail] = useState('');
-    const [senha, setSenha] = useState('');
-    const [erro, setErro] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-    // NOVOS ESTADOS PARA A FUNCIONALIDADE DE REDEFINIR SENHA
-    const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
-    const [resetEmail, setResetEmail] = useState('');
-    const [resetSuccessMessage, setResetSuccessMessage] = useState('');
-    const [resetError, setResetError] = useState('');
+  // NOVOS ESTADOS PARA A FUNCIONALIDADE DE REDEFINIR SENHA
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccessMessage, setResetSuccessMessage] = useState('');
+  const [resetError, setResetError] = useState('');
 
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErro('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErro('');
 
-        if (!email || !senha) {
-            setErro('Por favor, preencha todos os campos.');
-            return;
-        }
+    if (!email || !senha) {
+      setErro('Por favor, preencha todos os campos.');
+      return;
+    }
 
-        try {
-            const data = await authService.login({ email, senha });
-            dispatch(loginSuccess({ token: data.token, user: data.user }));
+    try {
+      const data = await authService.login({ email, senha });
+      dispatch(loginSuccess({ token: data.token, user: data.user }));
 
-            const userRole = data.user?.role;
+      const userRole = data.user?.role;
 
-            switch (userRole) {
-                case 'ADMIN':
-                    navigate('/dashboard-admin');
-                    break;
-                case 'ATENDENTE':
-                    navigate('/dashboard-atendente');
-                    break;
-                case 'CLIENTE':
-                    navigate('/home');
-                    break;
-                default:
-                    navigate('/');
-            }
+      switch (userRole) {
+        case 'ADMIN':
+          navigate('/dashboard-admin');
+          break;
+        case 'ATENDENTE':
+          navigate('/dashboard-atendente');
+          break;
+        case 'CLIENTE':
+          navigate('/home');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (error) {
+      console.error('Erro no login:', error);
+      setErro('Usuário ou senha inválidos. Verifique seus dados e tente novamente.');
+    }
+  };
 
-        } catch (error) {
-            console.error("Erro no login:", error);
-            setErro('Usuário ou senha inválidos. Verifique seus dados e tente novamente.');
-        }
-    };
+  // NOVO HANDLER PARA ENVIAR O EMAIL DE REDEFINIÇÃO
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setResetSuccessMessage('');
+    setResetError('');
 
-    // NOVO HANDLER PARA ENVIAR O EMAIL DE REDEFINIÇÃO
-    const handleForgotPassword = async (e) => {
-        e.preventDefault();
-        setResetSuccessMessage('');
-        setResetError('');
+    if (!resetEmail) {
+      setResetError('Por favor, digite seu email.');
+      return;
+    }
 
-        if (!resetEmail) {
-            setResetError('Por favor, digite seu email.');
-            return;
-        }
+    try {
+      await authService.forgotPassword({ email: resetEmail });
+      setResetSuccessMessage(
+        'Se um usuário com este email for encontrado, um link de redefinição de senha foi enviado. Verifique sua caixa de entrada.',
+      );
+      setResetEmail(''); // Limpa o campo de email
+    } catch (error) {
+      console.error('Erro ao enviar email de redefinição:', error);
+      setResetError('Não foi possível enviar o email. Tente novamente mais tarde.');
+    }
+  };
 
-        try {
-            await authService.forgotPassword({ email: resetEmail });
-            setResetSuccessMessage('Se um usuário com este email for encontrado, um link de redefinição de senha foi enviado. Verifique sua caixa de entrada.');
-            setResetEmail(''); // Limpa o campo de email
-        } catch (error) {
-            console.error("Erro ao enviar email de redefinição:", error);
-            setResetError('Não foi possível enviar o email. Tente novamente mais tarde.');
-        }
-    };
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Card principal */}
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+          {/* Header com gradiente */}
+          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 py-6 text-center relative overflow-hidden">
+            {/* Pattern de fundo */}
+            <div className="absolute inset-0 opacity-10">
+              <div
+                className="w-full h-full"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                  backgroundSize: '30px 30px',
+                }}
+              ></div>
+            </div>
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-md">
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-full mb-3">
+                <img src={logoImage} alt="Logo Decolei.net" className="h-6 w-auto" />
+              </div>
+              <h2 className="text-xl font-black text-white mb-1">
+                {isForgotPasswordMode ? 'Recuperar Senha' : 'Fazer Login'}
+              </h2>
+              <p className="text-blue-100 text-xs">
+                {isForgotPasswordMode
+                  ? 'Digite seu email para receber as instruções'
+                  : 'Acesse sua conta e continue sua jornada'}
+              </p>
+            </div>
+          </div>
 
-                <div className="text-center">
-                    <img src={logoImage} alt="Logo Decolei.net" className="mx-auto h-12 w-auto" />
-                    <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
-                        {isForgotPasswordMode ? 'Recuperar Senha' : 'Login'}
-                    </h2>
-                    <p className="mt-2 text-sm text-gray-600">
-                        {isForgotPasswordMode ? 'Digite seu email para receber as instruções.' : 'Faça sua reserva conosco!'}
-                    </p>
+          {/* Conteúdo do formulário */}
+          <div className="p-6">
+            {isForgotPasswordMode ? (
+              // FORMULÁRIO DE RECUPERAR SENHA
+              <form className="space-y-5" onSubmit={handleForgotPassword}>
+                <div>
+                  <label
+                    htmlFor="reset-email"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      id="reset-email"
+                      name="resetEmail"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
+                      placeholder="Digite seu email"
+                    />
+                  </div>
                 </div>
 
-                {isForgotPasswordMode ? (
-                    // FORMULÁRIO DE RECUPERAR SENHA
-                    <form className="space-y-6" onSubmit={handleForgotPassword}>
-                        <div>
-                            <label htmlFor="reset-email" className="sr-only">Email</label>
-                            <input
-                                id="reset-email"
-                                name="resetEmail"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                value={resetEmail}
-                                onChange={(e) => setResetEmail(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Email"
-                            />
-                        </div>
-                        
-                        {resetError && <p className="text-sm text-red-600 text-center font-medium">{resetError}</p>}
-                        {resetSuccessMessage && <p className="text-sm text-green-600 text-center font-medium">{resetSuccessMessage}</p>}
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Enviar Link
-                            </button>
-                        </div>
-
-                        <div className="text-center">
-                            <button
-                                type="button"
-                                onClick={() => setIsForgotPasswordMode(false)}
-                                className="font-medium text-blue-600 hover:text-blue-500"
-                            >
-                                Voltar para o Login
-                            </button>
-                        </div>
-                    </form>
-                ) : (
-                    // FORMULÁRIO DE LOGIN EXISTENTE
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="email" className="sr-only">Email</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Email"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <label htmlFor="senha" className="sr-only">Senha</label>
-                            <input
-                                id="senha"
-                                name="senha"
-                                type={showPassword ? 'text' : 'password'}
-                                autoComplete="current-password"
-                                required
-                                value={senha}
-                                onChange={(e) => setSenha(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                placeholder="Senha"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                                aria-label="Mostrar ou esconder a senha"
-                            >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                {/* Checkbox para "Lembrar de mim" pode ir aqui se necessário */}
-                            </div>
-                            <div className="text-sm">
-                                {/* NOVO LINK AQUI: Link para redefinir senha */}
-                                <button
-                                    type="button"
-                                    onClick={() => setIsForgotPasswordMode(true)}
-                                    className="font-medium text-blue-600 hover:text-blue-500"
-                                >
-                                    Esqueceu a senha?
-                                </button>
-                            </div>
-                        </div>
-
-                        {erro && <p className="text-sm text-red-600 text-center font-medium">{erro}</p>}
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Login
-                            </button>
-                        </div>
-                    </form>
-                )}
-                
-                {/* O parágrafo de "Não tem uma conta?" é mantido fora do formulário para ambos os modos */}
-                {!isForgotPasswordMode && (
-                    <p className="text-xs text-center text-gray-500">
-                        Não tem uma conta?{' '}
-                        <Link to="/cadastro" className="font-medium text-blue-600 hover:text-blue-500">
-                            Cadastre-se
-                        </Link>
-                    </p>
+                {resetError && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2">
+                    <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
+                    <p className="text-red-700 text-sm">{resetError}</p>
+                  </div>
                 )}
 
-            </div>
+                {resetSuccessMessage && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
+                    <CheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                    <p className="text-green-700 text-sm">{resetSuccessMessage}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Mail size={18} />
+                  Enviar Link
+                </button>
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordMode(false)}
+                    className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-300 text-sm"
+                  >
+                    ← Voltar para o Login
+                  </button>
+                </div>
+              </form>
+            ) : (
+              // FORMULÁRIO DE LOGIN MODERNO
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
+                      placeholder="Digite seu email"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="senha" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Lock size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      id="senha"
+                      name="senha"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      required
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
+                      placeholder="Digite sua senha"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                      aria-label="Mostrar ou esconder a senha"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordMode(true)}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-300"
+                  >
+                    Esqueceu a senha?
+                  </button>
+                </div>
+
+                {erro && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2">
+                    <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
+                    <p className="text-red-700 text-sm">{erro}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-[1.02]"
+                >
+                  Entrar
+                  <ArrowRight size={18} />
+                </button>
+              </form>
+            )}
+
+            {/* Link para cadastro - só aparece no modo login */}
+            {!isForgotPasswordMode && (
+              <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+                <p className="text-gray-600 text-sm">
+                  Não tem uma conta?{' '}
+                  <Link
+                    to="/cadastro"
+                    className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-300"
+                  >
+                    Cadastre-se gratuitamente
+                  </Link>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-    );
+
+        {/* Footer com benefícios */}
+        <div className="mt-6 text-center">
+          <div className="flex justify-center items-center gap-6 text-xs text-gray-600">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              <span>Seguro e Confiável</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              <span>Suporte 24/7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -19,7 +19,7 @@ export default function ChatBot() {
 
     // Páginas onde o ChatBot não deve aparecer
     const hiddenPages = ['/login', '/cadastro', '/reset-password'];
-    
+
     // Se estiver em uma página onde deve ser ocultado, não renderiza o componente
     if (hiddenPages.includes(location.pathname)) {
         return null;
@@ -43,18 +43,18 @@ export default function ChatBot() {
         try {
             // Integração com API real de IA
             const response = await aiService.sendMessage(currentInput, messages);
-            
+
             const botResponse = {
                 id: Date.now() + 1,
                 text: response,
                 isBot: true,
                 timestamp: new Date()
             };
-            
+
             setMessages(prev => [...prev, botResponse]);
         } catch (error) {
             console.error('Erro ao obter resposta da IA:', error);
-            
+
             // Fallback para resposta local em caso de erro
             const botResponse = {
                 id: Date.now() + 1,
@@ -62,7 +62,7 @@ export default function ChatBot() {
                 isBot: true,
                 timestamp: new Date()
             };
-            
+
             setMessages(prev => [...prev, botResponse]);
         } finally {
             setIsTyping(false);
@@ -85,8 +85,8 @@ export default function ChatBot() {
                     className={`
                         flex items-center justify-center w-14 h-14 rounded-full shadow-lg
                         transition-all duration-300 transform hover:scale-110
-                        ${isOpen 
-                            ? 'bg-red-500 hover:bg-red-600' 
+                        ${isOpen
+                            ? 'bg-red-500 hover:bg-red-600'
                             : 'bg-blue-600 hover:bg-blue-700'
                         }
                         text-white
@@ -138,7 +138,7 @@ export default function ChatBot() {
                                 </div>
                             </div>
                         ))}
-                        
+
                         {/* Indicador de digitação */}
                         {isTyping && (
                             <div className="flex justify-start">
