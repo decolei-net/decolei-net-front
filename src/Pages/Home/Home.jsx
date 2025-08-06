@@ -304,7 +304,7 @@ export default function Home() {
                 <Link
                   key={`hist-${pacote.id}`}
                   to={`/pacotes/${pacote.id}`}
-                  className="block h-full"
+                  className="block h-full no-underline hover:no-underline"
                   aria-label={`Ver detalhes do pacote para ${pacote.destino}`}
                 >
                   <div className="relative h-full">
@@ -356,7 +356,7 @@ export default function Home() {
                   <Link
                     key={pacote.id}
                     to={`/pacotes/${pacote.id}`}
-                    className="block h-full"
+                    className="block h-full no-underline hover:no-underline"
                     aria-label={`Ver detalhes do pacote para ${pacote.destino}`}
                   >
                     <Card pacote={pacote} />

@@ -47,8 +47,8 @@ export default function Card({ pacote }) {
         <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg transform transition-transform duration-300 group-hover:scale-105">
           R${' '}
           {pacote.valor?.toLocaleString('pt-BR', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
           })}
         </div>
 
@@ -87,8 +87,8 @@ export default function Card({ pacote }) {
               <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700">
                 R${' '}
                 {pacote.valor?.toLocaleString('pt-BR', {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}
               </p>
               <p className="text-xs text-gray-400 -mt-1">por pessoa</p>

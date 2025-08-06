@@ -12,6 +12,10 @@ import {
   Users,
   Star,
   ArrowLeft,
+  Camera,
+  MessageCircle,
+  AlertCircle,
+  Search,
 } from 'lucide-react';
 
 const PACOTES_VISTOS_KEY = 'pacotesVistosRecentemente';
@@ -128,7 +132,7 @@ const PacoteDetalhes = () => {
       >
         <div className="text-center p-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
-            <span className="text-2xl">⚠️</span>
+            <AlertCircle size={32} className="text-red-600" />
           </div>
           <p className="text-lg font-semibold text-red-600 mb-4">{error}</p>
           <button
@@ -150,7 +154,7 @@ const PacoteDetalhes = () => {
       >
         <div className="text-center p-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6">
-            <span className="text-2xl">🔍</span>
+            <Search size={32} className="text-yellow-600" />
           </div>
           <p className="text-lg font-semibold text-yellow-700">Pacote não encontrado.</p>
         </div>
@@ -215,54 +219,87 @@ const PacoteDetalhes = () => {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar size={16} className="text-yellow-300" />
+                      <Calendar size={20} className="text-emerald-300" />
                       <span className="text-sm font-semibold text-white">Data de Partida</span>
                     </div>
-                    <p className="text-blue-100">
+                    <p className="text-blue-100 font-medium">
                       {new Date(pacote.dataInicio).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     </p>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar size={16} className="text-yellow-300" />
+                      <Calendar size={20} className="text-orange-300" />
                       <span className="text-sm font-semibold text-white">Data de Retorno</span>
                     </div>
-                    <p className="text-blue-100">
+                    <p className="text-blue-100 font-medium">
                       {new Date(pacote.dataFim).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     </p>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Users size={16} className="text-yellow-300" />
+                      <Users size={20} className="text-purple-300" />
                       <span className="text-sm font-semibold text-white">Vagas Disponíveis</span>
                     </div>
-                    <p className="text-blue-100 font-bold">{pacote.vagasDisponiveis}</p>
+                    <p className="text-blue-100 font-bold text-lg">{pacote.vagasDisponiveis}</p>
                   </div>
                 </div>
               </div>
 
               {/* Card de Reserva */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20">
-                <div className="text-center mb-6">
-                  <p className="text-gray-600 text-sm mb-2">Valor por pessoa</p>
-                  <p className="text-4xl font-bold text-blue-600">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+                <div className="text-center mb-8">
+                  <p className="text-gray-600 text-sm mb-2 uppercase tracking-wide font-medium">
+                    Valor por pessoa
+                  </p>
+                  <p className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-2">
                     R${' '}
                     {typeof pacote.valor === 'number'
-                      ? pacote.valor.toFixed(2).replace('.', ',')
+                      ? pacote.valor.toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
                       : '0,00'}
-                    <span className="text-lg text-gray-600 font-normal">/ pessoa</span>
                   </p>
+                  <p className="text-gray-500 text-sm">*Impostos e taxas inclusos</p>
                 </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Calendar size={16} />
+                      Duração
+                    </span>
+                    <span className="font-semibold text-gray-800">
+                      {Math.ceil(
+                        (new Date(pacote.dataFim) - new Date(pacote.dataInicio)) /
+                          (1000 * 60 * 60 * 24),
+                      )}{' '}
+                      dias
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Users size={16} />
+                      Vagas restantes
+                    </span>
+                    <span className="font-semibold text-gray-800">{pacote.vagasDisponiveis}</span>
+                  </div>
+                </div>
+
                 <button
                   onClick={handleReservarAgora}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:from-orange-600 hover:to-red-600 transform hover:scale-105 transition-all duration-300"
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:from-orange-600 hover:to-red-600 transform hover:scale-105 transition-all duration-300 text-lg"
                 >
                   Reservar Agora
                 </button>
+
+                <p className="text-center text-xs text-gray-500 mt-4">
+                  Cancelamento gratuito até 48h antes da viagem
+                </p>
               </div>
             </div>
           </div>
@@ -276,14 +313,15 @@ const PacoteDetalhes = () => {
 
         {/* Galeria de Mídia */}
         <section
-          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8"
+          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8 border border-gray-100"
           aria-labelledby="galeria-heading"
         >
           <h2
             id="galeria-heading"
             className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3"
           >
-            📸 Galeria de Fotos
+            <Camera size={32} className="text-blue-600" />
+            Galeria de Fotos
           </h2>
 
           <div className="w-full h-64 md:h-96 bg-gray-900 rounded-xl shadow-md overflow-hidden relative group">
@@ -291,20 +329,30 @@ const PacoteDetalhes = () => {
               <>
                 <button
                   onClick={midiaAnterior}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 m-3 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 m-3 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm"
                   aria-label="Mídia Anterior"
                 >
                   <ChevronLeft size={24} />
                 </button>
                 <button
                   onClick={proximaMidia}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 m-3 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 m-3 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm"
                   aria-label="Próxima Mídia"
                 >
                   <ChevronRight size={24} />
                 </button>
               </>
             )}
+
+            {/* Indicador de posição */}
+            {listaMidia.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
+                <span className="text-white text-sm font-medium">
+                  {indiceAtual + 1} / {listaMidia.length}
+                </span>
+              </div>
+            )}
+
             {midiaAtual && midiaAtual.isVideo ? (
               <iframe
                 className="w-full h-full rounded-xl"
@@ -373,43 +421,65 @@ const PacoteDetalhes = () => {
 
         {/* Avaliações */}
         <section
-          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8"
+          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8 border border-gray-100"
           aria-labelledby="avaliacoes-heading"
         >
           <h2
             id="avaliacoes-heading"
             className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3"
           >
-            <Star size={32} className="text-yellow-500" />O que os viajantes dizem
+            <MessageCircle size={32} className="text-blue-600" />O que os viajantes dizem
           </h2>
           {pacote.totalAvaliacoes > 0 ? (
-            <div className="space-y-6">
-              {pacote.avaliacoes.map((avaliacao) => (
-                <article
-                  key={avaliacao.id}
-                  className="bg-gray-50 rounded-xl p-6 border border-gray-100"
-                  aria-label={`Avaliação de ${avaliacao.usuarioNome || 'Viajante'}`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-semibold text-gray-800 text-lg">
-                      {avaliacao.usuarioNome || 'Viajante'}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(avaliacao.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                    </span>
+            <>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-100">
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className="text-center">
+                    <div className="text-4xl font-black text-blue-600 mb-1">
+                      {pacote.mediaAvaliacoes.toFixed(1)}
+                    </div>
+                    <StarRating rating={pacote.mediaAvaliacoes} />
                   </div>
-                  <div
-                    className="flex items-center gap-2 mb-4"
-                    aria-label={`Nota: ${avaliacao.nota} de 5 estrelas`}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-700 mb-1">
+                      {pacote.totalAvaliacoes}
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      {pacote.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {pacote.avaliacoes.map((avaliacao) => (
+                  <article
+                    key={avaliacao.id}
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow duration-300"
+                    aria-label={`Avaliação de ${avaliacao.usuarioNome || 'Viajante'}`}
                   >
-                    <StarRating rating={avaliacao.nota} />
-                  </div>
-                  <p className="text-gray-700 leading-relaxed text-lg italic">
-                    "{avaliacao.comentario || 'Sem comentário.'}"
-                  </p>
-                </article>
-              ))}
-            </div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-semibold text-gray-800 text-lg">
+                        {avaliacao.usuarioNome || 'Viajante'}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {new Date(avaliacao.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                      </span>
+                    </div>
+                    <div
+                      className="flex items-center gap-2 mb-4"
+                      aria-label={`Nota: ${avaliacao.nota} de 5 estrelas`}
+                    >
+                      <StarRating rating={avaliacao.nota} />
+                      <span className="text-sm font-medium text-gray-600">{avaliacao.nota}.0</span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed text-lg italic">
+                      "{avaliacao.comentario || 'Sem comentário.'}"
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="text-center p-12">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-6">
@@ -425,7 +495,7 @@ const PacoteDetalhes = () => {
 
         {/* Localização */}
         <section
-          className="bg-white rounded-2xl shadow-lg p-6 md:p-8"
+          className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100"
           aria-labelledby="localizacao-heading"
         >
           <div className="flex items-center mb-6">
@@ -434,7 +504,14 @@ const PacoteDetalhes = () => {
               Localização
             </h2>
           </div>
-          <div className="w-full h-80 rounded-xl overflow-hidden border shadow-lg">
+
+          <div className="mb-4">
+            <p className="text-gray-600 text-lg">
+              Explore a localização do seu destino e planeje melhor sua viagem.
+            </p>
+          </div>
+
+          <div className="w-full h-80 rounded-xl overflow-hidden border shadow-lg relative">
             <iframe
               title={`Mapa de localização para ${pacote.destino}`}
               src={mapSrc}
@@ -444,7 +521,16 @@ const PacoteDetalhes = () => {
               allowFullScreen=""
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
+              className="rounded-xl"
             ></iframe>
+
+            {/* Overlay com informações */}
+            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <MapPin size={16} className="text-blue-600" />
+                <span className="font-semibold text-gray-800">{pacote.destino}</span>
+              </div>
+            </div>
           </div>
         </section>
       </main>
