@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit, Trash2, X, AlertCircle } from 'lucide-react'; // Ícones para editar e deletar
+import { Edit } from 'lucide-react'; // Ícone para editar
 import usuarioService from '../../services/usuarioService';
 
 const GerenciarUsuarios = () => {
@@ -13,13 +13,6 @@ const GerenciarUsuarios = () => {
     documento: ''
   });
 
-  // Estados para o modal de confirmação
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
-
-  // O ID do usuário logado é necessário para a regra de negócio.
-  // Substitua pela lógica real de obter o ID do usuário logado
-  const usuarioLogadoId = "id-do-usuario-logado-aqui";
   const navigate = useNavigate();
 
   // Função para buscar os usuários (implementação real)
@@ -62,42 +55,8 @@ const GerenciarUsuarios = () => {
     navigate(`/dashboard-admin/usuarios/detalhes/${id}`);
   };
 
-  // Lógica para exibir o modal de confirmação
-  const handleDelete = (usuario) => {
-    setUserToDelete(usuario);
-    setShowDeleteModal(true);
-  };
-
-  // Função para efetivamente deletar o usuário após a confirmação
-  const confirmDelete = async () => {
-    if (!userToDelete) return;
-
-    // A chamada da função foi corrigida aqui de 'deleteUsuario' para 'deletarUsuario'.
-    try {
-      await usuarioService.deletarUsuario(userToDelete.id);
-
-      // Atualiza a lista de usuários localmente
-      setUsuarios(usuarios.filter(u => u.id !== userToDelete.id));
-
-      console.log(`Usuário ${userToDelete.nomeCompleto} excluído com sucesso!`);
-      // Em uma aplicação real, você mostraria uma notificação de sucesso aqui.
-    } catch (err) {
-      console.error("Erro ao deletar usuário:", err);
-      // Em uma aplicação real, você mostraria uma notificação de erro aqui.
-    } finally {
-      // Fecha o modal e limpa o estado
-      setShowDeleteModal(false);
-      setUserToDelete(null);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
-    setUserToDelete(null);
-  };
-
   return (
-    <div className="p-2 sm:p-4 bg-gray-100 min-h-screen ">
+    <div className="p-2 sm:p-4 bg-gray-100 min-h-screen font-sans">
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-blue-900">Gerenciar Usuários</h2>
       </div>
@@ -149,9 +108,6 @@ const GerenciarUsuarios = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {usuarios.map(usuario => {
-                const isSelf = usuario.id.toString() === usuarioLogadoId.toString();
-                const canDelete = !isSelf;
-
                 return (
                   <tr key={usuario.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{usuario.nomeCompleto}</td>
@@ -181,14 +137,6 @@ const GerenciarUsuarios = () => {
                       >
                         <Edit size={18} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(usuario)}
-                        className={`p-1 ${canDelete ? 'text-red-600 hover:text-red-900' : 'text-gray-400 cursor-not-allowed'}`}
-                        disabled={!canDelete}
-                        title={!canDelete ? "Você não pode deletar seu próprio usuário." : "Excluir usuário"}
-                      >
-                        <Trash2 size={18} />
-                      </button>
                     </td>
                   </tr>
                 );
@@ -196,39 +144,6 @@ const GerenciarUsuarios = () => {
             </tbody>
           </table>
           {usuarios.length === 0 && <p className="text-center py-4 text-gray-500">Nenhum usuário encontrado.</p>}
-        </div>
-      )}
-
-      {/* Modal de Confirmação de Exclusão */}
-      {showDeleteModal && userToDelete && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
-          <div className="relative p-8 border w-96 shadow-lg rounded-md bg-white">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-              </div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Confirmar Exclusão</h3>
-              <div className="mt-2 px-7 py-3">
-                <p className="text-sm text-gray-500">
-                  Tem certeza que deseja excluir o usuário **{userToDelete.nomeCompleto}**? Esta ação não pode ser desfeita.
-                </p>
-              </div>
-              <div className="items-center px-4 py-3">
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mb-2"
-                >
-                  Excluir
-                </button>
-                <button
-                  onClick={cancelDelete}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>
