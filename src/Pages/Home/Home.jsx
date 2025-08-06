@@ -130,8 +130,14 @@ export default function Home() {
     setFiltrosAplicados(filtros);
   };
 
+  const filtrosEstaoAtivos = useMemo(() => {
+    // Verifica se algum valor no objeto de filtros aplicados é "truthy"
+    // (ou seja, não é uma string vazia, null, undefined, etc.)
+    return Object.values(filtrosAplicados).some((valor) => valor);
+  }, [filtrosAplicados]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <VisuallyHidden role="status" aria-live="polite">
         {statusMessage}
       </VisuallyHidden>
@@ -150,7 +156,7 @@ export default function Home() {
         </div>
 
         {/* Content Container */}
-        <div className="relative z-10 container mx-auto px-6 py-16 lg:py-24">
+        <div className="relative z-10 container mx-auto px-6 py-10 lg:py-8">
           <div className="max-w-5xl mx-auto">
             <h1
               id="main-heading"
@@ -286,9 +292,10 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="container max-w-7xl mx-auto px-6 py-12">
-        {historicoVisualizacao.length > 0 && (
-          <section className="mb-16" aria-labelledby="vistos-recentemente-heading">
+      <main className="container max-w-7xl mx-auto px-6 py-8">
+        {/* --- ALTERAÇÃO 2: Atualizar a condição de renderização --- */}
+        {historicoVisualizacao.length > 0 && !filtrosEstaoAtivos && (
+          <section className="mb-12" aria-labelledby="vistos-recentemente-heading">
             <div className="text-center mb-8">
               <h2
                 id="vistos-recentemente-heading"
@@ -320,7 +327,7 @@ export default function Home() {
         )}
 
         <section aria-labelledby="destinos-heading">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 id="destinos-heading" className="text-4xl font-bold text-gray-800 mb-4">
               ✨ Destinos em Destaque
             </h2>
@@ -363,7 +370,7 @@ export default function Home() {
                   </Link>
                 ))}
               </div>
-              <div className="mt-12 flex justify-center">
+              <div className="mt-8 flex justify-center">
                 <div className="bg-white rounded-2xl shadow-lg p-2 border border-gray-100">
                   <Pagination
                     paginaAtual={paginaAtual}

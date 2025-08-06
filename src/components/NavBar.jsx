@@ -86,18 +86,10 @@ export default function NavBar() {
                   onMarkAllAsRead={markAllAsRead}
                 />
 
-                {/* Avatar do usuário */}
-                <div
-                  className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center font-bold text-white text-sm hover:scale-110 transition-transform duration-300"
-                  title={user.nome || 'Usuário'}
-                >
-                  {user.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
-                </div>
-
                 {/* Botão Logout */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/20 text-red-200 hover:bg-red-500/30 hover:text-white transition-all duration-300 font-medium text-sm"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 hover:text-white transition-all duration-300 font-medium text-sm"
                   title="Sair"
                 >
                   <LogOut size={16} />

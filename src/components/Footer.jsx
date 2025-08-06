@@ -16,7 +16,7 @@ const Footer = () => {
   const anoAtual = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-gray-300 font-sans relative overflow-hidden">
+    <footer className="bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-gray-300  relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div

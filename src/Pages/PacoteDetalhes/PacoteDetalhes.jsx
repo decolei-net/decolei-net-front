@@ -167,7 +167,7 @@ const PacoteDetalhes = () => {
   const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(pacote.destino)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Hero Section com informações principais */}
       <div className="relative w-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden">
         {/* Background Pattern */}
@@ -181,30 +181,32 @@ const PacoteDetalhes = () => {
           ></div>
         </div>
 
-        {/* Content Container */}
-        <div className="relative z-10 container mx-auto px-6 py-8">
+        {/* Content Container com padding vertical reduzido (py-6) */}
+        <div className="relative z-10 container mx-auto px-6 py-6">
           <div className="max-w-6xl mx-auto">
-            {/* Botão de voltar */}
+            {/* Botão de voltar com margem inferior reduzida (mb-4) */}
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors duration-300"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors duration-300"
             >
               <ArrowLeft size={20} />
               Voltar
             </button>
 
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Grid com gap reduzido (gap-6) */}
+            <div className="grid lg:grid-cols-2 gap-6 items-center">
               {/* Informações do pacote */}
               <div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight">
+                {/* Título com margem inferior reduzida (mb-2) */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-2 leading-tight">
                   {pacote.titulo}
                 </h1>
-                <div className="flex items-center gap-2 text-blue-100 mb-4">
+                {/* Destino e avaliações com margens inferiores reduzidas (mb-3) */}
+                <div className="flex items-center gap-2 text-blue-100 mb-3">
                   <MapPin size={20} />
                   <span className="text-lg">{pacote.destino}</span>
                 </div>
-
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 mb-3">
                   <div className="flex items-center gap-2">
                     <StarRating rating={pacote.mediaAvaliacoes} />
                     <span className="text-blue-100">
@@ -214,14 +216,16 @@ const PacoteDetalhes = () => {
                   </div>
                 </div>
 
-                <p className="text-blue-100 text-lg mb-6 leading-relaxed max-w-2xl">
+                {/* Descrição com margem inferior reduzida (mb-4) */}
+                <p className="text-blue-100 text-lg mb-4 leading-relaxed max-w-2xl">
                   {pacote.descricao}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar size={20} className="text-emerald-300" />
+                {/* Cards de info com gap e padding reduzidos (gap-3, p-3) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Calendar size={18} className="text-emerald-300" />
                       <span className="text-sm font-semibold text-white">Data de Partida</span>
                     </div>
                     <p className="text-blue-100 font-medium">
@@ -229,9 +233,9 @@ const PacoteDetalhes = () => {
                     </p>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar size={20} className="text-orange-300" />
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Calendar size={18} className="text-orange-300" />
                       <span className="text-sm font-semibold text-white">Data de Retorno</span>
                     </div>
                     <p className="text-blue-100 font-medium">
@@ -239,23 +243,23 @@ const PacoteDetalhes = () => {
                     </p>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users size={20} className="text-purple-300" />
-                      <span className="text-sm font-semibold text-white">Vagas Disponíveis</span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users size={18} className="text-purple-300" />
+                      <span className="text-sm font-semibold text-white">Vagas</span>
                     </div>
                     <p className="text-blue-100 font-bold text-lg">{pacote.vagasDisponiveis}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Card de Reserva */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
-                <div className="text-center mb-8">
-                  <p className="text-gray-600 text-sm mb-2 uppercase tracking-wide font-medium">
+              {/* Card de Reserva com padding e margens reduzidas (p-6, mb-6, etc) */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20">
+                <div className="text-center mb-6">
+                  <p className="text-gray-600 text-sm mb-1 uppercase tracking-wide font-medium">
                     Valor por pessoa
                   </p>
-                  <p className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-2">
+                  <p className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700">
                     R${' '}
                     {typeof pacote.valor === 'number'
                       ? pacote.valor.toLocaleString('pt-BR', {
@@ -267,8 +271,8 @@ const PacoteDetalhes = () => {
                   <p className="text-gray-500 text-sm">*Impostos e taxas inclusos</p>
                 </div>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center justify-between py-1.5 border-b border-gray-100">
                     <span className="text-gray-600 flex items-center gap-2">
                       <Calendar size={16} />
                       Duração
@@ -281,7 +285,7 @@ const PacoteDetalhes = () => {
                       dias
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-1.5 border-b border-gray-100">
                     <span className="text-gray-600 flex items-center gap-2">
                       <Users size={16} />
                       Vagas restantes
@@ -290,14 +294,15 @@ const PacoteDetalhes = () => {
                   </div>
                 </div>
 
+                {/* Botão com padding vertical reduzido (py-3) */}
                 <button
                   onClick={handleReservarAgora}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:from-orange-600 hover:to-red-600 transform hover:scale-105 transition-all duration-300 text-lg"
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-orange-600 hover:to-red-600 transform hover:scale-105 transition-all duration-300 text-lg"
                 >
                   Reservar Agora
                 </button>
 
-                <p className="text-center text-xs text-gray-500 mt-4">
+                <p className="text-center text-xs text-gray-500 mt-3">
                   Cancelamento gratuito até 48h antes da viagem
                 </p>
               </div>
@@ -306,7 +311,7 @@ const PacoteDetalhes = () => {
         </div>
       </div>
 
-      <main className="container max-w-7xl mx-auto px-6 py-12">
+      <main className="container max-w-7xl mx-auto px-6 py-8">
         <VisuallyHidden>
           <h2 aria-live="polite">Página de detalhes do pacote: {pacote.titulo}</h2>
         </VisuallyHidden>
@@ -344,7 +349,6 @@ const PacoteDetalhes = () => {
               </>
             )}
 
-            {/* Indicador de posição */}
             {listaMidia.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
                 <span className="text-white text-sm font-medium">

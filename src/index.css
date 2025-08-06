@@ -7,7 +7,7 @@
 @tailwind utilities;
 
 :focus-visible {
-  outline: 3px solid #005fcc; /* Um azul vibrante e de alto contraste */
+  outline: 6px solid #005fcc; /* Um azul vibrante e de alto contraste */
   outline-offset: 2px;
   border-radius: 4px; /* Opcional: arredonda o contorno */
 }

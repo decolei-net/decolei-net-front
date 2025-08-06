@@ -58,7 +58,7 @@ function Suporte() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ">
       {/* Hero Section */}
       <div className="relative w-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden">
         {/* Background Pattern */}

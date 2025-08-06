@@ -83,7 +83,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Card principal */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">

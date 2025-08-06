@@ -33,10 +33,28 @@ const gerarNumerosPaginacao = (paginaAtual, totalPaginas) => {
 };
 
 export default function Pagination({ paginaAtual, totalPaginas, onPageChange }) {
-  if (totalPaginas <= 1) {
-    return null; // Não mostra a paginação se houver apenas uma página.
+  // Se não houver páginas (ou houver um erro), não renderiza nada.
+  if (totalPaginas <= 0) {
+    return null;
   }
 
+  // Se houver apenas uma página, mostra apenas o número 1, estilizado e desabilitado.
+  if (totalPaginas === 1) {
+    return (
+      <div className="flex items-center justify-center">
+        <button
+          disabled
+          className="flex items-center justify-center w-10 h-10 rounded-xl text-sm font-semibold transform bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-110 cursor-default"
+          aria-label="Página 1"
+          aria-current="page"
+        >
+          1
+        </button>
+      </div>
+    );
+  }
+
+  // Se houver mais de uma página, renderiza a paginação completa.
   const paginasParaMostrar = gerarNumerosPaginacao(paginaAtual, totalPaginas);
 
   return (

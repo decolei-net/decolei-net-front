@@ -12,11 +12,11 @@ const GerenciarUsuarios = () => {
     email: '',
     documento: ''
   });
-  
+
   // Estados para o modal de confirmação
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  
+
   // O ID do usuário logado é necessário para a regra de negócio.
   // Substitua pela lógica real de obter o ID do usuário logado
   const usuarioLogadoId = "id-do-usuario-logado-aqui";
@@ -67,18 +67,18 @@ const GerenciarUsuarios = () => {
     setUserToDelete(usuario);
     setShowDeleteModal(true);
   };
-  
+
   // Função para efetivamente deletar o usuário após a confirmação
   const confirmDelete = async () => {
     if (!userToDelete) return;
-    
+
     // A chamada da função foi corrigida aqui de 'deleteUsuario' para 'deletarUsuario'.
     try {
       await usuarioService.deletarUsuario(userToDelete.id);
-      
+
       // Atualiza a lista de usuários localmente
       setUsuarios(usuarios.filter(u => u.id !== userToDelete.id));
-      
+
       console.log(`Usuário ${userToDelete.nomeCompleto} excluído com sucesso!`);
       // Em uma aplicação real, você mostraria uma notificação de sucesso aqui.
     } catch (err) {
@@ -90,18 +90,18 @@ const GerenciarUsuarios = () => {
       setUserToDelete(null);
     }
   };
-  
+
   const cancelDelete = () => {
     setShowDeleteModal(false);
     setUserToDelete(null);
   };
 
   return (
-    <div className="p-2 sm:p-4 bg-gray-100 min-h-screen font-sans">
+    <div className="p-2 sm:p-4 bg-gray-100 min-h-screen ">
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-blue-900">Gerenciar Usuários</h2>
       </div>
-      
+
       {/* Formulário de Busca */}
       <form onSubmit={handleSearchSubmit} className="flex flex-wrap md:flex-nowrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-md">
         <input
@@ -198,7 +198,7 @@ const GerenciarUsuarios = () => {
           {usuarios.length === 0 && <p className="text-center py-4 text-gray-500">Nenhum usuário encontrado.</p>}
         </div>
       )}
-      
+
       {/* Modal de Confirmação de Exclusão */}
       {showDeleteModal && userToDelete && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
