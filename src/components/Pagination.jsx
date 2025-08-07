@@ -71,7 +71,7 @@ export default function Pagination({ paginaAtual, totalPaginas, onPageChange }) 
       </button>
 
       {/* Números das Páginas */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {paginasParaMostrar.map((pagina, index) => {
           // Se for reticências, mostra um ícone
           if (typeof pagina === 'string') {
