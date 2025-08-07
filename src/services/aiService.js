@@ -20,14 +20,11 @@ class AIService {
         // Verificar se a chave de API está configurada
         if (!this.apiKey) {
             console.warn(`Chave de API não configurada para ${this.provider}. Usando fallback.`);
-       
+            return this.getFallbackResponse(userMessage);
         }
 
         try {
-           
-                    return await this.sendToGemini(userMessage, conversationHistory);
-                
-        
+            return await this.sendToGemini(userMessage, conversationHistory);
         } catch (error) {
             console.error(`Erro na API de IA (${this.provider}):`, error.message);
             
@@ -40,6 +37,8 @@ class AIService {
                 console.error('🚫 Acesso negado. Verifique as permissões da sua chave de API.');
             }
             
+            // SEMPRE retorna uma resposta de fallback quando há erro
+            return this.getFallbackResponse(userMessage);
         }
     }
 
@@ -129,6 +128,174 @@ Célio (Assistente Decolei.net):`;
         }
 
         return data.candidates[0]?.content?.parts[0]?.text || this.getFallbackResponse(userMessage);
+    }
+
+    // Método de fallback quando a IA não está disponível
+    getFallbackResponse(userMessage) {
+        const message = userMessage.toLowerCase();
+        
+        // Verificar se a mensagem contém saudação + pergunta sobre reserva
+        const temSaudacao = message.includes('bom dia') || message.includes('boa tarde') || message.includes('boa noite') || message.includes('olá') || message.includes('oi') || message.includes('hello');
+        const perguntaReserva = message.includes('reserva') || message.includes('reservar') || message.includes('booking');
+        
+        if (temSaudacao && perguntaReserva) {
+            return `Olá! Sou Célio, assistente virtual da Decolei.net!
+
+Para fazer uma reserva é muito simples. Aqui está o fluxo completo:
+
+PASSO A PASSO PARA RESERVAR:
+1. Navegue pela página inicial (HOME) e veja os pacotes em destaque
+2. Clique no pacote que mais te interessar para ver todos os detalhes
+3. Na página de detalhes do pacote, clique no botão "Reservar e Pagar"
+4. Você será redirecionado para a tela "Adicionar Viajantes"
+   - Você (titular) já está incluído automaticamente
+   - Adicione acompanhantes se necessário
+5. Depois vá para a tela de PAGAMENTO e escolha sua forma preferida:
+   - Cartão: Aprovação instantânea
+   - PIX: Pagamento instantâneo
+   - Boleto: Confirmação em aproximadamente 1 minuto
+
+O sistema calcula automaticamente o valor total baseado no número de viajantes. Precisa de ajuda com algum passo específico?`;
+        }
+        
+        // Respostas baseadas no contexto da empresa
+        if (message.includes('olá') || message.includes('oi') || message.includes('hello') || message.includes('bom dia') || message.includes('boa tarde') || message.includes('boa noite')) {
+            return `Olá! Sou Célio, assistente virtual da Decolei.net!
+            
+Estou aqui para ajudar com informações sobre nossos pacotes de turismo e o processo de reservas. Como posso te ajudar hoje?`;
+        }
+        
+        if (message.includes('reserva') || message.includes('reservar') || message.includes('booking')) {
+            return `Para fazer uma reserva na Decolei.net é muito simples:
+            
+FLUXO COMPLETO DE RESERVA:
+1. Navegue pelos pacotes na página inicial
+2. Clique no pacote desejado para ver os detalhes
+3. Clique em "Reservar e Pagar"
+4. Adicione viajantes (você já está incluído!)
+5. Escolha a forma de pagamento
+
+Precisa de ajuda com algum passo específico?`;
+        }
+        
+        if (message.includes('pagamento') || message.includes('pagar') || message.includes('cartão') || message.includes('pix') || message.includes('boleto')) {
+            return `Na Decolei.net oferecemos as seguintes opções de pagamento:
+            
+• Cartão: Aprovação instantânea
+• PIX: Pagamento instantâneo  
+• Boleto: Confirmação em aproximadamente 1 minuto
+
+Qual método você gostaria de saber mais detalhes?`;
+        }
+        
+        if (message.includes('pacote') || message.includes('viagem') || message.includes('destino') || message.includes('turismo')) {
+            return `Na Decolei.net você encontra pacotes incríveis!
+            
+Funcionalidades dos pacotes:
+• Busca por destino, preço e datas
+• Detalhes completos com fotos e descrição
+• Sistema de avaliações de outros clientes
+• Preços transparentes sem surpresas
+
+Navegue pela nossa página inicial para ver os pacotes em destaque ou use nossos filtros para encontrar a viagem perfeita!`;
+        }
+        
+        if (message.includes('avaliação') || message.includes('avaliar') || message.includes('review') || message.includes('comentário')) {
+            return `Sistema de Avaliações da Decolei.net:
+            
+Como funciona:
+• Após o término da sua viagem, você pode avaliar
+• Acesse seu perfil para deixar sua avaliação
+• Ajude outros viajantes com sua experiência
+• Veja avaliações de outros clientes antes de reservar
+
+Sua opinião é muito importante para nós!`;
+        }
+        
+        if (message.includes('conta') || message.includes('perfil') || message.includes('histórico') || message.includes('minhas reservas')) {
+            return `Na sua conta Decolei.net você tem acesso a:
+            
+• Histórico completo de reservas
+• Status de pagamentos
+• Suas avaliações pós-viagem
+• Gerenciamento de dados pessoais
+
+Faça login para acessar todas essas funcionalidades!`;
+        }
+        
+        if (message.includes('suporte') || message.includes('ajuda') || message.includes('problema') || message.includes('dúvida')) {
+            return `Para suporte técnico ou dúvidas específicas:
+            
+• Email: decoleinet@gmail.com
+• Página de Suporte: Acesse através do rodapé do site
+• Desenvolvedores: Informações disponíveis no rodapé
+
+Estou aqui para ajudar no que posso, mas para questões técnicas recomendo entrar em contato com nossa equipe!`;
+        }
+        
+        if (message.includes('quem') || message.includes('nome') || message.includes('célio') || message.includes('celio') || message.includes('você')) {
+            return `Sou Célio, assistente virtual da Decolei.net!
+            
+Meu nome é uma homenagem ao Professor Célio de Souza da Impacta, em parceria com a Avanade, responsável pela trilha REACT.JS - C# - ASP.NET do programa Decola Tech 6 2025.
+
+Fui desenvolvido pela equipe: Leonardo Amyntas, Eduardo Bezerra, Arthur Martins, Kamylla Reis e Leônidas Dantas.`;
+        }
+        
+        if (message.includes('empresa') || message.includes('decolei') || message.includes('sobre') || message.includes('quem somos')) {
+            return `A Decolei.net é uma agência de turismo brasileira moderna!
+            
+• Foco em experiência digital
+• Website responsivo (mobile-first)
+• Sistema completo de reservas online
+• Sistema de avaliações pós-viagem
+
+Desenvolvida pela Turma Decola 6 - 2025, na trilha do Prof. Célio de Souza. Como posso ajudar você a planejar sua próxima viagem?`;
+        }
+        
+        if (message.includes('preço') || message.includes('valor') || message.includes('custo') || message.includes('quanto')) {
+            return `Sobre preços na Decolei.net:
+            
+Nossos diferenciais:
+• Preços transparentes sem taxas ocultas
+• Cálculo automático de valores por viajante
+• Opções para todos os orçamentos
+• Promoções especiais em pacotes selecionados
+
+Navegue pelos pacotes para ver preços atualizados e encontrar as melhores ofertas!`;
+        }
+        
+        if (message.includes('viajante') || message.includes('acompanhante') || message.includes('adicionar pessoa')) {
+            return `Adicionando viajantes na Decolei.net:
+            
+Como funciona:
+• Você (titular) já está incluído automaticamente
+• Adicione quantos acompanhantes precisar
+• Cada pessoa tem campos individuais
+• O valor é calculado automaticamente
+
+O sistema é bem simples e intuitivo!`;
+        }
+        
+        if (message.includes('obrigado') || message.includes('valeu') || message.includes('tchau') || message.includes('até logo')) {
+            return `Por nada! Foi um prazer ajudar!
+            
+Se precisar de mais alguma coisa sobre a Decolei.net, estarei aqui. Boa viagem e até a próxima!`;
+        }
+        
+        // Resposta padrão para qualquer outra mensagem
+        return `Desculpe, no momento estou com dificuldades técnicas para processar sua mensagem completamente.
+        
+Mas posso ajudar com informações sobre:
+• Pacotes de turismo e destinos
+• Processo de reservas passo a passo
+• Formas de pagamento (Cartão, PIX, Boleto)
+• Sistema de avaliações
+• Conta e histórico de reservas
+• Contato e suporte técnico
+
+Para questões específicas, entre em contato: decoleinet@gmail.com
+
+Digite sua pergunta de forma mais específica que tentarei ajudar melhor!`;
     }
 
     // Método para configurar o provedor de IA

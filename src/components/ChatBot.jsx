@@ -98,7 +98,7 @@ export default function ChatBot() {
 
             {/* Caixa de Diálogo */}
             {isOpen && (
-                <div className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-lg shadow-2xl z-50 flex flex-col border">
+                <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-lg shadow-2xl z-50 flex flex-col border">
                     {/* Header */}
                     <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center">
                         <Bot size={20} className="mr-2" />
@@ -117,7 +117,7 @@ export default function ChatBot() {
                             >
                                 <div
                                     className={`
-                                        max-w-xs p-3 rounded-lg text-sm
+                                        max-w-sm p-3 rounded-lg text-sm
                                         ${message.isBot
                                             ? 'bg-gray-100 text-gray-800'
                                             : 'bg-blue-600 text-white'
@@ -142,7 +142,7 @@ export default function ChatBot() {
                         {/* Indicador de digitação */}
                         {isTyping && (
                             <div className="flex justify-start">
-                                <div className="bg-gray-100 text-gray-800 max-w-xs p-3 rounded-lg text-sm">
+                                <div className="bg-gray-100 text-gray-800 max-w-sm p-3 rounded-lg text-sm">
                                     <div className="flex items-center">
                                         <Bot size={16} className="mr-2 text-blue-600" />
                                         <div className="flex space-x-1">
