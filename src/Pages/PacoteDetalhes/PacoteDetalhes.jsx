@@ -379,7 +379,7 @@ const PacoteDetalhes = () => {
             <div
               role="toolbar"
               aria-label="Controles da galeria de mídia"
-              className="flex gap-2 mt-4 overflow-x-auto pb-2"
+              className="flex gap-3 mt-4 overflow-x-auto pl-2 py-2"
             >
               {listaMidia.map((midia, index) => {
                 let thumbnailUrl = placeholderImg;
