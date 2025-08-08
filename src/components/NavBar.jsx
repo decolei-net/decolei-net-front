@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { UserCircle, LogOut, LogIn, UserPlus, Menu, X, Home, HeadphonesIcon } from 'lucide-react';
+import { UserCircle, LogOut, LogIn, UserPlus, Menu, X, Home, HeadphonesIcon, Bell } from 'lucide-react';
 import { logout } from '../store/authSlice';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationDropdown from './NotificationDropdown';

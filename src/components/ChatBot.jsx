@@ -16,6 +16,7 @@ import {
 import aiService from '../services/aiService';
 
 export default function ChatBot() {
+  // 1. TODOS OS HOOKS SÃO CHAMADOS AQUI, INCONDICIONALMENTE
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -33,14 +34,6 @@ export default function ChatBot() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
-  // Páginas onde o ChatBot não deve aparecer
-  const hiddenPages = ['/login', '/cadastro', '/reset-password'];
-
-  // Se estiver em uma página onde deve ser ocultado, não renderiza o componente
-  if (hiddenPages.includes(location.pathname)) {
-    return null;
-  }
 
   // Auto-scroll para última mensagem
   const scrollToBottom = () => {
@@ -77,7 +70,7 @@ export default function ChatBot() {
     }
   }, [isOpen]);
 
-  // Sugestões rápidas
+  // 2. TODAS AS FUNÇÕES SÃO DEFINIDAS AQUI
   const quickSuggestions = [
     'Como fazer uma reserva?',
     'Quais formas de pagamento?',
@@ -103,7 +96,6 @@ export default function ChatBot() {
     setShowSuggestions(false);
 
     try {
-      // Integração com API real de IA com contexto da página
       const response = await aiService.sendMessage(message, messages, location.pathname);
 
       const botResponse = {
@@ -117,7 +109,6 @@ export default function ChatBot() {
     } catch (error) {
       console.error('Erro ao obter resposta da IA:', error);
 
-      // Fallback para resposta local em caso de erro
       const botResponse = {
         id: Date.now() + 1,
         text: '🤖 Ops! Estou com dificuldades técnicas momentâneas. Você pode tentar novamente ou entrar em contato com nosso suporte em decoleinet@gmail.com. Como posso ajudá-lo de outra forma?',
@@ -158,37 +149,24 @@ export default function ChatBot() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Animações
   const chatButtonVariants = {
     hover: { scale: 1.1 },
     tap: { scale: 0.95 },
   };
 
   const chatWindowVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-      y: 50,
-      originX: 1,
-      originY: 1,
-    },
+    hidden: { opacity: 0, scale: 0.8, y: 50, originX: 1, originY: 1 },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 30,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 30 },
     },
     exit: {
       opacity: 0,
       scale: 0.8,
       y: 50,
-      transition: {
-        duration: 0.2,
-      },
+      transition: { duration: 0.2 },
     },
   };
 
@@ -197,14 +175,17 @@ export default function ChatBot() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 500,
-        damping: 30,
-      },
+      transition: { type: 'spring', stiffness: 500, damping: 30 },
     },
   };
 
+  // 3. ✅ A LÓGICA CONDICIONAL AGORA ESTÁ AQUI, DEPOIS DE TODOS OS HOOKS
+  const hiddenPages = ['/login', '/cadastro', '/reset-password'];
+  if (hiddenPages.includes(location.pathname)) {
+    return null; // Agora é seguro retornar aqui.
+  }
+
+  // 4. SE A CONDIÇÃO NÃO FOR ATENDIDA, O JSX É RETORNADO NORMALMENTE
   return (
     <>
       {/* Botão Flutuante */}
@@ -220,15 +201,15 @@ export default function ChatBot() {
           whileHover="hover"
           whileTap="tap"
           className={`
-                        relative flex items-center justify-center w-16 h-16 rounded-full shadow-lg
-                        transition-all duration-300
-                        ${
-                          isOpen
-                            ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
-                            : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                        }
-                        text-white border-4 border-white
-                    `}
+            relative flex items-center justify-center w-16 h-16 rounded-full shadow-lg
+            transition-all duration-300
+            ${
+              isOpen
+                ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
+                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+            }
+            text-white border-4 border-white
+          `}
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -287,11 +268,11 @@ export default function ChatBot() {
             animate="visible"
             exit="exit"
             className={`
-                            fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50
-                            flex flex-col border border-gray-200 overflow-hidden
-                            ${isMinimized ? 'h-16' : 'h-[600px]'}
-                            transition-all duration-300
-                        `}
+              fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50
+              flex flex-col border border-gray-200 overflow-hidden
+              ${isMinimized ? 'h-16' : 'h-[600px]'}
+              transition-all duration-300
+            `}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
@@ -352,13 +333,13 @@ export default function ChatBot() {
                     >
                       <div
                         className={`
-                                                    max-w-xs p-3 rounded-2xl text-sm shadow-md
-                                                    ${
-                                                      message.isBot
-                                                        ? 'bg-white text-gray-800 border border-gray-200'
-                                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
-                                                    }
-                                                `}
+                          max-w-xs p-3 rounded-2xl text-sm shadow-md
+                          ${
+                            message.isBot
+                              ? 'bg-white text-gray-800 border border-gray-200'
+                              : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
+                          }
+                        `}
                       >
                         <div className="flex items-start">
                           {message.isBot && (
@@ -473,13 +454,13 @@ export default function ChatBot() {
                     onClick={() => handleSendMessage()}
                     disabled={!inputMessage.trim() || isTyping}
                     className={`
-                                            p-3 rounded-full transition-all
-                                            ${
-                                              !inputMessage.trim() || isTyping
-                                                ? 'bg-gray-300 cursor-not-allowed'
-                                                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg'
-                                            }
-                                        `}
+                      p-3 rounded-full transition-all
+                      ${
+                        !inputMessage.trim() || isTyping
+                          ? 'bg-gray-300 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg'
+                      }
+                    `}
                   >
                     <Send size={16} />
                   </motion.button>
